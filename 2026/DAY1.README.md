@@ -54,28 +54,15 @@ Jab hum networking sikhenge to hum samjhayenge:
 - Static IP ki ahmiyat
 - Networking maslon ka azala
 
-Note: IPv6 ko ghair-fehal karne ka muqamir hal
-Aiyai sysctl configuration file mein tamere karein\
-Mentarajja file kholein:
+## Aiyai hum is maslay ko theek karain. In commands ko aap apni virtual machine mai type karain:
 
 ```bash
-<root@vm1>#vi /etc/sysctl.conf
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
 ```
-
-Apne keyboard par "i" dabayein
-
-Script ke neeche scroll karein aur script ke akhir mein yeh lines shamil karein
-net.ipv6.conf.all.disable_ipv6 = 1\
-net.ipv6.conf.default.disable_ipv6 = 1
-
-"Esc" dabayein
-Type karein:
-:wq
-Phir Enter dabayein
-
-Tabdiliyan lagoo karein:
 ```bash
-<root@vm1>#sysctl -p
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+```
+### Task is now complete!
 ```
 ### Task Ab Mukammal ho gaya!
 
