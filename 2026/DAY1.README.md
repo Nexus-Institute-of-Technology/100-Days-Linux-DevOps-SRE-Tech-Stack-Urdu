@@ -1,4 +1,4 @@
-# NIT Academy Mein Khush Amdeed - Din 1
+# NIT Academy Mein Khush Amdeed - Din 1 or 2
 
 ## Fehrist
 
