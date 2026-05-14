@@ -43,8 +43,9 @@ systemctl enable --now xe-linux-distribution
 # Final Submission
 
 Jab patching mukammal ho jaye aur aapke dashboard se warning khatam ho jaye:
+
+- Snipping Tool ka istemal karte hue apne terminal results aur Xen Orchestra mein nazar aanay wale **"Agent 8.2.02 Detected"** status ka screenshot lein.  
 <img src="../../.github/assets/output.jpg" width="500">
-- Snipping Tool ka istemal karte hue apne terminal results aur Xen Orchestra mein nazar aanay wale green **"Agent Detected"** status ka screenshot lein.  
 
 - LinkedIn Challenge:  
   Is screenshot ko LinkedIn par share karein taake aapki **100-Day Journey** ki progress record ho sakay.  
