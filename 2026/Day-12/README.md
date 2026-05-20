@@ -1,7 +1,10 @@
 # Practice Lab - Day 12
 > 20th May, 2026
 
-Yeh Practice Lab aapko hands-on understanding dene ke liye design ki gayi hai using www.killercoda.com as a learning tool.
+Yeh Practice Lab aapko hands-on understanding dene ke liye design ki gayi hai using 
+```
+https://killercoda.com
+```
 
 ---
 
