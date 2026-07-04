@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 02 Linux Filesystem - 25 MCQ Quiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --good: #15803d;
+      --bad: #b91c1c;
+      --warn: #b45309;
+      --soft: #f1f5f9;
+      --border: #e2e8f0;
+      --shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a 55%, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+    .hero {
+      background: rgba(255,255,255,0.96);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 44px); color: #0f172a; }
+    .hero p { margin: 6px 0; color: #334155; line-height: 1.55; }
+    .badge-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .badge { background: #dbeafe; color: #1e40af; padding: 8px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+    .sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      padding: 14px 16px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+    .timer { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+    .timer.warning { color: #fde68a; }
+    .timer.danger { color: #fecaca; }
+    .progress-wrap { flex: 1; max-width: 440px; }
+    .progress-text { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; }
+    .progress { height: 10px; background: rgba(255,255,255,0.18); border-radius: 99px; overflow: hidden; }
+    .progress > div { height: 100%; width: 0%; background: #60a5fa; transition: width 0.25s; }
+    .question-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
+      border: 1px solid var(--border);
+    }
+    .question-title { font-size: 19px; font-weight: 800; line-height: 1.45; margin-bottom: 14px; color: #0f172a; }
+    .question-title span { color: var(--primary); }
+    .options { display: grid; gap: 10px; }
+    label.option {
+      display: block;
+      padding: 13px 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      line-height: 1.45;
+      transition: 0.15s ease;
+    }
+    label.option:hover { border-color: #93c5fd; background: #eff6ff; }
+    label.option input { margin-right: 10px; transform: scale(1.1); }
+    .explanation {
+      display: none;
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border-left: 5px solid var(--primary);
+      line-height: 1.55;
+    }
+    .explanation strong { color: #0f172a; }
+    .correct { background: #dcfce7 !important; border-color: #86efac !important; }
+    .incorrect { background: #fee2e2 !important; border-color: #fecaca !important; }
+    .missed { outline: 2px dashed #22c55e; outline-offset: 2px; }
+    .actions {
+      background: rgba(255,255,255,0.96);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .submit { background: var(--primary); color: white; }
+    .submit:hover { background: var(--primary-dark); }
+    .reset { background: #e2e8f0; color: #0f172a; }
+    .print { background: #0f172a; color: white; }
+    #result {
+      display: none;
+      background: white;
+      border-radius: 22px;
+      padding: 24px;
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    #result h2 { font-size: 32px; margin: 0 0 8px; }
+    #result .score { font-size: 48px; font-weight: 900; color: var(--primary); }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 18px; }
+    .summary-box { background: var(--soft); border-radius: 14px; padding: 14px; font-weight: 800; }
+    code { background: #e2e8f0; padding: 2px 6px; border-radius: 6px; }
+    footer { color: #cbd5e1; text-align: center; margin-top: 25px; font-size: 13px; }
+    @media print {
+      body { background: white; }
+      .sticky-bar, .actions { display: none; }
+      .container { max-width: none; padding: 0; }
+      .hero, .question-card, #result { box-shadow: none; }
+      .explanation { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>Module 02: Linux Filesystem Quiz</h1>
+      <p><strong>25 Multiple Choice Questions</strong> based on Day 09 Linux Filesystem solution guide.</p>
+      <p>Instructions: Choose one answer for each question. After submission, the quiz will show your score and explain the correct answer.</p>
+      <div class="badge-row">
+        <div class="badge">⏱ 25-minute timer</div>
+        <div class="badge">✅ Instant grading</div>
+        <div class="badge">📘 Explanations included</div>
+        <div class="badge">🖨 Printable review</div>
+      </div>
+    </section>
+
+    <div class="sticky-bar">
+      <div>
+        <div style="font-size:13px;color:#cbd5e1;">Time Remaining</div>
+        <div class="timer" id="timer">25:00</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-text" id="progressText">Answered: 0 / 25</div>
+        <div class="progress"><div id="progressFill"></div></div>
+      </div>
+      <button class="submit" onclick="submitQuiz(false)">Submit Quiz</button>
+    </div>
+
+    <div id="result"></div>
+    <form id="quizForm"></form>
+
+    <div class="actions">
+      <button class="submit" onclick="submitQuiz(false)">Submit Quiz</button>
+      <button class="reset" onclick="resetQuiz()">Reset Quiz</button>
+      <button class="print" onclick="window.print()">Print / Save PDF</button>
+    </div>
+    <footer>Created for Linux System Administration students - Module 02 Linux Filesystem</footer>
+  </div>
+
+<script>
+const questions = [
+  {q:'What is a filesystem in Linux?', options:['A method Linux uses to organize, store, and manage files and directories','A command used only to delete files','A user account that owns all files','A network service for sharing printers'], answer:0, exp:'A filesystem is how Linux organizes, stores, and manages files and directories on storage devices.'},
+  {q:'What is the root directory <code>/</code>?', options:['The top-most directory where all Linux files and directories begin','A normal user home folder','A temporary folder that is deleted on reboot','The directory that stores only logs'], answer:0, exp:'The root directory / is the top of the Linux directory tree. Everything starts from /.'},
+  {q:'Why is Linux called a hierarchical filesystem?', options:['Because directories branch from <code>/</code> like a tree','Because only root can create files','Because it stores all files in one folder','Because it requires a GUI to browse files'], answer:0, exp:'Linux is hierarchical because the directory structure looks like a tree, with all directories branching from /.'},
+  {q:'What is the main purpose of directories?', options:['To organize files and help users manage data efficiently','To increase CPU speed','To replace user passwords','To start the kernel'], answer:0, exp:'Directories are containers that organize files and make data easier to manage.'},
+  {q:'Which directory stores bootloader and kernel files?', options:['/boot','/home','/tmp','/var'], answer:0, exp:'/boot stores files needed during boot, including bootloader and kernel-related files.'},
+  {q:'Which directory stores user home directories?', options:['/home','/etc','/dev','/proc'], answer:0, exp:'/home contains regular users’ personal directories, such as /home/user1.'},
+  {q:'Which directory stores system configuration files?', options:['/etc','/usr','/tmp','/boot'], answer:0, exp:'/etc stores important system configuration files such as passwd, shadow, group, and sudoers.'},
+  {q:'Which directory contains device files?', options:['/dev','/var','/home','/usr'], answer:0, exp:'/dev contains device files. Linux treats devices like files for consistent hardware interaction.'},
+  {q:'What kind of data is commonly stored in <code>/var</code>?', options:['Variable data such as logs, cache, spool, and runtime data','Only kernel images','Only user passwords','Only temporary shell history'], answer:0, exp:'/var stores variable data, including logs, cache, spool files, and data that changes over time.'},
+  {q:'What is <code>/proc</code>?', options:['A virtual filesystem with process and kernel information','A folder for normal user documents','A directory for installing apps only','A backup copy of /etc'], answer:0, exp:'/proc is a virtual filesystem. Its information is generated dynamically by the kernel.'},
+  {q:'Which prompt symbol usually represents the root user?', options:['#','$','%','&'], answer:0, exp:'The root user prompt is commonly shown with #, while a regular user is commonly shown with $.'},
+  {q:'Which prompt symbol usually represents a normal user?', options:['$','#','@','!'], answer:0, exp:'A normal or regular user shell prompt is commonly represented by $.'},
+  {q:'What does <code>sudo</code> allow a regular user to do?', options:['Run commands with administrative privileges','Delete the Linux kernel automatically','Change the filesystem type without permission','Boot directly into BIOS'], answer:0, exp:'sudo allows approved regular users to execute commands with administrative/root privileges.'},
+  {q:'What does <code>tree -d</code> show?', options:['Only directories','Only hidden files','Only symbolic links','Only users currently logged in'], answer:0, exp:'The -d option tells tree to display directories only.'},
+  {q:'In <code>tree -L 2</code>, what does <code>-L 2</code> mean?', options:['Limit the directory depth to 2 levels','List exactly 2 files','Login as user number 2','Lock the directory for 2 minutes'], answer:0, exp:'-L controls the depth level. -L 2 displays two levels of the directory tree.'},
+  {q:'What is the Virtual File System (VFS)?', options:['A kernel abstraction layer that supports different filesystem types','A physical hard drive partition','A user-created folder in /home','A command for formatting disks'], answer:0, exp:'VFS is an abstraction layer in the Linux kernel that provides a common interface for multiple filesystem types.'},
+  {q:'Why is <code>/proc/cpuinfo</code> considered virtual data?', options:['The kernel generates it dynamically; it is not physically stored on disk','It is stored on a USB drive','Only root can read it','It is a compressed log file'], answer:0, exp:'/proc/cpuinfo is virtual because the kernel creates the displayed information dynamically.'},
+  {q:'What is the difference between <code>ls -l /</code> and <code>ls -ld /</code>?', options:['<code>ls -l /</code> lists contents inside /; <code>ls -ld /</code> shows metadata of / itself','They are exactly the same command','<code>ls -ld /</code> deletes the root directory','<code>ls -l /</code> shows only inode numbers'], answer:0, exp:'ls -l / lists what is inside /. ls -ld / shows information about the / directory itself.'},
+  {q:'What does the <code>-i</code> option in <code>ls -i</code> display?', options:['Inode numbers','IP addresses','Installed packages','Interface names'], answer:0, exp:'The -i option displays inode numbers.'},
+  {q:'What is metadata?', options:['Information about a file such as size, permissions, owner, timestamp, and file type','The actual words inside a text file only','A password encryption method','A disk partition table'], answer:0, exp:'Metadata is information about a file, not necessarily the file content itself.'},
+  {q:'Does an inode store the actual file contents?', options:['No, it stores metadata and data block locations','Yes, it stores the complete text of every file','Only for directories','Only for root-owned files'], answer:0, exp:'An inode stores metadata and data block locations, but not the actual file content.'},
+  {q:'What is an absolute path?', options:['A path that starts from the root directory <code>/</code>','A path that starts from the current working directory','A path that can only be used by root','A path that always points to /tmp'], answer:0, exp:'An absolute path starts from /. Example: /etc/passwd.'},
+  {q:'What happens if the bootloader is corrupted?', options:['Linux may fail to boot because the kernel cannot be loaded into memory','Linux automatically creates a new CPU','Only /home is deleted','Nothing happens because the bootloader is not used'], answer:0, exp:'The bootloader loads the kernel. If it is corrupted, the system may fail to boot.'},
+  {q:'Which file is the Linux kernel image commonly found in <code>/boot</code>?', options:['vmlinuz','grub.cfg','passwd','sudoers'], answer:0, exp:'vmlinuz is the compressed Linux kernel image in /boot.'},
+  {q:'What is the purpose of <code>logrotate</code>?', options:['Automatically rotate, compress, and delete old log files','Create new user accounts','Display block devices','Start a graphical desktop'], answer:0, exp:'logrotate manages logs by rotating, compressing, and deleting old logs to prevent disk space problems.'}
+];
+
+const form = document.getElementById('quizForm');
+let submitted = false;
+let totalSeconds = 25 * 60;
+let timerInterval;
+
+function renderQuiz() {
+  form.innerHTML = questions.map((item, index) => `
+    <div class="question-card" id="card-${index}">
+      <div class="question-title"><span>Q${index + 1}.</span> ${item.q}</div>
+      <div class="options">
+        ${item.options.map((opt, optIndex) => `
+          <label class="option" id="q${index}-opt${optIndex}">
+            <input type="radio" name="q${index}" value="${optIndex}" onchange="updateProgress()" /> ${opt}
+          </label>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp-${index}"></div>
+    </div>
+  `).join('');
+}
+
+function updateProgress() {
+  const answered = questions.filter((_, i) => document.querySelector(`input[name="q${i}"]:checked`)).length;
+  document.getElementById('progressText').textContent = `Answered: ${answered} / ${questions.length}`;
+  document.getElementById('progressFill').style.width = `${(answered / questions.length) * 100}%`;
+}
+
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function startTimer() {
+  const timer = document.getElementById('timer');
+  timer.textContent = formatTime(totalSeconds);
+  timerInterval = setInterval(() => {
+    if (submitted) return;
+    totalSeconds--;
+    timer.textContent = formatTime(totalSeconds);
+    if (totalSeconds <= 300) timer.classList.add('warning');
+    if (totalSeconds <= 60) timer.classList.add('danger');
+    if (totalSeconds <= 0) {
+      clearInterval(timerInterval);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+
+function submitQuiz(autoSubmit) {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  let score = 0;
+  let unanswered = 0;
+
+  questions.forEach((item, index) => {
+    const selected = document.querySelector(`input[name="q${index}"]:checked`);
+    const correctLabel = document.getElementById(`q${index}-opt${item.answer}`);
+    correctLabel.classList.add('correct');
+    if (!selected) {
+      unanswered++;
+      correctLabel.classList.add('missed');
+    } else {
+      const chosen = Number(selected.value);
+      if (chosen === item.answer) {
+        score++;
+      } else {
+        document.getElementById(`q${index}-opt${chosen}`).classList.add('incorrect');
+        correctLabel.classList.add('missed');
+      }
+    }
+    const exp = document.getElementById(`exp-${index}`);
+    exp.style.display = 'block';
+    exp.innerHTML = `<strong>Correct Answer:</strong> ${item.options[item.answer]}<br><strong>Explanation:</strong> ${item.exp}`;
+  });
+
+  document.querySelectorAll('input[type="radio"]').forEach(input => input.disabled = true);
+  const percent = Math.round((score / questions.length) * 100);
+  let message = percent >= 90 ? 'Excellent work!' : percent >= 75 ? 'Good job. Review the missed questions.' : percent >= 60 ? 'Passing, but review the explanations carefully.' : 'Needs more practice. Study the guide and try again.';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').innerHTML = `
+    <h2>${autoSubmit ? 'Time is up!' : 'Quiz Submitted!'}</h2>
+    <div class="score">${score} / ${questions.length}</div>
+    <p style="font-size:20px;font-weight:800;">${percent}% - ${message}</p>
+    <div class="summary-grid">
+      <div class="summary-box">Correct: ${score}</div>
+      <div class="summary-box">Incorrect: ${questions.length - score - unanswered}</div>
+      <div class="summary-box">Unanswered: ${unanswered}</div>
+      <div class="summary-box">Time Left: ${formatTime(Math.max(totalSeconds, 0))}</div>
+    </div>
+    <p style="color:#64748b;margin-top:16px;">Scroll down to review each explanation.</p>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  location.reload();
+}
+
+renderQuiz();
+updateProgress();
+startTimer();
+</script>
+</body>
+</html>
