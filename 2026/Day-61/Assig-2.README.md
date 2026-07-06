@@ -1,38 +1,40 @@
-# Linux Practice Lab – Managing and Viewing Service Units (RHCSA Style)
+# Linux Practice Lab – Service Units ko Manage aur View Karna (RHCSA Style)
 
-## Objective
+## Maqsad (Objective)
 
-After completing this lab, you will be able to:
+Is lab ke baad aap seekh jayenge ke:
 
-- List all running service units
-- Understand the output of `systemctl list-units`
-- View all installed service unit files
-- Understand different unit file states
-- Check whether a service is active
-- Check whether a service is enabled
-- View the status of individual services
-- List failed services for troubleshooting
+- Running service units ki list dekhna.
+- `systemctl list-units` ka output samajhna.
+- Installed service unit files dekhna.
+- Mukhtalif unit file states ko samajhna.
+- Check karna ke service active hai ya nahi.
+- Check karna ke service enabled hai ya nahi.
+- Kisi specific service ka detailed status dekhna.
+- Troubleshooting ke liye failed services ki list dekhna.
 
 ---
 
 # Lab Environment
 
 - Operating System: Rocky Linux 9
-- User: root (or sudo user)
+- User: root (ya sudo user)
 
 ---
 
 # Scenario
 
-As a Linux System Administrator, one of your daily tasks is monitoring and troubleshooting Linux services.
+Aap aik Linux System Administrator hain.
 
-In this lab, you will learn how to list service units, inspect their status, determine whether they are enabled, and identify failed services using the **systemctl** command.
+Rozana ke kaamon mein se aik important kaam Linux services ko monitor aur troubleshoot karna hota hai.
+
+Is lab mein aap **systemctl** command ki madad se running services, installed unit files, service status, enabled state aur failed services dekhna seekhenge.
 
 ---
 
-# Task 1 – List All Running Service Units
+# Task 1 – Running Service Units ki List Dekhna
 
-Display all currently loaded service units.
+Tamam loaded aur running services dekhein.
 
 ```bash
 systemctl list-units --type=service
@@ -56,25 +58,25 @@ sshd.service                     loaded active   running  OpenSSH Server
 
 ---
 
-# Understanding the Output
+# Output ko Samajhna
 
-The output contains several important columns.
+Output mein kai important columns hote hain.
 
-| Column | Meaning |
-|----------|----------|
-| UNIT | Name of the service unit |
-| LOAD | Whether the unit file has been successfully loaded into memory |
-| ACTIVE | High-level state of the service |
-| SUB | Low-level detailed status |
-| DESCRIPTION | Short description of the service |
+| Column | Matlab |
+|---------|---------|
+| UNIT | Service ka naam |
+| LOAD | Kya unit file memory mein successfully load hui hai |
+| ACTIVE | Service ki high-level state |
+| SUB | Service ki detailed state |
+| DESCRIPTION | Service ka chhota sa description |
 
 ---
 
-# Understanding Each Column
+# Har Column ko Samajhna
 
 ## UNIT
 
-Displays the name of the service.
+Ye service ka naam dikhata hai.
 
 Example
 
@@ -92,9 +94,9 @@ Example
 loaded
 ```
 
-Meaning
+### Matlab
 
-systemd successfully found the unit file and loaded it into memory.
+systemd ne service ki configuration file successfully load kar li hai.
 
 ---
 
@@ -106,11 +108,11 @@ Example
 active
 ```
 
-Meaning
+### Matlab
 
-This is the high-level state of the service.
+Ye service ki overall state batata hai.
 
-Common values include
+Common values:
 
 - active
 - inactive
@@ -126,9 +128,9 @@ Example
 running
 ```
 
-This provides more detailed information about the service.
+Ye service ki detailed state batata hai.
 
-Common values include
+Common values:
 
 - running
 - exited
@@ -139,7 +141,7 @@ Common values include
 
 ## DESCRIPTION
 
-Provides a short explanation of what the service does.
+Ye service ka short description hota hai.
 
 Example
 
@@ -149,24 +151,24 @@ OpenSSH Server
 
 ---
 
-# Task 2 – Display Loaded and Active Units
+# Task 2 – Loaded aur Active Units Dekhna
 
-Run
+Command chalayein.
 
 ```bash
 systemctl
 ```
 
-Notice that this command displays only units that are currently:
+Ye command sirf wohi units dikhati hai jo:
 
-- Loaded
-- Active
+- Loaded hain
+- Active hain
 
 ---
 
-# Task 3 – List All Installed Service Unit Files
+# Task 3 – Installed Service Unit Files Dekhna
 
-Display every installed service unit file.
+Tamam installed service unit files dekhein.
 
 ```bash
 systemctl list-unit-files --type=service
@@ -175,34 +177,36 @@ systemctl list-unit-files --type=service
 Example
 
 ```text
-UNIT FILE                   STATE       PRESET
+UNIT FILE                 STATE       PRESET
 
-auditd.service              enabled     enabled
+auditd.service            enabled     enabled
 
-chronyd.service             enabled     enabled
+chronyd.service           enabled     enabled
 
-containerd.service          disabled    disabled
+containerd.service        disabled    disabled
 
-crond.service               enabled     enabled
+crond.service             enabled     enabled
 
-dbus-broker.service         enabled     enabled
+dbus-broker.service       enabled     enabled
 ```
 
 ---
 
-# Understanding the Output
+# Output ko Samajhna
 
-Unlike **list-units**, this command displays all installed service unit files, whether they are currently running or not.
+Ye command sirf running services nahi dikhati.
+
+Balke tamam installed service unit files dikhati hai, chahe woh running hon ya na hon.
 
 ---
 
-# Understanding the Columns
+# Columns ko Samajhna
 
-| Column | Meaning |
-|----------|----------|
-| UNIT FILE | Name of the service unit file |
-| STATE | Current state of the unit |
-| PRESET | Vendor's recommended default state |
+| Column | Matlab |
+|---------|---------|
+| UNIT FILE | Service unit file ka naam |
+| STATE | Current state |
+| PRESET | Vendor ka recommended default state |
 
 ---
 
@@ -210,43 +214,43 @@ Unlike **list-units**, this command displays all installed service unit files, w
 
 ## enabled
 
-The service starts automatically during boot.
+Service boot ke waqt automatically start hogi.
 
 ---
 
 ## disabled
 
-The service does not start automatically during boot.
+Service boot ke waqt automatically start nahi hogi.
 
-It can still be started manually.
+Lekin manually start ki ja sakti hai.
 
 ---
 
 ## static
 
-The service cannot be enabled directly.
+Is service ko directly enable nahi kiya ja sakta.
 
-It is normally started by another unit.
+Ye kisi doosri service ya target ke zariye start hoti hai.
 
 ---
 
 ## masked
 
-The service has been completely blocked.
+Service ko poori tarah block kar diya gaya hai.
 
-It cannot be started until it is unmasked.
+Jab tak unmask nahi karenge tab tak start nahi ho sakti.
 
 ---
 
-# Task 4 – View the Status of a Specific Service
+# Task 4 – Kisi Specific Service ka Status Dekhna
 
-Display the status of sshd.
+sshd service ka status dekhein.
 
 ```bash
 systemctl status sshd.service
 ```
 
-Observe
+Observe karein.
 
 - Loaded
 - Active
@@ -257,9 +261,9 @@ Observe
 
 ---
 
-# Task 5 – Check if a Service is Active
+# Task 5 – Check Karein Service Active Hai Ya Nahi
 
-Run
+Command chalayein.
 
 ```bash
 systemctl is-active sshd.service
@@ -283,9 +287,9 @@ failed
 
 ---
 
-# Task 6 – Check if a Service is Enabled
+# Task 6 – Check Karein Service Enabled Hai Ya Nahi
 
-Run
+Command chalayein.
 
 ```bash
 systemctl is-enabled sshd.service
@@ -311,15 +315,15 @@ static
 
 ---
 
-# Task 7 – Disable a Service (Optional)
+# Task 7 – Service Disable Karna (Optional)
 
-Disable the service.
+Service disable karein.
 
 ```bash
 systemctl disable sshd
 ```
 
-Verify.
+Verify karein.
 
 ```bash
 systemctl is-enabled sshd
@@ -331,13 +335,13 @@ Expected
 disabled
 ```
 
-Enable it again.
+Dobarah enable karein.
 
 ```bash
 systemctl enable sshd
 ```
 
-Verify.
+Verify karein.
 
 ```bash
 systemctl is-enabled sshd
@@ -349,13 +353,13 @@ Expected
 enabled
 ```
 
-> **Note:** Only perform this task on a lab system. Disabling SSH on a production server may prevent remote access after reboot.
+> **Note:** Ye task sirf lab environment mein karein. Production server par SSH disable karne se reboot ke baad remote access band ho sakti hai.
 
 ---
 
-# Task 8 – List Failed Service Units
+# Task 8 – Failed Services Dekhna
 
-Display failed services.
+Failed services ki list dekhein.
 
 ```bash
 systemctl --failed --type=service
@@ -369,60 +373,60 @@ UNIT LOAD ACTIVE SUB DESCRIPTION
 0 loaded units listed.
 ```
 
-If services have failed, they will appear in this list.
+Agar koi service fail hui hogi to woh is list mein nazar aayegi.
 
 ---
 
-# Why is This Command Important?
+# Ye Command Itni Important Kyun Hai?
 
-This command is extremely useful during troubleshooting.
+Troubleshooting ke waqt ye command bohot useful hoti hai.
 
-When users report that a service is not working, one of the first commands a Linux administrator should run is:
+Jab koi user kahe ke service kaam nahi kar rahi, to Linux administrator sab se pehle ye command chalata hai.
 
 ```bash
 systemctl --failed --type=service
 ```
 
-It quickly identifies failed services.
+Ye foran batati hai ke kaunsi services failed hain.
 
 ---
 
-# Comparing Important Commands
+# Important Commands ka Comparison
 
-| Command | Purpose |
-|----------|----------|
-| systemctl | Show active loaded units |
-| systemctl list-units --type=service | List running service units |
-| systemctl list-unit-files --type=service | List installed service files |
-| systemctl status service | Display detailed service information |
-| systemctl is-active service | Check if a service is running |
-| systemctl is-enabled service | Check if a service starts during boot |
-| systemctl --failed --type=service | List failed services |
+| Command | Matlab |
+|----------|---------|
+| systemctl | Active loaded units dikhata hai |
+| systemctl list-units --type=service | Running service units ki list |
+| systemctl list-unit-files --type=service | Installed service files ki list |
+| systemctl status service | Detailed service status |
+| systemctl is-active service | Check kare service running hai ya nahi |
+| systemctl is-enabled service | Check kare service boot par start hogi ya nahi |
+| systemctl --failed --type=service | Failed services ki list |
 
 ---
 
 # RHCSA Challenge 1
 
-List all running services.
+Running services ki list dekhein.
 
 ```bash
 systemctl list-units --type=service
 ```
 
-Count how many services are currently running.
+Count karein kitni services running hain.
 
 ---
 
 # RHCSA Challenge 2
 
-Find the status of the following services.
+Neeche di hui services ka status check karein.
 
 - sshd
 - firewalld
 - chronyd
 - crond
 
-Record
+Likhein.
 
 - Active
 - SUB
@@ -432,9 +436,9 @@ Record
 
 # RHCSA Challenge 3
 
-List all installed service unit files.
+Tamam installed service unit files dekhein.
 
-How many are:
+Count karein kitni services hain:
 
 - enabled
 - disabled
@@ -445,7 +449,7 @@ How many are:
 
 # RHCSA Challenge 4
 
-Determine whether these services are enabled.
+Check karein ke ye services enabled hain ya nahi.
 
 - sshd
 - chronyd
@@ -456,7 +460,7 @@ Determine whether these services are enabled.
 
 # RHCSA Challenge 5
 
-Check whether the following services are active.
+Check karein ke ye services active hain ya nahi.
 
 - sshd
 - chronyd
@@ -466,60 +470,60 @@ Check whether the following services are active.
 
 # RHCSA Challenge 6
 
-List all failed service units.
+Failed services ki list dekhein.
 
-If none are present, explain what the output means.
+Agar koi failed service nahi hai to explain karein ke output ka kya matlab hai.
 
 ---
 
 # Knowledge Check
 
-1. Which command lists all running service units?
+1. Running service units dekhne ki command kya hai?
 
-2. Which command lists all installed service unit files?
+2. Installed service unit files dekhne ki command kya hai?
 
-3. What is the difference between **list-units** and **list-unit-files**?
+3. `list-units` aur `list-unit-files` mein kya farq hai?
 
-4. What does the **LOAD** column indicate?
+4. LOAD column kya batata hai?
 
-5. What does the **ACTIVE** column indicate?
+5. ACTIVE column kya batata hai?
 
-6. What does the **SUB** column indicate?
+6. SUB column kya batata hai?
 
-7. What does the **DESCRIPTION** column display?
+7. DESCRIPTION column kya batata hai?
 
-8. Which command checks whether a service is active?
+8. Service active hai ya nahi check karne ki command kya hai?
 
-9. Which command checks whether a service is enabled?
+9. Service enabled hai ya nahi check karne ki command kya hai?
 
-10. Which command lists failed services?
+10. Failed services dekhne ki command kya hai?
 
-11. What does **enabled** mean?
+11. Enabled ka kya matlab hai?
 
-12. What does **disabled** mean?
+12. Disabled ka kya matlab hai?
 
-13. What does **static** mean?
+13. Static ka kya matlab hai?
 
-14. What does **masked** mean?
+14. Masked ka kya matlab hai?
 
 ---
 
 # Summary
 
-After completing this lab you should be able to:
+Is lab ke baad aap confidently:
 
-✅ List running services
+✅ Running services ki list dekh sakte hain.
 
-✅ View installed service unit files
+✅ Installed service unit files dekh sakte hain.
 
-✅ Understand the LOAD, ACTIVE, SUB, and DESCRIPTION columns
+✅ LOAD, ACTIVE, SUB aur DESCRIPTION columns ko samajh sakte hain.
 
-✅ Check whether a service is active
+✅ Check kar sakte hain ke service active hai ya nahi.
 
-✅ Check whether a service is enabled
+✅ Check kar sakte hain ke service enabled hai ya nahi.
 
-✅ View detailed service information
+✅ Detailed service status dekh sakte hain.
 
-✅ Identify failed services for troubleshooting
+✅ Failed services identify karke troubleshooting kar sakte hain.
 
-These commands are essential Linux administration skills and are commonly used in RHCSA exams and real-world Linux server administration.
+Ye tamam commands RHCSA exam ke liye bohot important hain aur real-world Linux administration mein rozana istemal hoti hain.
