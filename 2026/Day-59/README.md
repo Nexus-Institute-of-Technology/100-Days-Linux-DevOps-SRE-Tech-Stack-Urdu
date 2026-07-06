@@ -1,5 +1,6 @@
 # Linux Practice Lab – tar aur Compression ko Samajhna
-
+# DAY-59
+> JULY 05, 2026
 ## Maqsad (Objective)
 
 Is lab ke baad aap seekh jayenge ke:
