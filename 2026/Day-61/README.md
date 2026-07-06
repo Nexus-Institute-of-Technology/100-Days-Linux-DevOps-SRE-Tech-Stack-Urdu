@@ -71,19 +71,36 @@ Aap target ko simply **runlevel ka modern replacement** samajh sakte hain.
 Directory ke andar jayen.
 
 ```bash
-cd /etc/systemd/system
+cd /usr/lib/systemd/system
+ls -l rescue.target
 ```
 
-Default target dekhein.
+Display the multi-user target.
 
 ```bash
-ls -l default.target
+cd /usr/lib/systemd/system
+ls -l multi-user.target
 ```
 
-Example Output
+Display the graphical target.
 
-```text
-default.target -> /usr/lib/systemd/system/multi-user.target
+```bash
+cd /usr/lib/systemd/system
+ls -l graphical.target
+```
+
+Display the reboot target.
+
+```bash
+cd /usr/lib/systemd/system
+ls -l reboot.target
+```
+
+Display the poweroff target.
+
+```bash
+cd /usr/lib/systemd/system
+ls -l poweroff.target
 ```
 
 ---
