@@ -1,4 +1,4 @@
-# MODULE 07 – Practice Lab: Compressed TAR Archive Banana
+# MODULE 07 – Practice Lab: Compressed TAR Archive Banana (GZIP)
 > **Hands-on Practice Lab – gzip Ki Madad Se TAR Archive Compress Karna (Roman Urdu)**
 
 ---
