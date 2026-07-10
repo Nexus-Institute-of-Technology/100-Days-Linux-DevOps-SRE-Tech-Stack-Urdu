@@ -1,0 +1,566 @@
+# MODULE 02/07 – Practice Lab: Tilde Expansion & Brace Expansion
+> **Hands-on Practice Lab – Bash Mein Tilde (`~`) Aur Brace (`{}`) Expansion (Roman Urdu)**
+
+---
+
+# 🎯 Lab Ka Maqsad
+
+Is practice lab mein aap seekhenge:
+
+- **Tilde Expansion (`~`)** ka istemal karke users ki home directories ko jaldi access karna.
+- `echo` command ki madad se home directory display karna.
+- **Brace Expansion (`{}`)** ka istemal karke multiple strings generate karna.
+- Numbers aur letters ki sequences banana.
+- Multiple filenames ko bina manually type kiye generate karna.
+- Brace Expansion ko dusri Linux commands ke saath use karna.
+
+---
+
+# 📖 Introduction
+
+**Bash Shell** ka ek bohot powerful feature hai **Shell Expansions**.
+
+Shell Expansions ki madad se Bash command execute karne se pehle automatically text generate karta hai.
+
+Is practice lab mein hum do important Shell Expansions seekhenge:
+
+- **Tilde Expansion (`~`)**
+- **Brace Expansion (`{}`)**
+
+Ye dono features typing kam karte hain aur command line par kaam ko bohot tez aur aasaan bana dete hain.
+
+---
+
+# Part 1 – Tilde Expansion (`~`)
+
+## Tilde Expansion Kya Hai?
+
+**Tilde (`~`)** ek shortcut hai jo kisi user ki **Home Directory** ko represent karta hai.
+
+Misal ke taur par:
+
+```text
+/home/root
+```
+
+ko aap sirf is tarah likh sakte hain:
+
+```text
+~root
+```
+
+Isi tarah:
+
+```text
+/home/techstart
+```
+
+ko likha ja sakta hai:
+
+```text
+~techstart
+```
+
+---
+
+# 🔬 Lab 1 – Root User Ki Home Directory Display Karein
+
+`echo` command use karein.
+
+```bash
+echo ~root
+```
+
+Expected Output:
+
+```text
+/root
+```
+
+### Explanation
+
+| Command | Matlab |
+|----------|---------|
+| `echo` | Screen par output display karta hai |
+| `~root` | Root user ki Home Directory |
+
+---
+
+# 🔬 Lab 2 – Kisi Dusre User Ki Home Directory Display Karein
+
+Suppose ek user **techstart** mojood hai.
+
+Command:
+
+```bash
+echo ~techstart
+```
+
+Expected Output:
+
+```text
+/home/techstart
+```
+
+Bash automatically `~techstart` ko us user ki Home Directory mein convert kar deta hai.
+
+---
+
+# Tilde Expansion Kyun Use Karein?
+
+Is ki jagah:
+
+```text
+/home/techstart
+```
+
+sirf itna likhna kaafi hai:
+
+```text
+~techstart
+```
+
+Is se commands chhoti aur yaad rakhna aasaan ho jata hai.
+
+---
+
+# Part 2 – Brace Expansion (`{}`)
+
+## Brace Expansion Kya Hai?
+
+Brace Expansion ek hi expression se multiple strings generate karta hai.
+
+Har word ya filename manually type karne ki zarurat nahi hoti.
+
+Ye commonly use hota hai:
+
+- Multiple filenames banane ke liye
+- Directories create karne ke liye
+- Number sequences generate karne ke liye
+- Repetitive tasks automate karne ke liye
+
+---
+
+# 🔬 Lab 3 – Multiple Log Files Generate Karein
+
+Command:
+
+```bash
+echo {Sunday,Monday,Tuesday,Wednesday}.log
+```
+
+Expected Output:
+
+```text
+Sunday.log
+Monday.log
+Tuesday.log
+Wednesday.log
+```
+
+### Explanation
+
+| Part | Matlab |
+|------|---------|
+| `{Sunday,Monday,...}` | Multiple words generate karta hai |
+| `.log` | Har word ke end mein `.log` add karta hai |
+
+---
+
+# 🔬 Lab 4 – Numbered Files Generate Karein
+
+Command:
+
+```bash
+echo file{1..10}.txt
+```
+
+Expected Output:
+
+```text
+file1.txt
+file2.txt
+file3.txt
+file4.txt
+file5.txt
+file6.txt
+file7.txt
+file8.txt
+file9.txt
+file10.txt
+```
+
+### Explanation
+
+```text
+{1..10}
+```
+
+Ye sequence generate karta hai:
+
+```text
+1 2 3 4 5 6 7 8 9 10
+```
+
+Aur har number ke saath `.txt` automatically add kar deta hai.
+
+---
+
+# 🔬 Lab 5 – Alphabetical Files Generate Karein
+
+Command:
+
+```bash
+echo file{a..e}.txt
+```
+
+Expected Output:
+
+```text
+filea.txt
+fileb.txt
+filec.txt
+filed.txt
+filee.txt
+```
+
+### Explanation
+
+```text
+{a..e}
+```
+
+Ye letters generate karta hai:
+
+```text
+a b c d e
+```
+
+---
+
+# 🔬 Lab 6 – Multiple Brace Expansion
+
+Brace Expansion ko nested bhi use kiya ja sakta hai.
+
+Command:
+
+```bash
+echo file{a,b}{1,2}.txt
+```
+
+Expected Output:
+
+```text
+filea1.txt
+filea2.txt
+fileb1.txt
+fileb2.txt
+```
+
+### Explanation
+
+Bash pehle pehli brace ke tamam values leta hai.
+
+Phir doosri brace ki tamam values leta hai.
+
+Aur phir dono ko combine karta hai.
+
+Result:
+
+```text
+a + 1
+a + 2
+b + 1
+b + 2
+```
+
+---
+
+# Nested Brace Expansion Ko Samjhein
+
+```text
+{a,b}
+```
+
+Generate karta hai:
+
+```text
+a
+b
+```
+
+Aur
+
+```text
+{1,2}
+```
+
+Generate karta hai:
+
+```text
+1
+2
+```
+
+Bash in dono groups ki tamam possible combinations bana deta hai.
+
+---
+
+# Brace Expansion Ko Dusri Commands Ke Sath Use Karna
+
+Brace Expansion sirf `echo` ke saath hi nahi chalti.
+
+Ye bohot si Linux commands ke saath use hoti hai.
+
+Misal:
+
+Multiple files create karein:
+
+```bash
+touch file{1..5}.txt
+```
+
+Result:
+
+```text
+file1.txt
+file2.txt
+file3.txt
+file4.txt
+file5.txt
+```
+
+---
+
+Multiple directories create karein:
+
+```bash
+mkdir project{1..3}
+```
+
+Result:
+
+```text
+project1
+project2
+project3
+```
+
+---
+
+# Practice Examples
+
+| Command | Result |
+|----------|--------|
+| `echo ~root` | Root user ki Home Directory display kare |
+| `echo ~techstart` | Techstart user ki Home Directory display kare |
+| `echo {Sunday,Monday}.log` | Multiple log filenames generate kare |
+| `echo file{1..5}.txt` | Numbered filenames generate kare |
+| `echo file{a..e}.txt` | Alphabetical filenames generate kare |
+| `echo file{a,b}{1,2}.txt` | Multiple combinations generate kare |
+
+---
+
+# 🧪 Practice Exercises
+
+---
+
+## Exercise 1
+
+Apni Home Directory display karein.
+
+```bash
+echo ~
+```
+
+---
+
+## Exercise 2
+
+Root user ki Home Directory display karein.
+
+```bash
+echo ~root
+```
+
+---
+
+## Exercise 3
+
+Weekdays ke log files generate karein.
+
+```bash
+echo {Monday,Tuesday,Wednesday,Thursday,Friday}.log
+```
+
+---
+
+## Exercise 4
+
+Numbered backup files generate karein.
+
+```bash
+echo backup{1..10}.tar
+```
+
+---
+
+## Exercise 5
+
+Alphabetical report files generate karein.
+
+```bash
+echo report{a..f}.txt
+```
+
+---
+
+## Exercise 6
+
+Multiple combinations generate karein.
+
+```bash
+echo server{A,B}{1,2,3}
+```
+
+Expected Output:
+
+```text
+serverA1
+serverA2
+serverA3
+serverB1
+serverB2
+serverB3
+```
+
+---
+
+## Exercise 7
+
+Multiple files create karein.
+
+```bash
+touch file{1..5}.txt
+```
+
+Verify karein.
+
+```bash
+ls
+```
+
+---
+
+## Exercise 8
+
+Multiple directories create karein.
+
+```bash
+mkdir lab{1..4}
+```
+
+Verify karein.
+
+```bash
+ls
+```
+
+---
+
+# 🔧 Troubleshooting Scenarios
+
+### Scenario 1
+
+Agar user exist nahi karta.
+
+Command:
+
+```bash
+echo ~unknownuser
+```
+
+Bash us user ki Home Directory expand nahi karega.
+
+---
+
+### Scenario 2
+
+Brace syntax ghalat likhna.
+
+Incorrect:
+
+```bash
+echo file{1-5}.txt
+```
+
+Ye sequence generate nahi karega.
+
+Correct:
+
+```bash
+echo file{1..5}.txt
+```
+
+---
+
+### Scenario 3
+
+Closing brace bhool jana.
+
+Incorrect:
+
+```bash
+echo {Monday,Tuesday
+```
+
+Correct:
+
+```bash
+echo {Monday,Tuesday}
+```
+
+---
+
+# 📌 Quick Revision
+
+| Expansion | Matlab |
+|------------|---------|
+| `~` | User ki Home Directory |
+| `~root` | Root user ki Home Directory |
+| `{a,b,c}` | Multiple words generate kare |
+| `{1..5}` | Number sequence generate kare |
+| `{a..z}` | Alphabet sequence generate kare |
+| `{a,b}{1,2}` | Tamam possible combinations generate kare |
+
+---
+
+# 📖 Key Takeaways
+
+- `~` user ki Home Directory ka shortcut hai.
+- Brace Expansion automatically multiple strings generate karta hai.
+- `{1..10}` se number sequence generate hoti hai.
+- `{a..z}` se alphabet sequence generate hoti hai.
+- Nested Brace Expansion tamam possible combinations generate karti hai.
+- Brace Expansion sirf `echo` ke saath nahi, balkeh bohot si Linux commands ke saath use hoti hai.
+
+---
+
+# 💡 Yaad Rakhein
+
+> **Shell Expansions ko Automatic Typing Assistant ki tarah samjhein.**
+>
+> - **Tilde Expansion (`~`)** user ki Home Directory ko foran access karne mein madad karti hai.
+> - **Brace Expansion (`{}`)** automatically multiple words, numbers aur filenames generate karti hai.
+>
+> **Golden Rules Yaad Rakhein:**
+>
+> ```text
+> ~          = Home Directory
+> {a,b,c}    = Multiple Words
+> {1..10}    = Number Sequence
+> {a..z}     = Letter Sequence
+> {a,b}{1,2} = Tamam Possible Combinations
+> ```
+>
+> **Agar aap Shell Expansions ko achhi tarah seekh lein to Linux commands likhna bohot tez, aasaan aur professional ho jata hai.**
