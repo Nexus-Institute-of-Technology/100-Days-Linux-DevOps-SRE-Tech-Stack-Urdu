@@ -122,21 +122,294 @@ Matlab:
 
 ---
 
-# 6. Common Facilities
+# 6. Common Syslog Facilities
 
-Neeche kuch commonly use hone wali facilities di gayi hain.
+**Facility** yeh identify karti hai ke **kis subsystem ya application ne log message generate kiya hai.**
 
-| Facility | Kaam |
-|-----------|------|
-| `kern` | Kernel messages |
-| `user` | User level messages |
-| `mail` | Mail server messages |
-| `daemon` | System daemon messages |
-| `auth` | Authentication messages |
-| `authpriv` | Private authentication messages |
+Aap Facility ko log ki **category** ya **department** bhi samajh sakte hain.
+
+Neeche di gayi table Linux mein use hone wali standard **Syslog Facilities** ko dikhati hai.
+
+| Code | Facility | Facility Description |
+|-----:|----------|----------------------|
+| 0 | `kern` | Kernel messages |
+| 1 | `user` | User level messages |
+| 2 | `mail` | Mail system messages |
+| 3 | `daemon` | System daemon messages |
+| 4 | `auth` | Authentication aur Security messages |
+| 5 | `syslog` | Internal Syslog messages |
+| 6 | `lpr` | Printer messages |
+| 7 | `news` | Network News messages |
+| 8 | `uucp` | UUCP Protocol messages |
+| 9 | `cron` | Clock Daemon (Cron) messages |
+| 10 | `authpriv` | Private Authentication messages |
+| 11 | `ftp` | FTP Protocol messages |
+| 16–23 | `local0` – `local7` | Custom Local Application messages |
+
+---
+
+## 📌 Common Facilities Ki Tafseel
+
+### `kern`
+
+Linux Kernel ke generate kiye hue messages ko store karta hai.
+
+**Examples:**
+
+- Kernel Panic
+- Driver Messages
+- Hardware Detection
+
+---
+
+### `user`
+
+Normal user applications ke generate kiye hue messages ko store karta hai.
+
+**Examples:**
+
+- Custom Shell Scripts
+- User Programs
+
+---
+
+### `mail`
+
+Mail Server ke generate kiye hue logs ko store karta hai.
+
+**Examples:**
+
+- Postfix
+- Sendmail
+- Exim
+
+Ye logs aam tor par is file mein store hote hain:
+
+```text
+/var/log/maillog
+```
+
+---
+
+### `daemon`
+
+Background services (Daemons) ke generate kiye hue logs ko store karta hai.
+
+**Examples:**
+
+- sshd
+- httpd
+- nginx
+- named
+- docker
+
+---
+
+### `auth`
+
+Authentication aur Security se related messages ko store karta hai.
+
+**Examples:**
+
+- User Login
+- Login Failure
+- PAM Authentication
+
+---
+
+### `syslog`
+
+Syslog service ke apne internal messages ko store karta hai.
+
+---
+
+### `lpr`
+
+Printer se related messages ko store karta hai.
+
+**Example:**
+
+- CUPS Printing Service
+
+---
+
+### `news`
+
+Network News (NNTP) service ke messages ko store karta hai.
+
+Ye facility zyada tar News Servers mein use hoti hai.
+
+---
+
+### `uucp`
+
+UUCP (Unix-to-Unix Copy Protocol) ke messages ko store karta hai.
+
+Modern Linux systems mein is ka istemal bohot kam hota hai.
+
+---
+
+### `cron`
+
+Cron Scheduler ke generate kiye hue messages ko store karta hai.
+
+**Examples:**
+
+- Scheduled Jobs
+- Cron Failures
+- Cron Execution
+
+Ye logs aam tor par is file mein store hote hain:
+
+```text
+/var/log/cron
+```
+
+---
+
+### `authpriv`
+
+**Private Authentication** messages ko store karta hai.
+
+**Examples:**
+
+- SSH Login
+- sudo Commands
+- su Command
+- Failed Password Attempts
+
+Ye logs aam tor par is file mein store hote hain:
+
+```text
+/var/log/secure
+```
+
+---
+
+### `ftp`
+
+FTP Server ke messages ko store karta hai.
+
+**Examples:**
+
+- vsftpd
+- proftpd
+
+---
+
+### `local0` – `local7`
+
+Ye facilities **Custom Applications** ke liye reserve hoti hain.
+
+Developers apni applications ko configure kar sakte hain ke woh in facilities mein logs bhejein.
+
+---
+
+## 💡 Facilities Important Kyun Hain?
+
+Facilities Linux ko mukhtalif qisam ke logs ko alag alag categories mein organize karne mein madad karti hain.
+
+Agar Facilities na hotin to tamam logs ek hi bari file mein save ho jate.
+
+Facilities ki wajah se:
+
+- Authentication logs ek alag file mein jate hain.
+- Mail logs doosri file mein jate hain.
+- Cron logs apni alag file mein save hote hain.
+- Kernel logs apni alag location mein store hote hain.
+- Custom Applications bhi apni alag log files use kar sakti hain.
+
+Is se monitoring aur troubleshooting bohot aasaan ho jati hai.
+
+---
+
+## Example 1
+
+```text
+authpriv.*    /var/log/secure
+```
+
+**Matlab:**
+
+- **Facility:** `authpriv`
+- **Priority:** Har Severity (`*`)
+- **Destination:** `/var/log/secure`
+
+Yani tamam Authentication messages `/var/log/secure` mein save honge.
+
+---
+
+## Example 2
+
+```text
+cron.info    /var/log/cron
+```
+
+**Matlab:**
+
+- **Facility:** `cron`
+- **Priority:** `info`
+- **Destination:** `/var/log/cron`
+
+Yani Cron ke Information level ke messages `/var/log/cron` mein save honge.
+
+---
+
+## Example 3
+
+```text
+mail.err    /var/log/maillog
+```
+
+**Matlab:**
+
+- **Facility:** `mail`
+- **Priority:** `err`
+- **Destination:** `/var/log/maillog`
+
+Sirf Mail Server ke **Error Messages** `/var/log/maillog` mein record honge.
+
+---
+
+## 🧠 Memory Tip
+
+Facility ko **Department** ki tarah samjhein jo log generate karta hai.
+
+| Facility | Department |
+|-----------|------------|
+| `kern` | Linux Kernel |
 | `cron` | Cron Scheduler |
-| `syslog` | Syslog internal messages |
-| `local0-local7` | Custom applications |
+| `mail` | Mail Server |
+| `auth` | Authentication |
+| `daemon` | Background Services |
+| `ftp` | FTP Server |
+| `local0-local7` | Custom Applications |
+
+---
+
+> ## 🎯 Yaad Rakhne Ka Asaan Formula
+>
+> **Facility = "Log kis Department ya Service ne generate kiya?"**
+>
+> **Priority = "Log kitna serious ya important hai?"**
+>
+> **Destination = "Log kis file ya location mein store hoga?"**
+>
+> ### Simple Formula:
+>
+> ```text
+> Facility.Priority      Destination
+> ```
+>
+> **Example:**
+>
+> ```text
+> authpriv.*      /var/log/secure
+> ```
+>
+> Matlab:
+>
+> Authentication ke tamam messages `/var/log/secure` mein save karo.
 
 ---
 
