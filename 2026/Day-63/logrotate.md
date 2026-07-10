@@ -1,4 +1,4 @@
-# MODULE 08 – Logrotate & System Logging Notes
+# MODULE 06/07 – Logrotate & System Logging Notes
 > **Analyze and Store Logs**
 
 ---
