@@ -1,0 +1,501 @@
+# MODULE 06/07 – Rsyslog Configuration & Logging Rules
+> **System Mein Logging Events**
+
+---
+
+# 📖 Introduction
+
+Pichlay lesson mein hum ne seekha tha ke Linux mein logging ko manage karne ke liye **2 main services** use hoti hain.
+
+- **systemd-journald**
+- **rsyslog**
+
+Is lesson mein hum seekhenge:
+
+- Logs kis tarah categorize hote hain.
+- `rsyslog` kis tarah decide karta hai ke logs kahan store honge.
+- Facilities
+- Priorities (Severity Levels)
+- Rsyslog Configuration Syntax
+- Common Examples
+
+---
+
+# 1. Logging Events to the System
+
+Linux ke bohot se programs **Syslog Protocol** use karte hain taake system ke events ko record kar sakein.
+
+Har log message ke andar **2 important cheezen** hoti hain.
+
+1. **Facility**
+2. **Priority (Severity)**
+
+Ye dono values `rsyslog` ko batati hain ke message kis file mein store karna hai.
+
+---
+
+# 2. Facility Kya Hai?
+
+**Facility** batati hai ke **log kis subsystem ya service ne generate kiya hai.**
+
+Aap isay log ki **category** bhi keh sakte hain.
+
+Examples:
+
+- Kernel Messages
+- Cron Jobs
+- Mail Server
+- Security Authentication
+- User Applications
+- Printing System
+
+Har facility ka apna alag log file ho sakta hai.
+
+---
+
+# 3. Log Files Ki Examples
+
+Linux mukhtalif qisam ke logs ko alag alag files mein save karta hai.
+
+| Facility | Log File |
+|-----------|----------|
+| Authentication | `/var/log/secure` |
+| Cron Jobs | `/var/log/cron` |
+| Mail | `/var/log/maillog` |
+| Boot Process | `/var/log/boot.log` |
+| General Messages | `/var/log/messages` |
+
+Is tarah logs ko organize karna troubleshooting ko bohot aasaan bana deta hai.
+
+---
+
+# 4. Linux Ko Kaise Pata Chalta Hai Ke Logs Kahan Store Karne Hain?
+
+`rsyslog` service configuration files ko read karti hai.
+
+Ye configuration batati hai:
+
+- Konsa message capture karna hai.
+- Konsi facility ka hai.
+- Konsi priority ka hai.
+- Kis log file mein save karna hai.
+
+Common configuration files:
+
+```text
+/etc/rsyslog.conf
+```
+
+Aur
+
+```text
+/etc/rsyslog.d/
+```
+
+---
+
+# 5. Rsyslog Rule Ki Syntax
+
+Har rsyslog rule ka format same hota hai.
+
+```text
+facility.priority    destination
+```
+
+Jahan:
+
+- **facility** = Message kis service se aya hai.
+- **priority** = Message kitna important hai.
+- **destination** = Kis file ya remote server mein save karna hai.
+
+Example:
+
+```text
+authpriv.*    /var/log/secure
+```
+
+Matlab:
+
+- Authentication facility
+- Har priority
+- `/var/log/secure` mein save karo.
+
+---
+
+# 6. Common Facilities
+
+Neeche kuch commonly use hone wali facilities di gayi hain.
+
+| Facility | Kaam |
+|-----------|------|
+| `kern` | Kernel messages |
+| `user` | User level messages |
+| `mail` | Mail server messages |
+| `daemon` | System daemon messages |
+| `auth` | Authentication messages |
+| `authpriv` | Private authentication messages |
+| `cron` | Cron Scheduler |
+| `syslog` | Syslog internal messages |
+| `local0-local7` | Custom applications |
+
+---
+
+# 7. Priority (Severity Levels)
+
+Har log message ki ek severity level hoti hai.
+
+Jitni severity upar hogi utna message zyada important hoga.
+
+| Priority | Matlab |
+|-----------|---------|
+| `emerg` | System bilkul unusable hai |
+| `alert` | Foran action lena zaroori hai |
+| `crit` | Critical problem |
+| `err` | Error |
+| `warning` | Warning |
+| `notice` | Normal lekin important |
+| `info` | Information |
+| `debug` | Debugging information |
+
+---
+
+# 8. Wildcard (*)
+
+Asterisk (`*`) ko **Wildcard** kehte hain.
+
+Is ka matlab hota hai:
+
+> **Har value ko match karo.**
+
+Example:
+
+```text
+authpriv.*
+```
+
+Matlab:
+
+Authentication facility ki har priority.
+
+---
+
+# 9. Example 1
+
+```text
+authpriv.*    /var/log/secure
+```
+
+Explanation:
+
+| Part | Matlab |
+|------|---------|
+| `authpriv` | Authentication facility |
+| `*` | Har priority |
+| `/var/log/secure` | Destination log file |
+
+Ye rule tamam authentication messages ko:
+
+```text
+/var/log/secure
+```
+
+mein store karega.
+
+---
+
+# 10. Example 2
+
+```text
+*.info;mail.none;authpriv.none;cron.none    /var/log/messages
+```
+
+Ye Red Hat systems mein bohot common rule hai.
+
+Isay step by step samajhte hain.
+
+---
+
+## Part 1
+
+```text
+*.info
+```
+
+Matlab:
+
+Har facility ke **Info level aur us se upar** wale messages.
+
+---
+
+## Part 2
+
+```text
+mail.none
+```
+
+Matlab:
+
+Mail logs ko include mat karo.
+
+---
+
+## Part 3
+
+```text
+authpriv.none
+```
+
+Matlab:
+
+Authentication logs ko include mat karo.
+
+---
+
+## Part 4
+
+```text
+cron.none
+```
+
+Matlab:
+
+Cron logs ko include mat karo.
+
+---
+
+## Destination
+
+```text
+/var/log/messages
+```
+
+Baqi tamam logs is file mein save honge.
+
+---
+
+# 11. Is Rule Ka Simple Matlab
+
+```text
+*.info;mail.none;authpriv.none;cron.none    /var/log/messages
+```
+
+Simple alfaaz mein:
+
+Har facility ke **Info level aur us se upar** wale messages ko `/var/log/messages` mein save karo.
+
+Lekin:
+
+- Mail logs nahi
+- Authentication logs nahi
+- Cron logs nahi
+
+---
+
+# 12. Keyword "none"
+
+Keyword:
+
+```text
+none
+```
+
+ka matlab hota hai:
+
+> **Is facility ko ignore karo.**
+
+Example:
+
+```text
+mail.none
+```
+
+Matlab:
+
+Mail logs ko skip karo.
+
+---
+
+# 13. Logging Flow
+
+```text
+Application
+      │
+      ▼
+Log Generate Hota Hai
+      │
+      ▼
+Facility Assign Hoti Hai
+      │
+      ▼
+Priority Assign Hoti Hai
+      │
+      ▼
+rsyslog Rule Read Karta Hai
+      │
+      ▼
+Sahi Log File Mein Store Kar Deta Hai
+```
+
+---
+
+# 14. Facilities Ki Importance
+
+Facilities Linux ko help karti hain ke har type ke logs ko alag rakha jaye.
+
+Misal ke taur par:
+
+- Authentication logs alag
+- Cron logs alag
+- Mail logs alag
+- Kernel logs alag
+
+Is se troubleshooting bohot aasaan ho jati hai.
+
+---
+
+# 15. Priorities Ki Importance
+
+Priorities administrator ko batati hain ke:
+
+- Konsa issue critical hai.
+- Konsa sirf warning hai.
+- Konsa error hai.
+- Konsa informational message hai.
+- Konsa debugging message hai.
+
+Agar priorities na hotin to har message ek jaisa lagta.
+
+---
+
+# 16. Quick Revision
+
+| Symbol | Matlab |
+|---------|---------|
+| `*` | Har value match karo |
+| `.none` | Is facility ko ignore karo |
+| `.info` | Information level aur us se upar |
+| `.debug` | Debug messages |
+| `.err` | Error messages |
+
+---
+
+# 17. Important Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `/etc/rsyslog.conf` | Main rsyslog configuration |
+| `/etc/rsyslog.d/` | Additional configuration files |
+| `/var/log/messages` | General system logs |
+| `/var/log/secure` | Authentication logs |
+| `/var/log/cron` | Cron logs |
+| `/var/log/maillog` | Mail logs |
+| `/var/log/boot.log` | Boot logs |
+
+---
+
+# 18. Interview Questions
+
+### Question 1
+
+Har syslog message ke do parts kaun se hote hain?
+
+**Answer**
+
+- Facility
+- Priority (Severity)
+
+---
+
+### Question 2
+
+Facility kya hoti hai?
+
+**Answer**
+
+Ye batati hai ke log kis service ya subsystem ne generate kiya hai.
+
+---
+
+### Question 3
+
+Priority kya hoti hai?
+
+**Answer**
+
+Ye batati hai ke log message kitna serious hai.
+
+---
+
+### Question 4
+
+Wildcard (`*`) ka matlab kya hota hai?
+
+**Answer**
+
+Har value ko match karna.
+
+---
+
+### Question 5
+
+`.none` ka matlab kya hota hai?
+
+**Answer**
+
+Us facility ko ignore ya exclude karna.
+
+---
+
+### Question 6
+
+Authentication logs aam tor par kis file mein save hote hain?
+
+**Answer**
+
+```text
+/var/log/secure
+```
+
+---
+
+### Question 7
+
+Cron logs kis file mein save hote hain?
+
+**Answer**
+
+```text
+/var/log/cron
+```
+
+---
+
+### Question 8
+
+Main rsyslog configuration file kaunsi hai?
+
+**Answer**
+
+```text
+/etc/rsyslog.conf
+```
+
+---
+
+# 19. Key Takeaways
+
+- Har log message ke andar **Facility** aur **Priority** hoti hai.
+- Facility batati hai message kis source se aya hai.
+- Priority batati hai message kitna important hai.
+- `rsyslog` apni configuration ko read karke decide karta hai ke log kis file mein store karna hai.
+- Facilities aur priorities ki wajah se Linux ke logs bohot achi tarah organize rehte hain.
+
+---
+
+# 💡 Yaad Rakhein
+
+> **Linux Logging bilkul Post Office ki tarah kaam karti hai.**
+>
+> - **Facility** batati hai ke **message kis ne bheja hai.**
+> - **Priority** batati hai ke **message kitna urgent hai.**
+> - **rsyslog** decide karta hai ke **ye message kis log file (mailbox) mein jana chahiye.**
