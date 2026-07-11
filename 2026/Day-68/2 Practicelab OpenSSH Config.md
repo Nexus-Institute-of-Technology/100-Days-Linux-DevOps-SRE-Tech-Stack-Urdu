@@ -1,124 +1,126 @@
-# MODULE 08 – Practice Lab - OpenSSH Server Configuration
-> **Configuring and Securing the OpenSSH Server on Linux**
+# MODULE 08 – Practice Lab OpenSSH Server Configuration
+> **Linux Par OpenSSH Server Ko Configure Aur Secure Karna**
 
 ---
 
 # 🎯 Learning Objectives
 
-In this module, you will learn:
+Is module mein aap seekhenge:
 
-- What the OpenSSH server service is.
-- Which daemon provides the SSH service.
-- Where the SSH server configuration file is located.
-- Why the default OpenSSH configuration may need to be hardened.
-- Why direct root login should normally be restricted.
-- Why password authentication may be disabled.
-- How SSH key-based authentication improves security.
-- How to improve accountability by requiring normal user logins.
-- How the `PermitRootLogin` setting works.
-- How to validate SSH configuration before restarting the service.
+- OpenSSH Server service kya hoti hai.
+- SSH service ko kaunsa daemon provide karta hai.
+- SSH Server configuration file kahan mojood hoti hai.
+- Default OpenSSH configuration ko harden karne ki zarurat kyun padti hai.
+- Direct root login ko normally restrict kyun karna chahiye.
+- Password authentication ko disable kyun kiya jata hai.
+- SSH Key-Based Authentication security ko kaise improve karti hai.
+- Normal user login ko mandatory bana kar accountability kaise improve hoti hai.
+- `PermitRootLogin` setting kis tarah kaam karti hai.
+- SSH service restart karne se pehle configuration ko validate kaise kiya jata hai.
 
 ---
 
 # 📖 Introduction
 
-OpenSSH provides secure and encrypted remote access to Linux systems.
+OpenSSH Linux systems ko **secure aur encrypted remote access** provide karta hai.
 
-The SSH server component is provided by the daemon:
+SSH Server ka component is daemon ke zariye provide hota hai:
 
 ```text
 sshd
 ```
 
-The `sshd` service listens for incoming SSH connections, authenticates users, and creates secure remote sessions.
+`sshd` service incoming SSH connections ko listen karti hai, users ko authenticate karti hai aur secure remote sessions create karti hai.
 
-The default OpenSSH server configuration works well for many environments. However, administrators often modify it to improve security.
+Default OpenSSH Server configuration bohot se environments ke liye theek kaam karti hai. Lekin production environments mein administrators security ko mazboot banane ke liye is configuration mein changes karte hain.
 
-Common hardening changes include:
+Common hardening changes ye hain:
 
-- Restricting direct root login.
-- Disabling password authentication.
-- Requiring SSH key-based authentication.
-- Allowing only specific users or groups.
-- Changing timeout and authentication settings.
-- Reviewing SSH logs and failed login attempts.
+- Direct root login ko restrict karna.
+- Password authentication ko disable karna.
+- SSH Key-Based Authentication ko mandatory banana.
+- Sirf specific users ya groups ko allow karna.
+- Login timeout aur authentication settings ko customize karna.
+- SSH logs aur failed login attempts ko monitor karna.
 
 ---
 
-# 1. What Is the SSH Daemon?
+# 1. SSH Daemon Kya Hai?
 
-The SSH server daemon is:
+SSH Server daemon ka naam hai:
 
 ```text
 sshd
 ```
 
-It provides the OpenSSH server service.
+Ye OpenSSH Server service provide karta hai.
 
-The daemon is responsible for:
+Ye daemon in cheezon ka zimmedar hota hai:
 
-- Listening for incoming SSH connections.
-- Verifying the server Host Key.
-- Authenticating users.
-- Accepting passwords or SSH keys.
-- Creating encrypted sessions.
-- Starting the remote user's shell.
-- Recording authentication events.
+- Incoming SSH connections ko listen karna.
+- Server Host Key verify karna.
+- Users ko authenticate karna.
+- Password ya SSH Keys accept karna.
+- Encrypted sessions establish karna.
+- Remote user ka shell start karna.
+- Authentication events ko logs mein record karna.
 
 ---
 
 # 2. OpenSSH Server Configuration File
 
-The main SSH server configuration file is:
+Main SSH Server configuration file hai:
 
 ```text
 /etc/ssh/sshd_config
 ```
 
-This file controls how the SSH server behaves.
+Ye file decide karti hai ke SSH Server kis tarah behave karega.
 
-Examples of settings stored in this file include:
+Is file mein mukhtalif settings hoti hain, jaise:
 
-- SSH listening port.
-- Root login policy.
-- Password authentication.
-- Public-key authentication.
-- Allowed users and groups.
-- Login timeouts.
-- Maximum authentication attempts.
-- Forwarding options.
+- SSH listening port
+- Root login policy
+- Password authentication
+- Public-Key authentication
+- Allowed users aur groups
+- Login timeout
+- Maximum authentication attempts
+- Forwarding options
 
 ---
 
 # SSH Client vs SSH Server Configuration
 
-Do not confuse the server and client configuration files.
+Server aur Client configuration files ko kabhi confuse mat karein.
 
 | File | Purpose |
 |------|---------|
-| `/etc/ssh/sshd_config` | SSH server configuration |
-| `/etc/ssh/ssh_config` | System-wide SSH client configuration |
-| `~/.ssh/config` | Per-user SSH client configuration |
+| `/etc/ssh/sshd_config` | SSH Server configuration |
+| `/etc/ssh/ssh_config` | System-wide SSH Client configuration |
+| `~/.ssh/config` | Per-user SSH Client configuration |
 
-The letter `d` in:
+Yahan:
 
 ```text
 sshd_config
 ```
 
-stands for the SSH daemon.
+mein **d** ka matlab hai:
+
+> **Daemon**
 
 ---
 
-# 3. Check the OpenSSH Server Package
+# 3. OpenSSH Server Package Check Karna
 
-On Rocky Linux, RHEL, or AlmaLinux:
+Rocky Linux, RHEL ya AlmaLinux par:
 
 ```bash
 rpm -q openssh-server
 ```
 
-If it is not installed:
+Agar package install na ho to:
 
 ```bash
 sudo dnf install -y openssh-server
@@ -126,21 +128,21 @@ sudo dnf install -y openssh-server
 
 ---
 
-# 4. Check the SSH Service
+# 4. SSH Service Check Karna
 
-Check the current status:
+Current status check karein:
 
 ```bash
 systemctl status sshd
 ```
 
-Check whether it is active:
+Service active hai ya nahi:
 
 ```bash
 systemctl is-active sshd
 ```
 
-Check whether it starts automatically at boot:
+Boot ke waqt automatically start hoti hai ya nahi:
 
 ```bash
 systemctl is-enabled sshd
@@ -148,21 +150,21 @@ systemctl is-enabled sshd
 
 ---
 
-# Start and Enable the Service
+# Service Ko Start Aur Enable Karna
 
-Start the service:
+Service start karein:
 
 ```bash
 sudo systemctl start sshd
 ```
 
-Enable it at boot:
+Boot par automatically enable karein:
 
 ```bash
 sudo systemctl enable sshd
 ```
 
-Enable and start it immediately:
+Ek hi command mein start aur enable karein:
 
 ```bash
 sudo systemctl enable --now sshd
@@ -170,21 +172,21 @@ sudo systemctl enable --now sshd
 
 ---
 
-# 5. View the Current SSH Configuration
+# 5. Current SSH Configuration Dekhna
 
-Display the configuration file:
+Configuration file display karein:
 
 ```bash
 sudo cat /etc/ssh/sshd_config
 ```
 
-View it page by page:
+Page by page dekhne ke liye:
 
 ```bash
 sudo less /etc/ssh/sshd_config
 ```
 
-Edit it:
+Configuration edit karne ke liye:
 
 ```bash
 sudo vim /etc/ssh/sshd_config
@@ -192,13 +194,13 @@ sudo vim /etc/ssh/sshd_config
 
 ---
 
-# 6. Default Configuration and Security Hardening
+# 6. Default Configuration Aur Security Hardening
 
-The default SSH server configuration is designed to support a wide range of systems.
+Default SSH Server configuration bohot se systems ke liye design ki gayi hai.
 
-However, production environments may require stronger controls.
+Lekin production environments mein zyada security controls ki zarurat hoti hai.
 
-Common changes include:
+Common hardening settings:
 
 ```text
 PermitRootLogin no
@@ -206,109 +208,110 @@ PasswordAuthentication no
 PubkeyAuthentication yes
 ```
 
-These settings:
+In settings ka matlab hai:
 
-- Prevent direct root login.
-- Disable remote password authentication.
-- Allow SSH key-based authentication.
+- Direct root login ko disable karna.
+- Remote password authentication ko disable karna.
+- SSH Key-Based Authentication ko allow karna.
+
+---
+# 7. Direct Root Login Risky Kyun Hai?
+
+Remote system se **root** user ke zariye direct login karna generally recommend nahi kiya jata.
+
+Is ke chand aham security risks ye hain:
+
+- Har Linux system mein `root` username pehle se hi mojood hota hai.
+- Attacker ko sirf password guess karna hota hai.
+- Root user ke paas unlimited privileges hoti hain.
+- Agar root account compromise ho jaye to poora system compromise ho sakta hai.
+- Multiple administrators aik hi root account share kar sakte hain.
+- Auditing mushkil ho jati hai.
+- Accountability kam ho jati hai.
 
 ---
 
-# 7. Why Direct Root Login Is Risky
+# Root Username Predictable Hota Hai
 
-Direct remote login as `root` is generally not recommended.
-
-Some important risks include:
-
-- The username `root` is known on every Linux system.
-- Attackers only need to guess the password.
-- Root has unrestricted privileges.
-- A compromised root account can damage the entire system.
-- Multiple administrators may share the same root identity.
-- Auditing becomes more difficult.
-- Accountability is reduced.
-
----
-
-# Root Username Is Predictable
-
-Every standard Linux system has a superuser account named:
+Har standard Linux system mein superuser account ka naam hota hai:
 
 ```text
 root
 ```
 
-An attacker does not need to discover the username.
+Attacker ko username dhoondhne ki zarurat nahi hoti.
 
-The attacker can focus only on guessing:
+Usay sirf ye guess karna hota hai:
 
 ```text
 root password
 ```
 
-This reduces the number of unknown values during a brute-force attack.
+Is wajah se brute-force attack attacker ke liye kaafi aasaan ho jata hai kyun ke unknown values kam reh jati hain.
 
 ---
 
-# Root Has Unlimited Privileges
+# Root Ke Paas Unlimited Privileges Hoti Hain
 
-The `root` user can:
+`root` user ye tamam kaam kar sakta hai:
 
-- Modify any file.
-- Delete system data.
-- Change user passwords.
-- Stop services.
-- Install software.
-- Change security settings.
-- Access sensitive information.
-- Shut down or reboot the system.
+- Kisi bhi file ko modify kar sakta hai.
+- System data delete kar sakta hai.
+- User passwords change kar sakta hai.
+- Services stop ya restart kar sakta hai.
+- Software install ya remove kar sakta hai.
+- Security settings modify kar sakta hai.
+- Sensitive information access kar sakta hai.
+- System ko shutdown ya reboot kar sakta hai.
 
-If the root account is compromised, the attacker may gain complete control.
+Agar root account compromise ho jaye to attacker ko system par complete control mil sakta hai.
 
 ---
 
-# 8. Accountability and Auditing Problems
+# 8. Accountability Aur Auditing Ka Masla
 
-Suppose ten Linux administrators all use the same root account.
+Misaal ke taur par agar 10 Linux Administrators aik hi root account use karte hain.
 
-The logs may show:
+Logs mein sirf itna nazar aayega:
 
 ```text
 root performed an action
 ```
 
-However, it may be difficult to determine which administrator actually performed it.
+Lekin ye maloom karna mushkil ho jayega ke asal mein kis administrator ne woh kaam kiya tha.
 
-This creates an accountability problem.
+Isi ko accountability problem kehte hain.
 
 ---
 
-# Better Administrative Workflow
+# Behtar Administrative Workflow
 
-Each administrator should:
+Har administrator ko ye workflow follow karna chahiye:
 
-1. Log in using a personal normal account.
-2. Use `sudo` when elevated privileges are required.
-3. Allow logs to record which user performed the action.
+1. Sab se pehle apne personal normal account se login kare.
+2. Jab administrative privileges ki zarurat ho to `sudo` use kare.
+3. Logs automatically record karein ke kis user ne command execute ki.
 
 Example:
 
 ```text
-nadeem logs in
+nadeem login karta hai
         │
         ▼
-nadeem uses sudo
+nadeem sudo use karta hai
         │
         ▼
-Command runs with root privileges
+Command root privileges ke saath execute hoti hai
         │
         ▼
-Logs identify nadeem
+Logs mein nadeem ka naam record hota hai
 ```
+
+Is tarah accountability maintain rehti hai.
 
 ---
 
-# 9. Use `sudo` Instead of Shared Root Login
+# 9. Shared Root Login Ki Bajaye `sudo` Use Karein
 
 Example:
 
@@ -316,30 +319,30 @@ Example:
 ssh admin1@server
 ```
 
-Then:
+Us ke baad:
 
 ```bash
 sudo systemctl restart httpd
 ```
 
-The system logs can identify:
+System logs ye information record karte hain:
 
-- The original user.
-- The command executed.
-- The time of execution.
-- Whether the command succeeded.
+- Original user ka naam
+- Kaunsi command execute hui
+- Kis waqt execute hui
+- Command successful hui ya fail hui
 
 ---
 
-# Check `sudo` Logs
+# sudo Logs Check Karna
 
-On Rocky Linux or RHEL:
+Rocky Linux ya RHEL par:
 
 ```bash
 sudo grep sudo /var/log/secure
 ```
 
-Using the journal:
+Ya journal ke zariye:
 
 ```bash
 sudo journalctl _COMM=sudo
@@ -347,11 +350,11 @@ sudo journalctl _COMM=sudo
 
 ---
 
-# 10. The `PermitRootLogin` Setting
+# 10. `PermitRootLogin` Setting
 
-The `PermitRootLogin` setting controls whether the root account can log in through SSH.
+`PermitRootLogin` decide karti hai ke root account SSH ke zariye login kar sakta hai ya nahi.
 
-It is configured in:
+Ye setting is file mein hoti hai:
 
 ```text
 /etc/ssh/sshd_config
@@ -367,46 +370,48 @@ PermitRootLogin no
 
 # Common `PermitRootLogin` Values
 
-| Value | Behavior |
-|------|----------|
-| `yes` | Root can log in using allowed authentication methods |
-| `no` | Root SSH login is completely disabled |
-| `prohibit-password` | Root password login is disabled, but key-based login may be allowed |
-| `forced-commands-only` | Root login is allowed only for restricted forced commands |
+| Value | Matlab |
+|------|---------|
+| `yes` | Root allowed authentication methods ke saath login kar sakta hai |
+| `no` | Root SSH login mukammal tor par disable hai |
+| `prohibit-password` | Root password se login nahi kar sakta, lekin SSH key se kar sakta hai |
+| `forced-commands-only` | Root sirf predefined forced commands ke liye login kar sakta hai |
 
 ---
 
 # Recommended Settings
 
-Most secure:
+Sab se secure configuration:
 
 ```text
 PermitRootLogin no
 ```
 
-For environments that require root key-based automation:
+Agar automation ke liye root ki SSH keys use karni hon to:
 
 ```text
 PermitRootLogin prohibit-password
 ```
 
-The better general approach is:
+Lekin aam tor par recommended workflow ye hai:
 
 ```text
-Normal user login
+Normal User Login
         │
         ▼
 sudo
         │
         ▼
-Administrative command
+Administrative Command
 ```
+
+Is tareeqe se security bhi improve hoti hai aur accountability bhi maintain rehti hai.
 
 ---
 
-# 11. Check the Effective Root Login Setting
+# 11. Effective Root Login Setting Check Karna
 
-Run:
+Command run karein:
 
 ```bash
 sudo sshd -T | grep -i permitrootlogin
@@ -418,37 +423,37 @@ Example Output:
 permitrootlogin prohibit-password
 ```
 
-The `sshd -T` command displays the effective SSH server configuration.
+`sshd -T` actual effective configuration display karta hai.
 
-This is more reliable than checking only uncommented lines in the file.
+Ye sirf configuration file dekhne se zyada reliable tareeqa hai.
 
 ---
 
-# 12. Disable Direct Root SSH Login
+# 12. Direct Root SSH Login Disable Karna
 
-Edit:
+Configuration file edit karein:
 
 ```bash
 sudo vim /etc/ssh/sshd_config
 ```
 
-Set:
+Setting change karein:
 
 ```text
 PermitRootLogin no
 ```
 
-Save the file.
+File save karein.
 
-Validate the configuration:
+Configuration validate karein:
 
 ```bash
 sudo sshd -t
 ```
 
-If no output appears, the syntax is generally valid.
+Agar koi output na aaye to syntax generally theek hoti hai.
 
-Restart SSH:
+Us ke baad SSH service restart karein:
 
 ```bash
 sudo systemctl restart sshd
@@ -456,19 +461,19 @@ sudo systemctl restart sshd
 
 ---
 
-# ⚠️ Avoid Locking Yourself Out
+# ⚠️ Apne Aap Ko Lock Out Hone Se Bachayein
 
-Before disabling root login:
+Root login disable karne se pehle hamesha:
 
-- Create a normal administrative user.
-- Add the user to the `wheel` group.
-- Test SSH login using that user.
-- Confirm that `sudo` works.
-- Keep the current root session open during testing.
+- Ek normal administrative user create karein.
+- User ko `wheel` group mein add karein.
+- SSH login test karein.
+- Confirm karein ke `sudo` kaam kar raha hai.
+- Testing ke dauran current root session band na karein.
 
 ---
 
-# Create an Administrative User
+# Administrative User Create Karna
 
 Example:
 
@@ -478,19 +483,19 @@ sudo passwd admin1
 sudo usermod -aG wheel admin1
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 id admin1
 ```
 
-Test:
+SSH login test karein:
 
 ```bash
 ssh admin1@server
 ```
 
-Then:
+Us ke baad check karein:
 
 ```bash
 sudo whoami
@@ -502,51 +507,56 @@ Expected Output:
 root
 ```
 
+Ye confirm karta hai ke normal user successfully sudo ke zariye administrative tasks perform kar sakta hai.
+
 ---
+# 13. Password Authentication Disable Kyun Karein?
 
-# 13. Why Disable Password Authentication?
+Password Authentication ko disable karna security ke liye bohot achi practice hai.
 
-Password authentication may be vulnerable to:
+Password authentication in attacks ka shikaar ho sakti hai:
 
-- Brute-force attacks.
-- Password guessing.
-- Credential reuse.
-- Weak passwords.
-- Password theft.
-- Phishing.
-- Automated internet scans.
+- Brute-force attacks
+- Password guessing
+- Credential reuse
+- Weak passwords
+- Password theft
+- Phishing attacks
+- Automated internet scanning
 
-SSH keys are usually stronger than reusable passwords.
+SSH Keys aam passwords ke muqable mein zyada secure hoti hain.
 
 ---
 
 # Password Authentication Setting
 
-The setting is:
+SSH configuration mein is setting ka naam hai:
 
 ```text
 PasswordAuthentication
 ```
 
-To disable password login:
+Password login disable karne ke liye:
 
 ```text
 PasswordAuthentication no
 ```
 
+Is setting ke baad users password ke zariye SSH login nahi kar sakenge.
+
 ---
 
-# 14. Enable Public-Key Authentication
+# 14. Public-Key Authentication Enable Karna
 
-The relevant setting is:
+Public-Key Authentication ko control karne wali setting hai:
 
 ```text
 PubkeyAuthentication yes
 ```
 
-On many systems, this is enabled by default.
+Aksar Linux distributions mein ye setting default se enabled hoti hai.
 
-Check:
+Check karne ke liye command:
 
 ```bash
 sudo sshd -T | grep -i pubkeyauthentication
@@ -562,7 +572,7 @@ pubkeyauthentication yes
 
 # 15. Key-Only Authentication Configuration
 
-A common hardened configuration is:
+Production environments mein commonly ye configuration use ki jati hai:
 
 ```text
 PermitRootLogin no
@@ -570,86 +580,115 @@ PubkeyAuthentication yes
 PasswordAuthentication no
 ```
 
-This means:
+Is configuration ka matlab:
 
-- Root cannot log in directly.
-- Public-key authentication is allowed.
-- Password authentication is disabled.
+- Root user directly SSH login nahi kar sakta.
+- SSH Key Authentication allowed hai.
+- Password Authentication disable hai.
+
+Ye configuration security ko kaafi improve karti hai.
 
 ---
 
-# ⚠️ Test Keys Before Disabling Passwords
+# ⚠️ Password Disable Karne Se Pehle Keys Zaroor Test Karein
 
-Before setting:
+Kabhi bhi ye setting:
 
 ```text
 PasswordAuthentication no
 ```
 
-make sure that:
+enable karne se pehle ye tamam cheezen verify karein:
 
-- SSH keys are configured.
-- Public keys are in `authorized_keys`.
-- File permissions are correct.
-- SELinux contexts are correct.
-- A second SSH session can log in successfully.
+- SSH Keys successfully configure ho chuki hon.
+- Public key `authorized_keys` file mein mojood ho.
+- File permissions bilkul sahi hon.
+- SELinux contexts bhi sahi hon.
+- Dusri SSH session successfully login kar rahi ho.
+
+Agar bina test kiye password disable kar diya to system se lock out hone ka khatra hota hai.
 
 ---
 
 # Safe Testing Procedure
 
-1. Keep the current SSH session open.
-2. Open another terminal.
-3. Test key-based login.
-4. Verify `sudo`.
-5. Validate SSH configuration.
-6. Restart or reload `sshd`.
-7. Test another new session.
-8. Close the original session only after success.
+Configuration apply karne se pehle hamesha ye procedure follow karein.
+
+### Step 1
+
+Current SSH session ko open rakhein.
+
+### Step 2
+
+Ek naya terminal kholein.
+
+### Step 3
+
+SSH Key-Based Login test karein.
+
+### Step 4
+
+Verify karein ke `sudo` bilkul sahi kaam kar raha hai.
+
+### Step 5
+
+SSH configuration validate karein.
+
+### Step 6
+
+`sshd` ko reload ya restart karein.
+
+### Step 7
+
+Ek aur nayi SSH session se login test karein.
+
+### Step 8
+
+Jab sab kuch successfully verify ho jaye tab purani SSH session close karein.
+
+Ye production environments ki best practice hai.
 
 ---
 
-# 16. Validate the SSH Configuration
+# 16. SSH Configuration Validate Karna
 
-Always run:
+Service restart karne se pehle hamesha ye command chalayein:
 
 ```bash
 sudo sshd -t
 ```
 
-before restarting the service.
-
-No output generally means:
+Agar koi output nahi aati to aam tor par iska matlab hota hai:
 
 ```text
 Configuration syntax is valid
 ```
 
-If there is an error, it may show:
+Agar syntax mein koi masla ho to output kuch is tarah hogi:
 
 ```text
 /etc/ssh/sshd_config line 45: Unsupported option
 ```
 
-Fix the error before restarting.
+Aisi surat mein pehle error ko fix karein, us ke baad hi service restart karein.
 
 ---
 
-# 17. Restart or Reload SSH
+# 17. SSH Service Restart Ya Reload Karna
 
-Restart:
+Service restart karne ke liye:
 
 ```bash
 sudo systemctl restart sshd
 ```
 
-Reload configuration when supported:
+Agar sirf configuration dobara load karni ho aur service reload support karti ho:
 
 ```bash
 sudo systemctl reload sshd
 ```
 
-Check status:
+Status verify karne ke liye:
 
 ```bash
 systemctl status sshd
@@ -657,26 +696,28 @@ systemctl status sshd
 
 ---
 
-# Restart vs Reload
+# Restart Aur Reload Mein Farq
 
-| Action | Meaning |
-|--------|---------|
-| Restart | Stop and start the SSH service |
-| Reload | Re-read configuration without a full restart |
+| Action | Matlab |
+|---------|---------|
+| Restart | SSH service ko poori tarah stop karke dobara start karta hai. |
+| Reload | Service ko bina restart kiye configuration dobara read karwata hai. |
 
-A reload is usually less disruptive, but use the method supported by the service and your environment.
+Reload zyada behtar hota hai kyun ke existing connections aam tor par disturb nahi hoti.
+
+Lekin har service reload support nahi karti.
 
 ---
 
-# 18. View Effective SSH Settings
+# 18. Effective SSH Configuration Dekhna
 
-Run:
+Current effective SSH configuration dekhne ke liye:
 
 ```bash
 sudo sshd -T
 ```
 
-Search for specific settings:
+Specific settings search karne ke liye:
 
 ```bash
 sudo sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentication'
@@ -690,54 +731,59 @@ pubkeyauthentication yes
 passwordauthentication no
 ```
 
+Ye command final effective configuration dikhati hai jo SSH daemon asal mein use kar raha hota hai.
+
 ---
 
 # 19. Important SSH Server Settings
 
-| Setting | Purpose |
+| Setting | Maqsad |
 |---------|---------|
-| `Port` | SSH listening port |
-| `PermitRootLogin` | Controls remote root login |
-| `PasswordAuthentication` | Enables or disables password login |
-| `PubkeyAuthentication` | Enables SSH key authentication |
-| `MaxAuthTries` | Maximum authentication attempts |
-| `LoginGraceTime` | Time allowed to authenticate |
-| `AllowUsers` | Allows only named users |
-| `AllowGroups` | Allows only members of named groups |
-| `DenyUsers` | Blocks named users |
-| `DenyGroups` | Blocks named groups |
-| `X11Forwarding` | Controls X11 forwarding |
-| `AllowTcpForwarding` | Controls SSH port forwarding |
-| `ClientAliveInterval` | Checks inactive sessions |
-| `ClientAliveCountMax` | Disconnects unresponsive clients |
+| `Port` | SSH kis port par listen karega |
+| `PermitRootLogin` | Root SSH login ko control karta hai |
+| `PasswordAuthentication` | Password login enable ya disable karta hai |
+| `PubkeyAuthentication` | SSH Key Authentication enable karta hai |
+| `MaxAuthTries` | Maximum login attempts define karta hai |
+| `LoginGraceTime` | Login complete karne ka maximum waqt |
+| `AllowUsers` | Sirf specified users ko allow karta hai |
+| `AllowGroups` | Sirf specified groups ko allow karta hai |
+| `DenyUsers` | Specified users ko block karta hai |
+| `DenyGroups` | Specified groups ko block karta hai |
+| `X11Forwarding` | X11 Forwarding control karta hai |
+| `AllowTcpForwarding` | SSH Port Forwarding control karta hai |
+| `ClientAliveInterval` | Idle client ko periodically check karta hai |
+| `ClientAliveCountMax` | Kitni checks ke baad inactive client disconnect hoga |
 
 ---
+# 20. SSH Port Change Karna
 
-# 20. Change the SSH Port
-
-The standard port is:
+Default SSH port hoti hai:
 
 ```text
 22
 ```
 
-To use a custom port:
+Agar aap security ke liye custom port use karna chahein to configuration file mein likhein:
 
 ```text
 Port 2222
 ```
 
-After changing the port, you must also update:
+Port change karne ke baad sirf SSH configuration update karna kaafi nahi hota.
 
-- Firewall rules.
-- SELinux port labeling on enforcing systems.
-- Client connection commands.
-- Monitoring systems.
-- Documentation.
+Aap ko neeche wali cheezen bhi update karni hongi:
+
+- Firewall rules
+- SELinux port labeling (agar SELinux Enforcing mode mein ho)
+- SSH client commands
+- Monitoring tools
+- Documentation
 
 ---
 
-# Connect to a Custom Port
+# Custom Port Par Connect Karna
+
+Agar SSH port change karke **2222** kar di hai to login is tarah hoga:
 
 ```bash
 ssh -p 2222 user@server
@@ -745,7 +791,7 @@ ssh -p 2222 user@server
 
 ---
 
-# Configure the Firewall for a Custom Port
+# Firewall Mein Naya Port Allow Karna
 
 Example:
 
@@ -754,29 +800,31 @@ sudo firewall-cmd --permanent --add-port=2222/tcp
 sudo firewall-cmd --reload
 ```
 
+Ye commands firewall mein naya SSH port permanently allow karti hain.
+
 ---
 
-# Configure SELinux for a Custom SSH Port
+# SELinux Mein SSH Port Configure Karna
 
-Install tools if required:
+Agar SELinux Enforcing mode mein hai to pehle required package install karein:
 
 ```bash
 sudo dnf install -y policycoreutils-python-utils
 ```
 
-Add the port:
+Naya SSH port add karein:
 
 ```bash
 sudo semanage port -a -t ssh_port_t -p tcp 2222
 ```
 
-If it already exists under another type, modify it:
+Agar port pehle kisi aur type ke saath registered ho to modify karein:
 
 ```bash
 sudo semanage port -m -t ssh_port_t -p tcp 2222
 ```
 
-Verify:
+Verify karne ke liye:
 
 ```bash
 sudo semanage port -l | grep ssh
@@ -784,30 +832,34 @@ sudo semanage port -l | grep ssh
 
 ---
 
-# Important Note About Changing the Port
+# ⚠️ Sirf Port Change Karna Security Nahi Hai
 
-Changing the SSH port may reduce automated scanning noise, but it is not a replacement for:
+SSH port change karna automated internet scans ko kuch had tak kam kar sakta hai, lekin ye complete security solution nahi hai.
 
-- Strong authentication.
-- Firewall restrictions.
-- SSH keys.
-- Patching.
-- Monitoring.
-- Rate limiting.
+Asal security in cheezon se aati hai:
+
+- Strong Authentication
+- Firewall Restrictions
+- SSH Keys
+- Regular Patching
+- Monitoring
+- Rate Limiting
+
+Port change sirf ek additional security layer hai.
 
 ---
 
-# 21. Restrict SSH to Specific Users
+# 21. Sirf Specific Users Ko SSH Allow Karna
 
-Example:
+Agar aap sirf kuch users ko SSH login ki permission dena chahte hain to:
 
 ```text
 AllowUsers admin1 devops1
 ```
 
-Only the listed users may connect through SSH.
+Ab sirf ye users SSH ke zariye login kar sakenge.
 
-Check the effective configuration:
+Verify karne ke liye:
 
 ```bash
 sudo sshd -T | grep -i allowusers
@@ -815,7 +867,7 @@ sudo sshd -T | grep -i allowusers
 
 ---
 
-# Restrict SSH to a Group
+# Sirf Ek Group Ko SSH Allow Karna
 
 Example:
 
@@ -823,19 +875,19 @@ Example:
 AllowGroups sshusers
 ```
 
-Create the group:
+Group create karein:
 
 ```bash
 sudo groupadd sshusers
 ```
 
-Add a user:
+User ko group mein add karein:
 
 ```bash
 sudo usermod -aG sshusers admin1
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 id admin1
@@ -843,17 +895,19 @@ id admin1
 
 ---
 
-# 22. Control Authentication Attempts
+# 22. Authentication Attempts Limit Karna
 
-Example:
+Configuration:
 
 ```text
 MaxAuthTries 3
 ```
 
-This limits the number of authentication attempts per connection.
+Iska matlab:
 
-Check:
+Har SSH connection par user ko sirf **3 authentication attempts** milengi.
+
+Verify:
 
 ```bash
 sudo sshd -T | grep -i maxauthtries
@@ -861,7 +915,7 @@ sudo sshd -T | grep -i maxauthtries
 
 ---
 
-# 23. Configure Login Grace Time
+# 23. Login Grace Time Configure Karna
 
 Example:
 
@@ -869,9 +923,11 @@ Example:
 LoginGraceTime 30
 ```
 
-This gives users 30 seconds to complete authentication.
+Iska matlab:
 
-Check:
+User ke paas login complete karne ke liye **30 seconds** honge.
+
+Verify:
 
 ```bash
 sudo sshd -T | grep -i logingracetime
@@ -879,7 +935,7 @@ sudo sshd -T | grep -i logingracetime
 
 ---
 
-# 24. Disconnect Inactive SSH Sessions
+# 24. Inactive SSH Sessions Disconnect Karna
 
 Example:
 
@@ -888,16 +944,18 @@ ClientAliveInterval 300
 ClientAliveCountMax 2
 ```
 
-This means:
+Matlab:
 
-- Server checks the client every 300 seconds.
-- After two unanswered checks, the session may be disconnected.
+- Server har **300 seconds** baad client ko check karega.
+- Agar client do martaba response na de to SSH session disconnect kar di jayegi.
+
+Ye idle sessions ko automatically close kar deta hai.
 
 ---
 
-# 25. Disable Features When Not Required
+# 25. Zarurat Na Ho To Features Disable Karein
 
-Examples:
+Example:
 
 ```text
 X11Forwarding no
@@ -906,25 +964,27 @@ AllowAgentForwarding no
 PermitTunnel no
 ```
 
-Disable features only when your users and applications do not require them.
+Agar users ko in features ki zarurat nahi hai to inhein disable kar dena security ko improve karta hai.
 
 ---
 
-# 26. Use Configuration Drop-In Files
+# 26. Configuration Drop-In Files Use Karna
 
-Modern OpenSSH configurations may support:
+Modern OpenSSH versions support karti hain:
 
 ```text
 /etc/ssh/sshd_config.d/
 ```
 
-Instead of editing the main file directly, create:
+Main configuration file edit karne ke bajaye aap alag hardening file bana sakte hain.
+
+Example:
 
 ```bash
 sudo vim /etc/ssh/sshd_config.d/99-hardening.conf
 ```
 
-Example:
+Us mein likhein:
 
 ```text
 PermitRootLogin no
@@ -933,19 +993,19 @@ PasswordAuthentication no
 MaxAuthTries 3
 ```
 
-This can make configuration management easier.
+Ye tareeqa configuration management ko aasaan bana deta hai.
 
 ---
 
-# Check Include Configuration
+# Include Configuration Check Karna
 
-The main file may contain:
+Main configuration file mein aksar ye line hoti hai:
 
 ```text
 Include /etc/ssh/sshd_config.d/*.conf
 ```
 
-Check:
+Check karne ke liye:
 
 ```bash
 grep -i '^Include' /etc/ssh/sshd_config
@@ -953,27 +1013,29 @@ grep -i '^Include' /etc/ssh/sshd_config
 
 ---
 
-# 27. Order and Effective Values
+# 27. Configuration Order Aur Effective Values
 
-SSH configuration may be affected by:
+SSH configuration kai jagahon se aa sakti hai:
 
-- Main configuration file.
-- Drop-in files.
-- `Match` blocks.
-- Distribution defaults.
-- Command-line options.
+- Main configuration file
+- Drop-in configuration files
+- Match blocks
+- Distribution defaults
+- Command-line options
 
-Always verify the final result with:
+Is liye hamesha final effective configuration verify karein:
 
 ```bash
 sudo sshd -T
 ```
 
+Ye actual running configuration dikhata hai.
+
 ---
 
-# 28. Understand `Match` Blocks
+# 28. Match Blocks Samajhna
 
-A `Match` block applies settings only to certain users, groups, addresses, or hosts.
+`Match` block sirf kuch specific users, groups, IP addresses ya hosts ke liye settings apply karta hai.
 
 Example:
 
@@ -984,25 +1046,27 @@ Match User backup
     X11Forwarding no
 ```
 
-Settings after a `Match` line remain inside that block until another `Match` or the end of the file.
+`Match` ke baad likhi hui tamam settings sirf us matching condition par apply hongi.
+
+Ye tab tak continue rehti hain jab tak doosra `Match` block ya file ka end na aa jaye.
 
 ---
 
-# 29. View SSH Authentication Logs
+# 29. SSH Authentication Logs Dekhna
 
-On Rocky Linux or RHEL:
+Rocky Linux ya RHEL par:
 
 ```bash
 sudo tail -f /var/log/secure
 ```
 
-Using the journal:
+Ya journal ke zariye:
 
 ```bash
 sudo journalctl -u sshd
 ```
 
-Follow in real time:
+Real-time monitoring ke liye:
 
 ```bash
 sudo journalctl -u sshd -f
@@ -1012,68 +1076,73 @@ sudo journalctl -u sshd -f
 
 # Common SSH Log Events
 
-Logs may show:
+SSH logs mein aam tor par ye events nazar aate hain:
 
-- Successful password login.
-- Successful public-key login.
-- Failed password.
-- Invalid user.
-- Root login rejection.
-- Disconnection.
-- Key authentication failure.
-- Configuration errors.
+- Successful Password Login
+- Successful Public-Key Login
+- Failed Password Attempt
+- Invalid User
+- Root Login Reject Hua
+- Client Disconnect Hua
+- Key Authentication Failure
+- Configuration Errors
+
+Ye logs troubleshooting aur security auditing ke liye bohot important hote hain.
 
 ---
+# 30. Root Login Restriction Test Karna
 
-# 30. Test Root Login Restriction
-
-From another system:
+Kisi doosre system se root login test karein:
 
 ```bash
 ssh root@server
 ```
 
-If root login is disabled, you may see:
+Agar root login disable hai to expected output kuch is tarah hoga:
 
 ```text
 Permission denied
 ```
 
-Check logs:
+Logs check karne ke liye:
 
 ```bash
 sudo journalctl -u sshd -n 50
 ```
 
+Is se aap verify kar sakte hain ke root login successfully block ho raha hai.
+
 ---
 
-# 31. Test Password Authentication Restriction
+# 31. Password Authentication Restriction Test Karna
 
-Force password authentication:
+Password authentication ko force karne ke liye:
 
 ```bash
 ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no user@server
 ```
 
-If password authentication is disabled, the login should fail.
+Agar `PasswordAuthentication no` configured hai to login fail ho jana chahiye.
+
+Is se aap verify kar sakte hain ke password login successfully disable ho chuka hai.
 
 ---
 
-# 32. Test Public-Key Authentication
+# 32. Public-Key Authentication Test Karna
 
-Force public-key authentication:
+SSH Key Authentication test karne ke liye:
 
 ```bash
 ssh -o PreferredAuthentications=publickey user@server
 ```
 
-For debugging:
+Debug mode mein chalane ke liye:
 
 ```bash
 ssh -vv user@server
 ```
 
-Look for:
+Output mein aap ko kuch is tarah ki lines nazar aayengi:
 
 ```text
 Offering public key
@@ -1081,11 +1150,13 @@ Server accepts key
 Authenticated using "publickey"
 ```
 
+Ye confirm karta hai ke SSH Key Authentication successfully kaam kar rahi hai.
+
 ---
 
 # 33. Recommended Baseline Configuration
 
-Example hardened configuration:
+Production environments ke liye aik common hardened configuration:
 
 ```text
 PermitRootLogin no
@@ -1097,53 +1168,55 @@ X11Forwarding no
 AllowAgentForwarding no
 ```
 
-This is only a sample.
+⚠️ Ye sirf ek sample configuration hai.
 
-Always confirm application and business requirements before applying it.
+Isay apply karne se pehle apni organization ki requirements aur applications zaroor verify karein.
 
 ---
 
-# 34. Complete Hardening Workflow
+# 34. Complete SSH Hardening Workflow
 
 ```text
-Review Current SSH Configuration
+Current SSH Configuration Review Karein
               │
               ▼
-Create Normal Administrative User
+Normal Administrative User Create Karein
               │
               ▼
-Configure SSH Key Authentication
+SSH Key Authentication Configure Karein
               │
               ▼
-Test New Login in a Second Session
+Dusri SSH Session Mein Login Test Karein
               │
               ▼
-Disable Direct Root Login
+Direct Root Login Disable Karein
               │
               ▼
-Disable Password Authentication
+Password Authentication Disable Karein
               │
               ▼
-Validate with sshd -t
+Configuration Ko sshd -t Se Validate Karein
               │
               ▼
-Reload or Restart sshd
+sshd Ko Reload Ya Restart Karein
               │
               ▼
-Test Again and Review Logs
+Dobara Test Karein Aur Logs Review Karein
 ```
+
+Ye workflow production environments mein safest approach mana jata hai.
 
 ---
 
 # 🧪 Practice Lab
 
-## Step 1 – Back Up the Configuration
+## Step 1 – Configuration Ka Backup Banayein
 
 ```bash
 sudo cp -a /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ls -l /etc/ssh/sshd_config*
@@ -1151,7 +1224,7 @@ ls -l /etc/ssh/sshd_config*
 
 ---
 
-## Step 2 – Check Current Effective Settings
+## Step 2 – Current Effective Configuration Check Karein
 
 ```bash
 sudo sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentication'
@@ -1159,7 +1232,7 @@ sudo sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentica
 
 ---
 
-## Step 3 – Create an Administrative User
+## Step 3 – Administrative User Create Karein
 
 ```bash
 sudo useradd admin1
@@ -1169,15 +1242,15 @@ sudo usermod -aG wheel admin1
 
 ---
 
-## Step 4 – Configure SSH Keys for `admin1`
+## Step 4 – admin1 Ke Liye SSH Keys Configure Karein
 
-From the client:
+Client machine se:
 
 ```bash
 ssh-copy-id admin1@server
 ```
 
-Test:
+Login test karein:
 
 ```bash
 ssh admin1@server
@@ -1185,13 +1258,13 @@ ssh admin1@server
 
 ---
 
-## Step 5 – Edit the SSH Server Configuration
+## Step 5 – SSH Server Configuration Edit Karein
 
 ```bash
 sudo vim /etc/ssh/sshd_config
 ```
 
-Set:
+Settings configure karein:
 
 ```text
 PermitRootLogin no
@@ -1201,7 +1274,7 @@ PasswordAuthentication no
 
 ---
 
-## Step 6 – Validate the Configuration
+## Step 6 – Configuration Validate Karein
 
 ```bash
 sudo sshd -t
@@ -1209,7 +1282,7 @@ sudo sshd -t
 
 ---
 
-## Step 7 – Restart the Service
+## Step 7 – SSH Service Restart Karein
 
 ```bash
 sudo systemctl restart sshd
@@ -1217,19 +1290,19 @@ sudo systemctl restart sshd
 
 ---
 
-## Step 8 – Test in a New Terminal
+## Step 8 – Nayi Terminal Se Login Test Karein
 
 ```bash
 ssh admin1@server
 ```
 
-Then:
+Phir check karein:
 
 ```bash
 sudo whoami
 ```
 
-Expected:
+Expected Output:
 
 ```text
 root
@@ -1237,15 +1310,19 @@ root
 
 ---
 
-## Step 9 – Confirm Root Is Blocked
+## Step 9 – Root Login Test Karein
 
 ```bash
 ssh root@server
 ```
 
+Expected result:
+
+Root login deny ho jana chahiye.
+
 ---
 
-## Step 10 – Review Logs
+## Step 10 – SSH Logs Review Karein
 
 ```bash
 sudo journalctl -u sshd -n 50
@@ -1255,27 +1332,27 @@ sudo journalctl -u sshd -n 50
 
 # 🔧 Troubleshooting Scenarios
 
-### Scenario 1 – `sshd` Does Not Restart
+## Scenario 1 – sshd Restart Nahi Ho Raha
 
-Check syntax:
+Syntax check karein:
 
 ```bash
 sudo sshd -t
 ```
 
-Check status:
+Service status dekhein:
 
 ```bash
 sudo systemctl status sshd
 ```
 
-Check logs:
+Logs dekhein:
 
 ```bash
 sudo journalctl -u sshd -n 100
 ```
 
-Restore the backup if necessary:
+Agar zarurat ho to backup restore karein:
 
 ```bash
 sudo cp -a /etc/ssh/sshd_config.backup /etc/ssh/sshd_config
@@ -1283,28 +1360,28 @@ sudo cp -a /etc/ssh/sshd_config.backup /etc/ssh/sshd_config
 
 ---
 
-### Scenario 2 – Key Login Stops Working
+## Scenario 2 – SSH Key Login Kaam Nahi Kar Raha
 
-Check:
+Client side debugging:
 
 ```bash
 ssh -vv user@server
 ```
 
-On the server:
+Server logs:
 
 ```bash
 sudo journalctl -u sshd -n 50
 ```
 
-Verify:
+Permissions verify karein:
 
 ```bash
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-Restore SELinux contexts:
+SELinux context restore karein:
 
 ```bash
 sudo restorecon -Rv ~/.ssh
@@ -1312,84 +1389,84 @@ sudo restorecon -Rv ~/.ssh
 
 ---
 
-### Scenario 3 – Root Can Still Log In
+## Scenario 3 – Root Abhi Bhi Login Kar Raha Hai
 
-Check the effective value:
+Effective configuration check karein:
 
 ```bash
 sudo sshd -T | grep -i permitrootlogin
 ```
 
-Search all SSH configuration files:
+Saari SSH configuration files search karein:
 
 ```bash
 sudo grep -Rni 'PermitRootLogin' /etc/ssh/
 ```
 
-A drop-in file or `Match` block may override the expected configuration.
+Ho sakta hai koi Drop-in file ya Match block original configuration ko override kar raha ho.
 
 ---
 
-### Scenario 4 – Password Login Still Works
+## Scenario 4 – Password Login Abhi Bhi Kaam Kar Raha Hai
 
-Check:
+Check karein:
 
 ```bash
 sudo sshd -T | grep -i passwordauthentication
 ```
 
-Search configuration:
+Configuration search karein:
 
 ```bash
 sudo grep -Rni 'PasswordAuthentication' /etc/ssh/
 ```
 
-Also check:
+Saath hi ye settings bhi check karein:
 
 ```text
 KbdInteractiveAuthentication
 AuthenticationMethods
 ```
 
-Some systems may allow keyboard-interactive authentication separately.
+Kuch systems keyboard-interactive authentication separately allow karte hain.
 
 ---
 
-### Scenario 5 – Locked Out After Configuration Change
+## Scenario 5 – Configuration Change Ke Baad Lock Out Ho Gaye
 
-Use:
+Agar SSH access band ho jaye to ye options use karein:
 
-- Hypervisor console.
-- Physical console.
-- Rescue mode.
-- Cloud serial console.
-- Existing open SSH session.
+- Hypervisor Console
+- Physical Console
+- Rescue Mode
+- Cloud Serial Console
+- Existing Open SSH Session
 
-Restore the previous configuration and restart `sshd`.
+Purani configuration restore karein aur `sshd` restart karein.
 
 ---
 
-### Scenario 6 – Custom Port Does Not Work
+## Scenario 6 – Custom SSH Port Kaam Nahi Kar Raha
 
-Check whether SSH is listening:
+Check karein SSH kis port par listen kar raha hai:
 
 ```bash
 sudo ss -tulpn | grep sshd
 ```
 
-Check firewall:
+Firewall verify karein:
 
 ```bash
 sudo firewall-cmd --list-all
 ```
 
-Check SELinux:
+SELinux verify karein:
 
 ```bash
 sudo semanage port -l | grep ssh
 ```
 
-Test locally:
+Local testing:
 
 ```bash
 ssh -p 2222 localhost
@@ -1399,82 +1476,84 @@ ssh -p 2222 localhost
 
 # ⚠️ Security Best Practices
 
-- Disable direct root login.
-- Use personal administrative accounts.
-- Use `sudo` for elevated access.
-- Prefer SSH keys over passwords.
-- Use passphrases on administrator keys.
-- Restrict SSH with `AllowUsers` or `AllowGroups`.
-- Review SSH logs regularly.
-- Keep OpenSSH patched.
-- Limit firewall access to trusted networks when possible.
-- Use `MaxAuthTries` to reduce repeated attempts.
-- Disable forwarding features when they are not required.
-- Back up the configuration before making changes.
-- Always validate with `sshd -t`.
-- Test changes in a second session before closing the first.
+Hamesha in best practices ko follow karein:
+
+- Direct Root Login disable karein.
+- Personal administrative accounts use karein.
+- Elevated privileges ke liye `sudo` use karein.
+- Passwords ki bajaye SSH Keys prefer karein.
+- Administrator keys par passphrase zaroor lagayein.
+- `AllowUsers` ya `AllowGroups` use karein.
+- SSH logs regularly review karein.
+- OpenSSH ko hamesha updated rakhein.
+- Firewall access trusted networks tak limited rakhein.
+- `MaxAuthTries` configure karein.
+- Non-required forwarding features disable karein.
+- Configuration ka backup zaroor banayein.
+- Restart se pehle `sshd -t` zaroor chalayein.
+- Current session band karne se pehle doosri SSH session se testing zaroor karein.
 
 ---
 
 # 📌 Quick Revision
 
-| Item | Purpose |
+| Item | Matlab |
 |------|---------|
-| `sshd` | OpenSSH server daemon |
-| `/etc/ssh/sshd_config` | Main SSH server configuration |
-| `PermitRootLogin no` | Disable direct root SSH login |
-| `PasswordAuthentication no` | Disable SSH password login |
-| `PubkeyAuthentication yes` | Enable SSH key authentication |
-| `sshd -t` | Validate SSH configuration |
-| `sshd -T` | Display effective SSH configuration |
-| `systemctl restart sshd` | Restart the SSH service |
-| `AllowUsers` | Restrict SSH to specific users |
-| `AllowGroups` | Restrict SSH to specific groups |
+| `sshd` | OpenSSH Server Daemon |
+| `/etc/ssh/sshd_config` | Main SSH Server Configuration File |
+| `PermitRootLogin no` | Direct Root Login Disable |
+| `PasswordAuthentication no` | Password Login Disable |
+| `PubkeyAuthentication yes` | SSH Key Authentication Enable |
+| `sshd -t` | Configuration Validate Kare |
+| `sshd -T` | Effective Configuration Show Kare |
+| `systemctl restart sshd` | SSH Service Restart Kare |
+| `AllowUsers` | Sirf Specified Users Ko Allow Kare |
+| `AllowGroups` | Sirf Specified Groups Ko Allow Kare |
 
 ---
 
 # Common Commands
 
-| Command | Purpose |
-|---------|---------|
-| `systemctl status sshd` | Check SSH service status |
-| `systemctl enable --now sshd` | Enable and start SSH |
-| `sudo vim /etc/ssh/sshd_config` | Edit SSH server configuration |
-| `sudo sshd -t` | Validate configuration syntax |
-| `sudo sshd -T` | Display effective settings |
-| `sudo systemctl restart sshd` | Restart SSH |
-| `sudo journalctl -u sshd` | View SSH logs |
-| `sudo tail -f /var/log/secure` | Follow authentication logs |
-| `sudo ss -tulpn | grep sshd` | Check listening SSH ports |
-| `ssh -vv user@server` | Debug SSH client authentication |
+| Command | Kaam |
+|---------|------|
+| `systemctl status sshd` | SSH Service Status Check Kare |
+| `systemctl enable --now sshd` | SSH Enable Aur Start Kare |
+| `sudo vim /etc/ssh/sshd_config` | SSH Configuration Edit Kare |
+| `sudo sshd -t` | Configuration Validate Kare |
+| `sudo sshd -T` | Effective Configuration Show Kare |
+| `sudo systemctl restart sshd` | SSH Restart Kare |
+| `sudo journalctl -u sshd` | SSH Logs Dekhein |
+| `sudo tail -f /var/log/secure` | Authentication Logs Live Dekhein |
+| `sudo ss -tulpn \| grep sshd` | SSH Listening Port Check Kare |
+| `ssh -vv user@server` | SSH Client Debug Kare |
 
 ---
 
 # 📖 Key Takeaways
 
-- The OpenSSH server service is provided by `sshd`.
-- The main server configuration file is `/etc/ssh/sshd_config`.
-- Direct root login creates security and accountability risks.
-- Administrators should log in with personal accounts and use `sudo`.
-- SSH keys are generally stronger than password authentication.
-- `PermitRootLogin` controls root SSH access.
-- `PasswordAuthentication` controls password login.
-- `PubkeyAuthentication` controls SSH key login.
-- Always run `sshd -t` before restarting the service.
-- Always test changes in a second session to avoid lockout.
+- OpenSSH Server service `sshd` daemon provide karta hai.
+- Main configuration file `/etc/ssh/sshd_config` hoti hai.
+- Direct Root Login security aur accountability dono ke liye risk hai.
+- Administrators ko personal accounts se login karke `sudo` use karna chahiye.
+- SSH Keys passwords se zyada secure hoti hain.
+- `PermitRootLogin` Root SSH access control karta hai.
+- `PasswordAuthentication` Password Login control karta hai.
+- `PubkeyAuthentication` SSH Key Login control karta hai.
+- Restart se pehle hamesha `sshd -t` chalayein.
+- Configuration changes ko hamesha doosri SSH session se verify karein.
 
 ---
 
-# 💡 Remember
+# 💡 Yaad Rakhein
 
-> **Think of the SSH server configuration as the security policy for the remote entrance to your Linux system.**
+> **SSH Server Configuration ko apne Linux system ke main security gate ki tarah samjhein.**
 >
-> - `PermitRootLogin` decides whether the superuser may enter directly.
-> - `PasswordAuthentication` decides whether passwords are accepted.
-> - `PubkeyAuthentication` decides whether SSH keys are accepted.
-> - `AllowUsers` and `AllowGroups` decide who may enter.
+> - `PermitRootLogin` decide karta hai ke Root seedha andar aa sakta hai ya nahi.
+> - `PasswordAuthentication` decide karta hai ke password accept hoga ya nahi.
+> - `PubkeyAuthentication` decide karta hai ke SSH Keys accept hongi ya nahi.
+> - `AllowUsers` aur `AllowGroups` decide karte hain ke kaun login kar sakta hai.
 >
-> **Recommended Administrative Flow:**
+> **Recommended Administrative Workflow:**
 >
 > ```text
 > Personal User Account
@@ -1489,4 +1568,6 @@ ssh -p 2222 localhost
 > Administrative Task
 > ```
 >
-> **Never disable your current login method until a safer replacement has been tested successfully.**
+> **Golden Rule:**
+>
+> **Kabhi bhi apna current login method disable mat karein jab tak naya aur secure login method successfully test na ho jaye.**
