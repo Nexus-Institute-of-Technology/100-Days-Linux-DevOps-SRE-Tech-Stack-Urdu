@@ -36,6 +36,8 @@ Agar processes na hon to Linux koi bhi kaam perform nahi kar sakta.
 
 # 1. Process Kya Hai?
 
+<img src="../../.github/assets/Process Flow Chart.png" width="700">
+
 **Process** hota hai:
 
 > **Kisi running program ki ek instance.**
