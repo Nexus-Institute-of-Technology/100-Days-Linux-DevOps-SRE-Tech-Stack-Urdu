@@ -1,71 +1,75 @@
 # MODULE 08 – Practice Lab: Linux Process Commands
-> **Hands-on Practice Lab – Monitoring Linux Processes with `top` command**
+> **Hands-on Practice Lab – `top` Command Se Linux Processes Monitor Karna (Roman Urdu)**
 
 ---
 
-# 🎯 Lab Objective
+# 🎯 Lab Ka Maqsad
 
-In this practice lab, you will learn how to:
+Is practice lab mein aap seekhenge:
 
-- Use the `top` command to monitor Linux processes.
-- Understand the real-time system dashboard.
-- Read system uptime and load average.
-- Review process states.
-- Analyze CPU utilization.
-- Check physical memory and swap usage.
-- Understand the important columns in the process list.
-- Use `top` during Linux troubleshooting.
+- `top` command ka istemal karke Linux processes monitor karna.
+- Real-time system dashboard ko samajhna.
+- System uptime aur Load Average ko read karna.
+- Process States ko samajhna.
+- CPU utilization ko analyze karna.
+- Physical Memory aur Swap usage ko check karna.
+- Process List ke important columns ko samajhna.
+- Linux troubleshooting ke dauran `top` command ka istemal karna.
 
 ---
 
 # 📖 Introduction
 
-A Linux System Administrator must know how to monitor running processes and identify system performance problems.
+Har Linux System Administrator ke liye zaroori hai ke woh running processes ko monitor karna aur system performance ke issues identify karna seekhe.
 
-One of the most important commands for this purpose is:
+Is maqsad ke liye sab se important commands mein se aik command hai:
 
 ```bash
 top
 ```
 
-The `top` command provides a **dynamic, real-time view** of the Linux system.
+`top` command Linux system ka **dynamic aur real-time view** provide karti hai.
 
-It displays:
+Yeh display karti hai:
 
 - System uptime
 - Logged-in users
-- Load average
-- Process states
-- CPU utilization
-- Memory usage
-- Swap usage
-- Running processes
+- Load Average
+- Process States
+- CPU Utilization
+- Memory Usage
+- Swap Usage
+- Running Processes
 
-The output normally refreshes every few seconds.
+Is ka output aam tor par har kuch seconds baad automatically refresh hota rehta hai.
 
 ---
 
-# 1. Start the `top` Command
+# 🔬 Lab 1 – `top` Command Start Karein
 
-Run:
+Command run karein:
 
 ```bash
 top
 ```
 
-The display updates automatically, normally every three seconds.
+Display automatically update hoti rehti hai.
 
-To exit `top`, press:
+By default yeh har **3 seconds** baad refresh hoti hai.
+
+`top` se bahar nikalne ke liye:
 
 ```text
 q
 ```
 
+press karein.
+
 ---
 
-# 2. Main Areas of the `top` Display
+# 2. `top` Display Ke Main Areas
 
-The default `top` output contains two major sections:
+Default `top` output do major sections par mushtamil hota hai:
 
 1. **Summary Area**
 2. **Process List**
@@ -74,41 +78,43 @@ The default `top` output contains two major sections:
 
 ## Summary Area
 
-The Summary Area appears at the top of the screen.
+Summary Area screen ke upper hissay mein hota hai.
 
-It displays:
+Yeh information display karta hai:
 
-- Current time
-- System uptime
-- Logged-in users
-- Load average
-- Number of tasks
-- CPU utilization
-- Physical memory usage
-- Swap usage
+- Current Time
+- System Uptime
+- Logged-in Users
+- Load Average
+- Number of Tasks
+- CPU Utilization
+- Physical Memory Usage
+- Swap Usage
 
 ---
 
 ## Process List
 
-The Process List appears below the Summary Area.
+Summary Area ke neeche Process List hoti hai.
 
-It displays each running process and information such as:
+Yeh har running process ki information display karti hai.
+
+Examples:
 
 - PID
 - User
 - Priority
-- Nice value
-- Memory usage
-- CPU usage
-- Process state
-- Command name
+- Nice Value
+- Memory Usage
+- CPU Usage
+- Process State
+- Command Name
 
 ---
 
-# 3. First Line – Time, Uptime, Users, and Load Average
+# 3. Pehli Line – Time, Uptime, Users Aur Load Average
 
-A typical first line may look similar to:
+Example:
 
 ```text
 top - 15:20:41 up 2 days, 3:14, 2 users, load average: 0.20, 0.15, 0.10
@@ -118,16 +124,16 @@ top - 15:20:41 up 2 days, 3:14, 2 users, load average: 0.20, 0.15, 0.10
 
 ## First-Line Fields
 
-| Field | Meaning |
-|------|---------|
-| Current time | Current system time |
-| `up` | How long the server has been running |
-| Users | Number of users currently logged in |
-| Load average | Average system workload over 1, 5, and 15 minutes |
+| Field | Matlab |
+|--------|---------|
+| Current Time | System ka current time |
+| `up` | Server kitni dair se chal raha hai |
+| Users | Is waqt kitne users login hain |
+| Load Average | Pichlay 1, 5 aur 15 minutes ka average workload |
 
 ---
 
-# Understanding Load Average
+# Load Average Ko Samajhna
 
 Example:
 
@@ -135,44 +141,44 @@ Example:
 load average: 0.20, 0.15, 0.10
 ```
 
-The three values represent:
+Yeh teen values represent karti hain:
 
-| Value | Period |
-|------:|--------|
-| `0.20` | Last 1 minute |
-| `0.15` | Last 5 minutes |
-| `0.10` | Last 15 minutes |
+| Value | Time Period |
+|------:|-------------|
+| `0.20` | Last 1 Minute |
+| `0.15` | Last 5 Minutes |
+| `0.10` | Last 15 Minutes |
 
-Load average indicates how many tasks are:
+Load Average batata hai ke kitne tasks:
 
-- Running on the CPU
-- Waiting for CPU time
-- Waiting in uninterruptible I/O sleep
+- CPU par run ho rahe hain.
+- CPU ke wait mein hain.
+- Uninterruptible I/O Sleep mein wait kar rahe hain.
 
 ---
 
 # Important Note About Load Average
 
-Load average must be interpreted according to the number of logical CPUs.
+Load Average ko hamesha CPU ki tadaad ke mutabiq interpret karein.
 
 Examples:
 
-| Logical CPUs | Load Average Near Full Capacity |
-|-------------:|---------------------------------:|
+| Logical CPUs | Full Load Approx. |
+|-------------:|------------------:|
 | 1 | Around `1.00` |
 | 2 | Around `2.00` |
 | 4 | Around `4.00` |
 | 8 | Around `8.00` |
 
-Therefore, a load average above `2.00` is not automatically a problem on every system.
+Is liye har system par `2.00` se zyada Load Average ka matlab problem nahi hota.
 
-Check the number of logical CPUs using:
+CPU count check karne ke liye:
 
 ```bash
 nproc
 ```
 
-or:
+Ya:
 
 ```bash
 lscpu
@@ -180,9 +186,9 @@ lscpu
 
 ---
 
-# 4. Second Line – Tasks and Process States
+# 4. Doosri Line – Tasks Aur Process States
 
-A typical second line may look like:
+Example:
 
 ```text
 Tasks: 210 total, 1 running, 208 sleeping, 0 stopped, 1 zombie
@@ -192,31 +198,31 @@ Tasks: 210 total, 1 running, 208 sleeping, 0 stopped, 1 zombie
 
 ## Task-State Fields
 
-| Field | Meaning |
-|------|---------|
-| Total | Total number of processes or tasks |
-| Running | Processes currently running or ready to run |
-| Sleeping | Processes waiting for an event or resource |
-| Stopped | Suspended processes |
-| Zombie | Completed processes waiting for parent cleanup |
+| Field | Matlab |
+|--------|---------|
+| Total | Total processes ya tasks |
+| Running | Jo is waqt CPU par run ho rahe hain |
+| Sleeping | Kisi event ya resource ka wait kar rahe hain |
+| Stopped | Suspend kiye gaye processes |
+| Zombie | Complete ho chuke hain lekin parent ne cleanup nahi kiya |
 
 ---
 
-# Process-State Reminder
+# Process State Reminder
 
-| State | Flag | Meaning |
-|------|------|---------|
-| Running/Runnable | `R` | Running or waiting for CPU |
-| Sleeping | `S` | Waiting for an event |
-| Uninterruptible Sleep | `D` | Usually waiting for I/O |
-| Stopped | `T` | Suspended |
-| Zombie | `Z` | Finished but not yet reaped |
+| State | Flag | Matlab |
+|--------|------|---------|
+| Running | `R` | Run ho raha hai ya CPU ka wait kar raha hai |
+| Sleeping | `S` | Kisi event ka wait kar raha hai |
+| Uninterruptible Sleep | `D` | Aksar Disk ya I/O ka wait |
+| Stopped | `T` | Suspend kiya gaya |
+| Zombie | `Z` | Process complete ho gaya lekin cleanup baqi hai |
 
 ---
 
-# 5. Third Line – CPU Usage
+# 5. Teesri Line – CPU Usage
 
-A typical CPU line may look like:
+Example:
 
 ```text
 %Cpu(s): 2.0 us, 1.0 sy, 0.0 ni, 96.5 id, 0.5 wa, 0.0 hi, 0.0 si, 0.0 st
@@ -226,62 +232,62 @@ A typical CPU line may look like:
 
 # CPU Fields
 
-| Field | Meaning |
-|------|---------|
-| `us` | CPU time used by user-space processes |
-| `sy` | CPU time used by Kernel-space processes |
-| `ni` | CPU time used by processes with an adjusted Nice value |
-| `id` | Idle CPU time |
-| `wa` | CPU time spent waiting for I/O |
-| `hi` | Hardware interrupt time |
-| `si` | Software interrupt time |
-| `st` | CPU time stolen by the hypervisor |
+| Field | Matlab |
+|--------|---------|
+| `us` | User-space CPU Time |
+| `sy` | Kernel-space CPU Time |
+| `ni` | Nice Value wale process ka CPU Time |
+| `id` | Idle CPU Time |
+| `wa` | CPU I/O Wait Time |
+| `hi` | Hardware Interrupt Time |
+| `si` | Software Interrupt Time |
+| `st` | Hypervisor ne Virtual Machine se liya hua CPU Time |
 
 ---
 
-# Understanding `us`
+# `us` Ko Samajhna
 
-`us` represents CPU time spent executing normal user-space programs.
+`us` woh CPU time hai jo user applications use karti hain.
 
 Examples:
 
-- Shell scripts
-- Backup scripts
-- Web applications
-- Database processes
-- User commands
+- Shell Scripts
+- Backup Scripts
+- Web Applications
+- Database Programs
+- User Commands
 
-A high `us` value may indicate CPU-intensive applications.
+Agar `us` high ho to CPU-intensive application chal rahi ho sakti hai.
 
 ---
 
-# Understanding `sy`
+# `sy` Ko Samajhna
 
-`sy` represents CPU time spent inside the Linux Kernel.
+`sy` Kernel ka CPU Time hota hai.
 
 Examples:
 
-- System calls
-- Device management
-- Filesystem operations
-- Network processing
-- Process scheduling
+- System Calls
+- Device Drivers
+- Filesystem Operations
+- Networking
+- Process Scheduling
 
-A consistently high `sy` value may indicate heavy Kernel activity.
-
----
-
-# Understanding `ni`
-
-`ni` shows CPU time used by processes running with a manually adjusted **Nice value**.
-
-Nice values influence scheduling priority.
+Agar `sy` consistently high ho to Kernel heavy workload perform kar raha hota hai.
 
 ---
 
-# Understanding `id`
+# `ni` Ko Samajhna
 
-`id` means CPU idle time.
+`ni` woh CPU time hai jo manually adjusted **Nice Value** wale processes use karte hain.
+
+Nice Value scheduling priority ko affect karti hai.
+
+---
+
+# `id` Ko Samajhna
+
+`id` ka matlab hai CPU idle hai.
 
 Example:
 
@@ -289,32 +295,31 @@ Example:
 100.0 id
 ```
 
-This means the CPU is completely idle.
+Matlab CPU bilkul free hai.
 
-A very low `id` value means the CPU is busy.
+Agar `id` bohot kam ho to CPU busy hai.
 
 ---
 
-# Understanding `wa`
+# `wa` Ko Samajhna
 
-`wa` means:
+`wa` ka matlab hai:
 
 > **I/O Wait**
 
-It represents the time during which the CPU is waiting for storage or another I/O operation to complete.
+Yeh woh waqt hai jab CPU storage ya kisi I/O operation ka wait kar raha hota hai.
 
-A high `wa` value may indicate:
+High `wa` indicate kar sakta hai:
 
-- Slow disk
-- Busy storage
-- Heavy backup operation
-- Network filesystem delay
-- Storage failure
-- Database I/O pressure
+- Slow Disk
+- Heavy Backup
+- Busy Storage
+- Network Filesystem Delay
+- Database I/O Pressure
 
-However, `wa` should not be interpreted alone. Compare it with disk metrics and system activity.
+Sirf `wa` dekh kar decision nahi lena chahiye.
 
-Useful commands include:
+Is ke saath yeh commands bhi use karein:
 
 ```bash
 iostat
@@ -329,99 +334,92 @@ iotop
 ```
 
 ---
-
-# Understanding `hi`, `si`, and `st`
-
-| Field | Meaning |
-|------|---------|
-| `hi` | Hardware interrupts |
-| `si` | Software interrupts |
-| `st` | CPU time taken by the hypervisor from a virtual machine |
-
-A high `st` value on a virtual machine may indicate that the hypervisor is overloaded.
-
 ---
 
-# 6. Fourth Line – Physical Memory
+# 6. Chauthi Line – Physical Memory Usage
 
-A typical memory line may look like:
+Example:
 
 ```text
-MiB Mem : 7812.0 total, 1200.0 free, 3100.0 used, 3512.0 buff/cache
+MiB Mem : 3895.2 total, 812.3 free, 1560.8 used, 1522.1 buff/cache
 ```
+
+Yeh line system ki **Physical RAM** ki information dikhati hai.
 
 ---
 
 ## Memory Fields
 
-| Field | Meaning |
-|------|---------|
-| Total | Total physical RAM |
-| Free | Completely unused RAM |
-| Used | RAM actively used by processes |
-| Buff/Cache | RAM used for buffers and filesystem cache |
+| Field | Matlab |
+|--------|---------|
+| Total | Total installed RAM |
+| Free | Bilkul free memory |
+| Used | Jo memory currently use ho rahi hai |
+| Buff/Cache | Linux ki cache aur buffers |
 
 ---
 
-# Linux Memory Usage
+# Buffers Aur Cache
 
-Linux intentionally uses unused RAM for caching.
+Linux free memory ko waste nahi karta.
 
-Therefore, a low `free` value does not always mean the server is running out of memory.
+Agar RAM khali ho to Linux usay cache ke liye use karta hai taa ke files jaldi access ho saken.
 
-The more useful value is normally:
+Agar kisi process ko memory chahiye hoti hai to Linux automatically cache release kar deta hai.
+
+Is liye:
 
 ```text
-available
+Low Free Memory ≠ Memory Problem
 ```
 
-It estimates how much memory can be used by new applications without swapping heavily.
+Hamesha **Available Memory** ko bhi dekhein.
 
 ---
 
-# 7. Fifth Line – Swap Memory
+# 7. Paanchvi Line – Swap Memory
 
-A typical swap line may look like:
+Example:
 
 ```text
-MiB Swap: 2048.0 total, 1900.0 free, 148.0 used, 4200.0 avail Mem
+MiB Swap: 2048 total, 2048 free, 0 used
 ```
+
+Swap ek disk-based virtual memory hoti hai.
+
+Jab RAM kam pad jaye to Linux swap use karta hai.
 
 ---
 
 ## Swap Fields
 
-| Field | Meaning |
-|------|---------|
-| Total | Total configured swap |
-| Free | Unused swap |
-| Used | Swap currently in use |
-| Available Memory | Estimated memory available for new applications |
+| Field | Matlab |
+|--------|---------|
+| Total | Total Swap Size |
+| Free | Kitni Swap available hai |
+| Used | Kitni Swap use ho rahi hai |
 
 ---
 
-# What is Swap?
+# Swap Kab Use Hoti Hai?
 
-Swap is disk space used as an extension of RAM.
+Linux Swap use karta hai jab:
 
-If physical memory becomes pressured, Linux may move less-active memory pages to swap.
+- RAM full ho jaye
+- Large applications chal rahi hon
+- System memory pressure mein ho
 
-Some swap usage is not always a problem.
-
-Heavy and continuous swap activity may indicate:
-
-- Insufficient RAM
-- Memory leak
-- Too many applications
-- Improper workload sizing
+Agar continuously Swap use ho rahi ho to RAM upgrade karna ya memory leak investigate karna zaroori ho sakta hai.
 
 ---
 
-# 8. Process List Columns
+# 8. Process List
 
-Below the Summary Area, `top` displays the Process List.
+Summary Area ke neeche Process List hoti hai.
 
-A typical header looks like:
+Yahan har running process ki detail hoti hai.
+
+Example:
 
 ```text
 PID USER PR NI VIRT RES SHR S %CPU %MEM TIME+ COMMAND
@@ -429,319 +427,234 @@ PID USER PR NI VIRT RES SHR S %CPU %MEM TIME+ COMMAND
 
 ---
 
-# Process Column Reference
-
-| Column | Meaning |
-|--------|---------|
-| `PID` | Process ID |
-| `USER` | Owner of the process |
-| `PR` | Scheduling priority |
-| `NI` | Nice value |
-| `VIRT` | Total virtual memory used by the process |
-| `RES` | Physical RAM currently used by the process |
-| `SHR` | Shared memory used by the process |
-| `S` | Process state |
-| `%CPU` | Percentage of CPU used |
-| `%MEM` | Percentage of physical memory used |
-| `TIME+` | Total accumulated CPU time |
-| `COMMAND` | Command or process name |
+# Process List Columns
 
 ---
 
-# 9. PID Column
+## PID
 
-`PID` means:
+PID ka matlab hai:
 
 > **Process ID**
 
-Every process has a unique PID.
+Har process ka unique number hota hai.
 
 Example:
 
 ```text
-PID 1250
+PID = 3521
 ```
 
-The PID is used to:
-
-- Track the process
-- Send signals
-- Change priority
-- Terminate the process
-- Examine process details
+Isi PID ki madad se process ko manage ya terminate kiya jata hai.
 
 ---
 
-# 10. USER Column
+## USER
 
-The `USER` column shows the owner of the process.
+Yeh batata hai process kis user ne start kiya hai.
 
-Examples:
+Example:
 
 ```text
 root
-dev1
+
+student
+
 apache
+
 mysql
 ```
 
-The process runs with the permissions and privileges of that user.
-
 ---
 
-# 11. PR Column
+## PR
 
-`PR` means:
+PR ka matlab hai:
 
 > **Priority**
 
-It represents the scheduling priority assigned to the process by the Kernel.
+Kernel scheduling ke liye process ki priority.
 
-A lower numerical value generally represents a higher scheduling priority.
-
-Some real-time processes may display special values such as:
-
-```text
-rt
-```
+Kam number ka matlab generally zyada priority hoti hai.
 
 ---
 
-# 12. NI Column
+## NI
 
-`NI` means:
+NI ka matlab hai:
 
 > **Nice Value**
 
-The usual range is:
+Nice Value process ki scheduling priority ko control karti hai.
+
+Common Range:
 
 ```text
--20 to 19
+-20   Highest Priority
+
+0     Default
+
+19    Lowest Priority
 ```
 
-| Nice Value | Meaning |
-|-----------:|---------|
-| `-20` | Highest priority |
-| `0` | Default priority |
-| `19` | Lowest priority |
+---
 
-A lower Nice value gives the process a higher scheduling preference.
+## VIRT
+
+VIRT ka matlab hai:
+
+> **Virtual Memory**
+
+Yeh total virtual memory hoti hai jo process use kar sakta hai.
+
+Ismein include hota hai:
+
+- Program Code
+- Shared Libraries
+- Swap
+- Mapped Files
 
 ---
 
-# 13. VIRT Column
+## RES
 
-`VIRT` shows the total virtual memory associated with the process.
-
-It may include:
-
-- Process code
-- Data
-- Shared libraries
-- Memory-mapped files
-- Allocated but unused memory
-- Swapped memory
-
-A high `VIRT` value does not necessarily mean that the process is using the same amount of physical RAM.
-
----
-
-# 14. RES Column
-
-`RES` means:
+RES ka matlab hai:
 
 > **Resident Memory**
 
-It shows the amount of physical RAM currently occupied by the process.
-
-This value is usually more useful than `VIRT` when investigating actual RAM consumption.
+Yeh actual RAM hai jo process iss waqt use kar raha hai.
 
 ---
 
-# 15. SHR Column
+## SHR
 
-`SHR` shows memory that may be shared with other processes.
+SHR ka matlab hai:
 
-Examples include:
+> **Shared Memory**
 
-- Shared libraries
-- Shared memory regions
-- Common executable code
+Yeh memory doosre processes ke saath share ki ja sakti hai.
+
+Example:
+
+- Shared Libraries
+- Shared Memory Segments
 
 ---
 
-# 16. S Column
+## S
 
-The `S` column shows the current process state.
+S process ki current state hoti hai.
 
 Examples:
 
-| Value | Meaning |
-|------|---------|
-| `R` | Running or Runnable |
-| `S` | Sleeping |
-| `D` | Uninterruptible Sleep |
-| `T` | Stopped |
-| `Z` | Zombie |
-| `I` | Idle Kernel Thread |
+| State | Matlab |
+|--------|---------|
+| R | Running |
+| S | Sleeping |
+| D | Uninterruptible Sleep |
+| T | Stopped |
+| Z | Zombie |
 
 ---
 
-# 17. `%CPU` Column
+## %CPU
 
-`%CPU` shows the share of CPU time used by the process since the last screen refresh.
+Yeh batata hai process ne pichli refresh ke baad kitna CPU use kiya.
 
-A high value may indicate a CPU-intensive process.
-
-On a multi-core system, some versions of `top` may show a process using more than `100%` CPU when it uses multiple logical CPUs or threads.
+High CPU processes troubleshooting mein bohot important hoti hain.
 
 ---
 
-# 18. `%MEM` Column
+## %MEM
 
-`%MEM` shows the percentage of physical RAM used by the process.
+Yeh batata hai process kitni RAM use kar raha hai.
 
-Processes with high `%MEM` should be investigated when the system is under memory pressure.
-
----
-
-# 19. `TIME+` Column
-
-`TIME+` displays the total CPU time consumed by the process since it started.
-
-This is not the total elapsed clock time.
-
-It represents accumulated CPU execution time.
+Memory leak identify karne ke liye useful hai.
 
 ---
 
-# 20. COMMAND Column
+## TIME+
 
-The `COMMAND` column displays:
+Yeh total CPU time hota hai jo process ne start hone ke baad use kiya.
 
-- Process name
-- Program name
-- Command line, depending on the display mode
+---
+
+## COMMAND
+
+Yeh process ka naam ya executable hota hai.
 
 Examples:
 
 ```text
 sshd
-systemd
-firewalld
-python3
-java
+
+httpd
+
+mysqld
+
+bash
+
+firefox
 ```
 
 ---
 
-# 🔬 Lab 1 – Run `top`
+# 🔬 Lab 2 – CPU Usage Observe Karein
+
+Run karein:
 
 ```bash
 top
 ```
 
-Observe:
+CPU line observe karein.
 
-- Summary Area
-- Process List
-- Automatic refresh
-
-Press:
-
-```text
-q
-```
-
-to exit.
-
----
-
-# 🔬 Lab 2 – Check Load Average
-
-Run:
-
-```bash
-top
-```
-
-Look at:
-
-```text
-load average
-```
-
-Then check CPU count:
-
-```bash
-nproc
-```
-
-Compare the load with the number of logical CPUs.
-
----
-
-# 🔬 Lab 3 – Observe Process States
-
-Inside `top`, review the second line:
-
-```text
-Tasks:
-```
-
-Identify:
-
-- Running
-- Sleeping
-- Stopped
-- Zombie
-
----
-
-# 🔬 Lab 4 – Check CPU Utilization
-
-Review:
+Specially dekhein:
 
 ```text
 us
 sy
-ni
 id
 wa
 ```
 
-Questions to answer:
+Questions:
 
-- Is the CPU mostly idle?
-- Is user-space usage high?
-- Is Kernel usage high?
-- Is I/O wait high?
-
----
-
-# 🔬 Lab 5 – Check Memory
-
-Review:
-
-```text
-total
-free
-used
-buff/cache
-avail Mem
-```
-
-Determine whether the system has enough available memory.
+- CPU idle kitna hai?
+- CPU user processes kitna use kar rahi hain?
+- Kernel kitna CPU use kar raha hai?
+- I/O Wait high hai ya nahi?
 
 ---
 
-# 🔬 Lab 6 – Identify Top CPU Consumers
+# 🔬 Lab 3 – Memory Observe Karein
 
-Run:
+`top` command mein Memory section dekhein.
 
-```bash
-top
-```
+Questions:
+
+- Total RAM kitni hai?
+- Free Memory kitni hai?
+- Buff/Cache kitni hai?
+- Available memory kitni hai?
+
+---
+
+# 🔬 Lab 4 – Swap Observe Karein
+
+Swap line dekhein.
+
+Questions:
+
+- Swap configured hai?
+- Swap use ho rahi hai?
+- Agar use ho rahi hai to kitni?
+
+---
+
+# 🔬 Lab 5 – High CPU Process Identify Karein
+
+`top` ke andar:
 
 Press:
 
@@ -749,145 +662,98 @@ Press:
 P
 ```
 
-This sorts the process list by CPU usage.
+Yeh CPU usage ke mutabiq processes ko sort karega.
 
-Look at:
-
-```text
-%CPU
-```
+Sab se upar wala process sab se zyada CPU use karega.
 
 ---
 
-# 🔬 Lab 7 – Identify Top Memory Consumers
+# 🔬 Lab 6 – High Memory Process Identify Karein
 
-Inside `top`, press:
+`top` ke andar:
+
+Press:
 
 ```text
 M
 ```
 
-This sorts the process list by memory usage.
-
-Look at:
-
-```text
-%MEM
-```
+Processes memory usage ke mutabiq sort ho jayengi.
 
 ---
 
-# 🔬 Lab 8 – Search for a Process
+# 🔬 Lab 7 – Process Kill Karein
 
-Inside `top`, press:
+`top` ke andar:
 
-```text
-L
-```
-
-Enter a search term such as:
+Press:
 
 ```text
-sshd
+k
 ```
 
-Press **Enter**.
+Phir:
+
+- PID enter karein
+- Signal number enter karein
+
+Default:
+
+```text
+15
+```
+
+(SIGTERM)
 
 ---
 
-# 🔬 Lab 9 – View Individual CPU Usage
+# 🔬 Lab 8 – Refresh Delay Change Karein
 
-Inside `top`, press:
+Press:
 
 ```text
-1
+d
 ```
 
-This toggles the display between:
+Example:
 
-- Combined CPU summary
-- Individual logical CPU statistics
+```text
+5
+```
+
+Ab refresh har 5 seconds baad hogi.
 
 ---
 
-# 🔬 Lab 10 – Change Refresh Interval
+# 🔬 Lab 9 – Specific User Ke Processes
 
-Run:
+Command:
 
 ```bash
-top -d 1
+top -u student
 ```
 
-This refreshes the display every one second.
+Sirf student user ke processes show honge.
 
 ---
 
-# Useful Interactive `top` Keys
+# 🔬 Lab 10 – Exit
 
-| Key | Action |
-|-----|--------|
-| `q` | Quit |
-| `P` | Sort by CPU usage |
-| `M` | Sort by memory usage |
-| `T` | Sort by accumulated CPU time |
-| `1` | Show individual CPU statistics |
-| `L` | Search for text |
-| `k` | Send a signal to a process |
-| `r` | Change a process Nice value |
-| `h` or `?` | Display help |
-| `Space` | Refresh immediately |
-
----
-
-# ⚠️ Caution with `k` and `r`
-
-Inside `top`:
-
-- `k` can terminate a process.
-- `r` can change process scheduling preference.
-
-Use these options carefully, especially on production systems.
-
----
-
-# Troubleshooting Workflow with `top`
+Exit karne ke liye:
 
 ```text
-User Reports Slowness
-        │
-        ▼
-Run top
-        │
-        ├── Check Load Average
-        ├── Check CPU Idle
-        ├── Check I/O Wait
-        ├── Check Available Memory
-        ├── Check Swap Usage
-        └── Identify Top CPU/Memory Processes
+q
 ```
-
----
-
-# Example Troubleshooting Questions
-
-When reviewing `top`, ask:
-
-- Is load average high relative to the CPU count?
-- Is `%id` very low?
-- Is `%wa` high?
-- Is swap heavily used?
-- Which process has the highest `%CPU`?
-- Which process has the highest `%MEM`?
-- Are Zombie processes present?
-- Is a process stuck in `D` state?
 
 ---
 
 # 🧪 Practice Exercises
 
+---
+
 ## Exercise 1
 
-Start the `top` command.
+`top` start karein.
 
 ```bash
 top
@@ -897,77 +763,71 @@ top
 
 ## Exercise 2
 
-Record:
-
-- Uptime
-- Logged-in users
-- 1-minute load average
-- 5-minute load average
-- 15-minute load average
+Load Average identify karein.
 
 ---
 
 ## Exercise 3
 
-Check the number of logical CPUs.
-
-```bash
-nproc
-```
-
-Compare it with load average.
+CPU Idle Percentage note karein.
 
 ---
 
 ## Exercise 4
 
-Inside `top`, press:
-
-```text
-P
-```
-
-Identify the process using the most CPU.
+Memory Usage note karein.
 
 ---
 
 ## Exercise 5
 
-Inside `top`, press:
-
-```text
-M
-```
-
-Identify the process using the most memory.
+Swap Usage check karein.
 
 ---
 
 ## Exercise 6
 
-Press:
+CPU ke hisaab se sort karein.
 
 ```text
-1
+P
 ```
-
-Review individual CPU usage.
 
 ---
 
 ## Exercise 7
 
-Run `top` with a one-second refresh interval.
+Memory ke hisaab se sort karein.
 
-```bash
-top -d 1
+```text
+M
 ```
 
 ---
 
 ## Exercise 8
 
-Exit `top`.
+Specific user ke processes dekhein.
+
+```bash
+top -u root
+```
+
+---
+
+## Exercise 9
+
+Refresh delay change karein.
+
+```text
+d
+```
+
+---
+
+## Exercise 10
+
+`top` exit karein.
 
 ```text
 q
@@ -977,153 +837,127 @@ q
 
 # 🔧 Troubleshooting Scenarios
 
-### Scenario 1 – System Feels Slow
+---
 
-Run:
+## Scenario 1
+
+System bohot slow hai.
+
+Command:
 
 ```bash
 top
 ```
 
-Check:
+Check karein:
 
-- Load average
-- `%id`
-- `%wa`
-- Top CPU processes
-
----
-
-### Scenario 2 – Suspected Disk Problem
-
-Check the CPU line for:
-
-```text
-wa
-```
-
-Then investigate further using:
-
-```bash
-iostat
-```
-
-or:
-
-```bash
-vmstat 1
-```
+- Load Average
+- CPU Usage
+- Memory
+- Swap
 
 ---
 
-### Scenario 3 – Memory Pressure
+## Scenario 2
 
-Check:
+CPU 100% use ho rahi hai.
 
-- Available memory
-- Swap used
-- Processes with high `%MEM`
-
-Sort by memory:
-
-```text
-M
-```
-
----
-
-### Scenario 4 – CPU Saturation
-
-Check:
-
-- Low `%id`
-- High load average
-- Processes with high `%CPU`
-
-Sort by CPU:
+Press:
 
 ```text
 P
 ```
 
+High CPU process identify karein.
+
 ---
 
-### Scenario 5 – Zombie Processes
+## Scenario 3
 
-Check the Task Summary for:
+Memory full lag rahi hai.
+
+Observe karein:
 
 ```text
-zombie
+RES
+
+%MEM
+
+Available Memory
 ```
 
-Then identify them using:
+---
 
-```bash
-ps -eo pid,ppid,stat,cmd | awk '$3 ~ /^Z/'
+## Scenario 4
+
+High I/O Wait
+
+Check:
+
+```text
+wa
 ```
+
+Agar value continuously high ho to storage ya backup activity investigate karein.
 
 ---
 
 # 📌 Quick Revision
 
-| Item | Meaning |
-|------|---------|
-| `top` | Real-time process and system monitor |
-| Load Average | Workload over 1, 5, and 15 minutes |
-| `us` | User-space CPU time |
-| `sy` | Kernel-space CPU time |
-| `id` | Idle CPU time |
-| `wa` | I/O wait |
-| `PID` | Process ID |
-| `PR` | Process priority |
-| `NI` | Nice value |
-| `VIRT` | Virtual memory |
-| `RES` | Resident physical memory |
-| `SHR` | Shared memory |
-| `%CPU` | Process CPU usage |
-| `%MEM` | Process memory usage |
-| `TIME+` | Accumulated CPU time |
-| `COMMAND` | Process or command name |
+| Command | Kaam |
+|----------|------|
+| `top` | Real-time Process Monitor |
+| `top -u user` | User-specific Processes |
+| `P` | CPU Sort |
+| `M` | Memory Sort |
+| `k` | Process Kill |
+| `d` | Refresh Delay |
+| `q` | Exit |
 
 ---
 
 # 📖 Key Takeaways
 
-- `top` provides a real-time view of Linux processes and system performance.
-- The display contains a Summary Area and a Process List.
-- Load average must be compared with the number of logical CPUs.
-- High `wa` may indicate storage or I/O pressure.
-- Low `id` means the CPU is busy.
-- Low free memory alone is not always a problem because Linux uses RAM for cache.
-- `RES` shows actual resident physical memory used by a process.
-- `%CPU` and `%MEM` help identify resource-intensive processes.
-- `P` sorts by CPU and `M` sorts by memory.
+- `top` Linux ka sab se important monitoring tool hai.
+- Summary Area system health batata hai.
+- Process List running processes ki detail show karti hai.
+- CPU, Memory aur Swap ko regularly monitor karna chahiye.
+- Load Average ko CPU cores ke mutabiq interpret karein.
+- High `wa` storage ya I/O issue indicate kar sakta hai.
+- `P` aur `M` troubleshooting ke liye bohot useful shortcuts hain.
 
 ---
 
-# 💡 Remember
+# 💡 Yaad Rakhein
 
-> **Think of `top` as the live dashboard of a Linux server.**
+> **`top` ko Linux ka Live Dashboard samjhein.**
 >
-> - Load Average shows how much work is waiting.
-> - CPU values show where processor time is being spent.
-> - Memory values show how RAM and swap are being used.
-> - The Process List shows which applications are consuming resources.
+> - Dashboard aap ko real-time system ki health dikhata hai.
+> - CPU usage
+> - Memory usage
+> - Swap
+> - Running Processes
+> - Load Average
 >
-> **Basic Troubleshooting Formula:**
+> **Golden Rule:**
 >
 > ```text
-> Check Load
->     │
->     ▼
+> Slow System
+>      │
+>      ▼
+> Run top
+>      │
+>      ▼
 > Check CPU
->     │
->     ▼
-> Check I/O Wait
->     │
->     ▼
-> Check Memory and Swap
->     │
->     ▼
-> Find the Responsible Process
+>      │
+>      ▼
+> Check Memory
+>      │
+>      ▼
+> Check Load Average
+>      │
+>      ▼
+> Identify Problem Process
 > ```
+>
+> Har Linux System Administrator ko `top` command ka output achi tarah samajhna chahiye kyun ke troubleshooting ka pehla qadam aksar `top` hi hota hai.
