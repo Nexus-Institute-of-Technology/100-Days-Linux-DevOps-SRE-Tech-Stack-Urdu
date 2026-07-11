@@ -1,56 +1,56 @@
-# MODULE 08 – Practice Lab: `SIGINT`, `SIGHUP`, and `nohup`
-> **Hands-on Practice Lab – Interrupting Processes and Keeping Jobs Running After Terminal Closure**
+# MODULE 08 – Practice Lab: `SIGINT`, `SIGHUP`, aur `nohup`
+> **Hands-on Practice Lab – Processes ko Interrupt Karna aur Terminal Band Hone ke Baad bhi Jobs ko Chalaye Rakhna**
 
 ---
 
 # 🎯 Lab Objective
 
-In this practice lab, you will learn how to:
+Is practice lab mein aap seekhenge:
 
-- Understand the `SIGINT` signal.
-- Understand what happens when you press `Ctrl + C`.
-- Understand the `SIGHUP` signal.
-- Learn what happens when a controlling terminal closes.
-- View process relationships using `pstree`.
-- Understand why background jobs may terminate after logout.
-- Use `nohup` to keep a process running after terminal disconnection.
-- Redirect command output when using `nohup`.
+- `SIGINT` signal ko samajhna.
+- `Ctrl + C` press karne par kya hota hai.
+- `SIGHUP` signal ko samajhna.
+- Jab controlling terminal band hota hai to kya hota hai.
+- `pstree` command se process relationships dekhna.
+- Samajhna ke background jobs logout ke baad kyun terminate ho sakti hain.
+- `nohup` ka istemal karke process ko terminal disconnect hone ke baad bhi chalaye rakhna.
+- `nohup` ke sath command output ko redirect karna.
 
 ---
 
 # 📖 Introduction
 
-Linux uses **signals** to communicate with running processes.
+Linux running processes ke sath communicate karne ke liye **signals** ka istemal karta hai.
 
-In this lab, we will focus on two important signals:
+Is lab mein hum do important signals par focus karenge:
 
 - `SIGINT`
 - `SIGHUP`
 
-We will also learn about the `nohup` command, which helps a process continue running after its terminal is closed.
+Hum `nohup` command bhi seekhenge jo process ko terminal band hone ke baad bhi chalne deta hai.
 
 ---
 
-# Main Signals Covered
+# Is Lab Mein Cover Hone Wale Main Signals
 
 | Signal | Common Number | Purpose |
-|--------|---------------|---------|
-| `SIGINT` | `2` | Interrupt a process, commonly through `Ctrl + C` |
-| `SIGHUP` | `1` | Notify a process that its controlling terminal has closed |
+|---------|--------------:|----------|
+| `SIGINT` | `2` | Process ko interrupt karna, aam tor par `Ctrl + C` ke zariye |
+| `SIGHUP` | `1` | Process ko batana ke uska controlling terminal band ho gaya hai |
 
-> Signal numbers are standard on common Linux systems, but you can always verify them using `kill -l`.
+> Signal numbers Linux systems par standard hote hain. Agar verify karna ho to `kill -l` command use karein.
 
 ---
 
-# 1. View Signal Names and Numbers
+# 1. Signal Names aur Numbers Dekhna
 
-Run:
+Run karein:
 
 ```bash
 kill -l
 ```
 
-You should see signals including:
+Aapko kuch is tarah ke signals nazar aayenge:
 
 ```text
 1) SIGHUP
@@ -59,7 +59,7 @@ You should see signals including:
 15) SIGTERM
 ```
 
-To check a specific signal number:
+Kisi specific signal ka number dekhne ke liye:
 
 ```bash
 kill -l 2
@@ -71,7 +71,7 @@ Expected Output:
 INT
 ```
 
-Check signal 1:
+Signal number 1 check karein:
 
 ```bash
 kill -l 1
@@ -85,43 +85,43 @@ HUP
 
 ---
 
-# 2. What is `SIGINT`?
+# 2. `SIGINT` Kya Hai?
 
-`SIGINT` means:
+`SIGINT` ka matlab hai:
 
 > **Signal Interrupt**
 
-Its common signal number is:
+Iska common signal number hai:
 
 ```text
 2
 ```
 
-It is normally sent by the controlling terminal when the user presses:
+Yeh signal aam tor par controlling terminal bhejta hai jab user press karta hai:
 
 ```text
 Ctrl + C
 ```
 
-The purpose of `SIGINT` is to ask a running process to stop.
+`SIGINT` ka maqsad running process ko politely stop karne ki request bhejna hota hai.
 
 ---
 
 # `SIGINT` Basic Syntax
 
-Using a PID:
+PID ke sath:
 
 ```bash
 kill -SIGINT PID
 ```
 
-Using the signal number:
+Signal number ke sath:
 
 ```bash
 kill -2 PID
 ```
 
-Using a shell Job ID:
+Shell Job ID ke sath:
 
 ```bash
 kill -SIGINT %1
@@ -129,25 +129,25 @@ kill -SIGINT %1
 
 ---
 
-# 3. `Ctrl + C` and `SIGINT`
+# 3. `Ctrl + C` aur `SIGINT`
 
-Suppose you run:
+Misaal ke tor par:
 
 ```bash
 sleep 500
 ```
 
-The process runs in the foreground.
+Yeh process foreground mein run karega.
 
-Press:
+Ab press karein:
 
 ```text
 Ctrl + C
 ```
 
-The terminal sends `SIGINT` to the foreground process group.
+Terminal foreground process group ko `SIGINT` bhejta hai.
 
-The process normally terminates.
+Aksar process terminate ho jata hai.
 
 ---
 
@@ -157,52 +157,54 @@ The process normally terminates.
 Foreground Process Running
         │
         ▼
-User Presses Ctrl + C
+User Ctrl + C Press Karta Hai
         │
         ▼
-Terminal Sends SIGINT
+Terminal SIGINT Send Karta Hai
         │
         ▼
-Process Handles the Signal
+Process Signal Receive Karta Hai
         │
-        └── Usually Terminates
+        └──── Aksar Terminate Ho Jata Hai
 ```
 
 ---
 
-# 🔬 Lab 1 – Interrupt a Foreground Process
+# 🔬 Lab 1 – Foreground Process ko Interrupt Karna
 
-Run:
+Run karein:
 
 ```bash
 sleep 300
 ```
 
-Press:
+Ab press karein:
 
 ```text
 Ctrl + C
 ```
 
-The command stops, and the shell prompt returns.
+Command turant stop ho jayegi aur shell prompt wapas aa jayega.
 
-Verify that no matching process remains:
+Verify karein:
 
 ```bash
 pgrep -a sleep
 ```
 
+Agar process terminate ho chuka hai to koi output nahi milegi.
+
 ---
 
-# 4. Send `SIGINT` Manually
+# 4. `SIGINT` Manually Send Karna
 
-Start a process in the background:
+Background mein process start karein:
 
 ```bash
 sleep 500 &
 ```
 
-Display its Job ID and PID:
+Job ID aur PID dekhein:
 
 ```bash
 jobs -l
@@ -211,96 +213,96 @@ jobs -l
 Example:
 
 ```text
-[1]+ 2548 Running    sleep 500 &
+[1]+ 2548 Running sleep 500 &
 ```
 
-Send `SIGINT` using the PID:
+Ab PID use karke `SIGINT` bhejein:
 
 ```bash
 kill -SIGINT 2548
 ```
 
-Or:
+Ya:
 
 ```bash
 kill -2 2548
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p 2548
 ```
 
-If the process responds to `SIGINT`, it should no longer appear.
+Agar process `SIGINT` handle karta hai to woh list mein nazar nahi aayega.
 
 ---
 
-# Important Property of `SIGINT`
+# `SIGINT` Ki Important Property
 
-A process can:
+Har process:
 
-- Catch `SIGINT`
-- Handle `SIGINT`
-- Ignore `SIGINT`
+- `SIGINT` ko catch kar sakta hai.
+- `SIGINT` ko handle kar sakta hai.
+- `SIGINT` ko ignore bhi kar sakta hai.
 
-Therefore, not every application must terminate when it receives `SIGINT`.
+Is liye har application `Ctrl + C` press karne par zaroor terminate nahi hoti.
 
-However, most normal command-line tools terminate when `Ctrl + C` is pressed.
+Lekin aksar command-line tools `Ctrl + C` ke baad terminate ho jate hain.
 
 ---
 
-# 5. `SIGINT` vs `SIGTERM`
+# 5. `SIGINT` aur `SIGTERM` Mein Difference
 
 | Feature | `SIGINT` | `SIGTERM` |
-|---------|----------|-----------|
+|----------|----------|-----------|
 | Signal Number | `2` | `15` |
-| Common Source | `Ctrl + C` from terminal | `kill PID` |
-| Purpose | Interrupt current work | Request graceful termination |
-| Can be handled | Yes | Yes |
-| Can be ignored | Yes | Yes |
-| Typical Use | Stop an interactive foreground command | Stop a process or service cleanly |
+| Common Source | `Ctrl + C` | `kill PID` |
+| Purpose | Current kaam ko interrupt karna | Process ko gracefully terminate karna |
+| Handle kiya ja sakta hai | Yes | Yes |
+| Ignore kiya ja sakta hai | Yes | Yes |
+| Common Use | Interactive foreground command stop karna | Service ya process ko safely band karna |
 
 ---
 
-# 6. What is `SIGHUP`?
+# 6. `SIGHUP` Kya Hai?
 
-`SIGHUP` means:
+`SIGHUP` ka matlab hai:
 
 > **Signal Hangup**
 
-Its common signal number is:
+Iska common signal number hai:
 
 ```text
 1
 ```
 
-Historically, this signal was sent when a physical terminal connection was disconnected.
+Purane Unix systems mein yeh signal us waqt bheja jata tha jab physical terminal disconnect ho jata tha.
 
-On modern Linux systems, it is often sent when:
+Modern Linux systems mein aam tor par yeh signal tab bheja jata hai jab:
 
-- A terminal closes
-- An SSH session disconnects
-- A controlling shell exits
-- A terminal hangup occurs
+- Terminal band ho.
+- SSH session disconnect ho.
+- Shell exit kare.
+- Terminal hangup ho.
 
 ---
 
 # `SIGHUP` Basic Syntax
 
-Using a PID:
+PID ke sath:
 
 ```bash
 kill -SIGHUP PID
 ```
 
-Using the signal number:
+Signal number ke sath:
 
 ```bash
 kill -1 PID
 ```
 
-Using a Job ID:
+Job ID ke sath:
 
 ```bash
 kill -SIGHUP %1
@@ -310,7 +312,7 @@ kill -SIGHUP %1
 
 # 7. Controlling Terminal
 
-A process started from a terminal may be associated with that terminal.
+Jo process terminal se start hota hai, woh aam tor par us terminal ke sath associate hota hai.
 
 Example:
 
@@ -322,30 +324,32 @@ Terminal
           └── Background Process
 ```
 
-If the terminal or shell closes, associated jobs may receive:
+Agar terminal ya shell band ho jaye to us shell ke jobs ko aam tor par:
 
 ```text
 SIGHUP
 ```
 
-Depending on how the process handles `SIGHUP`, it may:
+signal mil sakta hai.
 
-- Terminate
-- Reload its configuration
-- Ignore the signal
-- Continue running
+Process `SIGHUP` ko kis tarah handle karta hai us par depend karta hai ke woh:
+
+- Terminate ho jaye.
+- Apni configuration reload kare.
+- Signal ko ignore kare.
+- Ya phir chalta rahe.
 
 ---
 
-# 8. Create a Background Process
+# 8. Background Process Create Karna
 
-Start a long-running background process:
+Ek long-running background process start karein:
 
 ```bash
 sleep 1000 &
 ```
 
-Display its PID:
+Uska PID dekhein:
 
 ```bash
 jobs -l
@@ -354,34 +358,34 @@ jobs -l
 Example:
 
 ```text
-[1]+ 2548 Running    sleep 1000 &
+[1]+ 2548 Running sleep 1000 &
 ```
 
 ---
 
-# 9. View the Process Tree with `pstree`
+# 9. `pstree` Se Process Tree Dekhna
 
-Use:
+Run karein:
 
 ```bash
 pstree -p 2548
 ```
 
-Depending on the version of `pstree`, this may display the process or its descendants.
+Kuch systems par yeh process aur uske child processes dikhata hai.
 
-To view the shell and its related processes, you can also run:
+Current shell aur uske child processes dekhne ke liye:
 
 ```bash
 pstree -p $$
 ```
 
-Here:
+Yahan:
 
 ```text
 $$
 ```
 
-represents the PID of the current shell.
+current shell ka PID represent karta hai.
 
 Example Output:
 
@@ -389,21 +393,27 @@ Example Output:
 bash(2400)───sleep(2548)
 ```
 
-This shows that the `sleep` process was started by the Bash shell.
+Iska matlab hai ke `sleep` process Bash shell ne start kiya hai.
 
 ---
 
-# Install `pstree` if Missing
+# Agar `pstree` Installed Na Ho
 
-On Rocky Linux 9, `pstree` is provided by the `psmisc` package.
+Rocky Linux 9 mein `pstree` package:
 
-Install it using:
+```text
+psmisc
+```
+
+ke andar hota hai.
+
+Install karein:
 
 ```bash
 sudo dnf install -y psmisc
 ```
 
-Then verify:
+Verify karein:
 
 ```bash
 pstree --version
@@ -411,16 +421,16 @@ pstree --version
 
 ---
 
-# 10. What Happens When the Terminal Closes?
+# 10. Jab Terminal Band Hota Hai To Kya Hota Hai?
 
-If you close the terminal or disconnect the SSH session:
+Agar aap terminal band kar dete hain ya SSH session disconnect ho jata hai to:
 
-- The controlling shell may exit.
-- The shell may send `SIGHUP` to its jobs.
-- Some jobs may terminate.
-- Some jobs may continue, depending on signal handling and shell behavior.
+- Controlling shell exit ho sakta hai.
+- Shell apne jobs ko `SIGHUP` bhej sakta hai.
+- Kuch jobs terminate ho jati hain.
+- Kuch jobs chalti rehti hain agar woh `SIGHUP` ko handle ya ignore karti hain.
 
-A normal background process is not always guaranteed to survive terminal closure.
+Is liye normal background process ke survive karne ki guarantee nahi hoti.
 
 ---
 
@@ -430,80 +440,82 @@ A normal background process is not always guaranteed to survive terminal closure
 Background Job Running
         │
         ▼
-Terminal or SSH Session Closes
+Terminal Ya SSH Session Band
         │
         ▼
-Shell Receives/Processes Hangup
+Shell Hangup Process Karta Hai
         │
         ▼
-SIGHUP May Be Sent to Jobs
+Jobs Ko SIGHUP Mil Sakta Hai
         │
-        ├── Process Terminates
+        ├──────── Process Terminate
         │
-        └── Process Ignores/Handles SIGHUP and Continues
+        └──────── Process SIGHUP Ignore Kare Aur Chalta Rahe
 ```
 
 ---
 
-# 11. Send `SIGHUP` Manually
+# 11. `SIGHUP` Manually Send Karna
 
-Start:
+Background process start karein:
 
 ```bash
 sleep 1000 &
 ```
 
-Check its PID:
+PID check karein:
 
 ```bash
 jobs -l
 ```
 
-Suppose the PID is:
+Suppose PID hai:
 
 ```text
 2548
 ```
 
-Send `SIGHUP`:
+Ab `SIGHUP` bhejein:
 
 ```bash
 kill -SIGHUP 2548
 ```
 
-Or:
+Ya:
 
 ```bash
 kill -1 2548
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p 2548
 ```
 
-The normal `sleep` process will usually terminate.
+Normally `sleep` process terminate ho jayega.
 
 ---
 
-# 12. `SIGHUP` Has Another Common Use
+# 12. `SIGHUP` Ka Dusra Common Use
 
-Many daemons use `SIGHUP` as a request to:
+Bohat se Linux daemons `SIGHUP` ko is liye use karte hain ke:
 
-> **Reload configuration without fully restarting the process.**
+> **Service ko restart kiye baghair configuration dobara load ki ja sake.**
 
-For example, some services may reload configuration when they receive:
+Example:
 
 ```bash
 kill -HUP PID
 ```
 
-However, this behavior depends entirely on the application.
+Lekin yaad rakhein:
 
-Do not assume every service reloads on `SIGHUP`.
+Har application `SIGHUP` receive karne ke baad reload nahi karti.
 
-For systemd-managed services, use the service's documented reload command when available:
+Agar service `systemd` ke through manage ho rahi ho to hamesha uski documented reload command use karein.
+
+Example:
 
 ```bash
 systemctl reload service_name
@@ -511,23 +523,23 @@ systemctl reload service_name
 
 ---
 
-# 13. What is `nohup`?
+# 13. `nohup` Kya Hai?
 
-`nohup` means:
+`nohup` ka matlab hai:
 
 > **No Hangup**
 
-It starts a command so that it ignores the `SIGHUP` signal.
+Yeh command process ko is tarah start karti hai ke woh `SIGHUP` signal ko ignore kare.
 
-This helps the process continue running after:
+Is wajah se process continue karta rehta hai agar:
 
-- Terminal closure
-- SSH disconnection
-- Shell logout
+- Terminal band ho jaye.
+- SSH disconnect ho jaye.
+- User logout kar de.
 
 ---
 
-# Basic `nohup` Syntax
+# `nohup` Basic Syntax
 
 ```bash
 nohup command &
@@ -541,13 +553,15 @@ nohup sleep 1000 &
 
 ---
 
-# 14. Default `nohup` Output
+# 14. `nohup` Ka Default Output
 
-If standard output is connected to the terminal, `nohup` normally redirects it to:
+Agar command ka output terminal par aa raha ho to `nohup` us output ko aam tor par:
 
 ```text
 nohup.out
 ```
+
+file mein redirect kar deta hai.
 
 Example:
 
@@ -555,7 +569,7 @@ Example:
 nohup ./backup.sh &
 ```
 
-You may see:
+Aapko kuch is tarah ka message mil sakta hai:
 
 ```text
 nohup: ignoring input and appending output to 'nohup.out'
@@ -563,9 +577,9 @@ nohup: ignoring input and appending output to 'nohup.out'
 
 ---
 
-# 🔬 Lab 2 – Run a Process with `nohup`
+# 🔬 Lab 2 – `nohup` Ke Sath Process Chalana
 
-Run:
+Run karein:
 
 ```bash
 nohup sleep 1000 &
@@ -577,17 +591,19 @@ Example Output:
 [1] 2600
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p 2600 -o pid,ppid,stat,cmd
 ```
 
+Is se confirm hoga ke process successfully background mein chal raha hai.
+
 ---
 
-# 15. Recommended `nohup` Syntax with Redirection
+# 15. Recommended `nohup` Syntax
 
-For a script or command that produces output, use:
+Agar command ya script output generate karti ho to recommended syntax yeh hai:
 
 ```bash
 nohup ./backup.sh > /tmp/backup.log 2>&1 &
@@ -597,150 +613,176 @@ nohup ./backup.sh > /tmp/backup.log 2>&1 &
 
 | Part | Meaning |
 |------|---------|
-| `nohup` | Ignore `SIGHUP` |
-| `./backup.sh` | Command or script |
-| `> /tmp/backup.log` | Send standard output to a log file |
-| `2>&1` | Send standard error to the same file |
-| `&` | Run the command in the background |
+| `nohup` | `SIGHUP` ignore kare |
+| `./backup.sh` | Script ya command |
+| `> /tmp/backup.log` | Standard output log file mein save kare |
+| `2>&1` | Standard error bhi usi log file mein bheje |
+| `&` | Background mein run kare |
 
 ---
 
-# Example with a Loop
+# Example – Infinite Logging Loop
 
-Run:
+Run karein:
 
 ```bash
 nohup bash -c 'while true; do echo "Process still running at $(date)"; sleep 5; done' > /tmp/nohup-test.log 2>&1 &
 ```
 
-Display the PID:
+Ab latest background process ka PID dekhein:
 
 ```bash
 echo $!
 ```
 
-Here:
+Yahan:
 
 ```text
 $!
 ```
 
-contains the PID of the most recently started background process.
+sab se recently start hone wale background process ka PID return karta hai.
 
 ---
 
-# 16. Verify the `nohup` Process
+# 16. `nohup` Process Ko Verify Karna
 
-Check the process:
+Sab se pehle check karein ke process abhi bhi chal raha hai:
 
 ```bash
 ps -p $! -o pid,ppid,stat,cmd
 ```
 
-Monitor its output:
+Ab uska output monitor karein:
 
 ```bash
 tail -f /tmp/nohup-test.log
 ```
 
-Press:
+Agar aap:
 
 ```text
 Ctrl + C
 ```
 
-to exit `tail`. This does not stop the background process.
+press karte hain to sirf `tail` command band hogi.
+
+Background mein chalne wala `nohup` process continue karta rahega.
 
 ---
 
-# 17. Test After Logout or Disconnect
+# 17. Logout Ya Disconnect Ke Baad Test Karna
 
-A complete test can be performed as follows:
+Complete test kuch is tarah karein:
 
-1. Start the process:
+### Step 1
 
-   ```bash
-   nohup bash -c 'while true; do date; sleep 5; done' > /tmp/nohup-test.log 2>&1 &
-   ```
+Process start karein:
 
-2. Record its PID:
-
-   ```bash
-   echo $!
-   ```
-
-3. Log out or close the terminal.
-
-4. Reconnect to the server.
-
-5. Verify the process:
-
-   ```bash
-   ps -p PID -o pid,ppid,stat,cmd
-   ```
-
-6. Check the output:
-
-   ```bash
-   tail /tmp/nohup-test.log
-   ```
+```bash
+nohup bash -c 'while true; do date; sleep 5; done' > /tmp/nohup-test.log 2>&1 &
+```
 
 ---
 
-# 18. Stop the `nohup` Process
+### Step 2
 
-Use the PID:
+Uska PID note karein:
+
+```bash
+echo $!
+```
+
+---
+
+### Step 3
+
+SSH session se logout karein ya terminal band kar dein.
+
+---
+
+### Step 4
+
+Dobarah server se connect karein.
+
+---
+
+### Step 5
+
+Verify karein ke process abhi bhi chal raha hai:
+
+```bash
+ps -p PID -o pid,ppid,stat,cmd
+```
+
+---
+
+### Step 6
+
+Log file check karein:
+
+```bash
+tail /tmp/nohup-test.log
+```
+
+Agar timestamps continuously add ho rahe hain to iska matlab process disconnect ke baad bhi successfully run karta raha.
+
+---
+
+# 18. `nohup` Process Ko Stop Karna
+
+Gracefully terminate karne ke liye:
 
 ```bash
 kill -TERM PID
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p PID
 ```
 
-If it does not stop after a reasonable wait:
+Agar process reasonable time ke baad bhi terminate na ho to:
 
 ```bash
 kill -KILL PID
 ```
 
-Use `SIGKILL` only as a last resort.
+⚠️ **SIGKILL sirf last resort ke tor par use karein.**
 
 ---
 
-# 19. `nohup` vs Normal Background Job
+# 19. Normal Background Job Aur `nohup` Mein Difference
 
 | Feature | `command &` | `nohup command &` |
-|---------|-------------|-------------------|
-| Runs in background | Yes | Yes |
-| Terminal remains available | Yes | Yes |
-| Ignores `SIGHUP` | Not necessarily | Yes |
-| Likely to survive logout | Not guaranteed | Usually |
-| Output handling | Terminal unless redirected | `nohup.out` or redirected file |
-| Best use | Short background tasks | Tasks that must survive logout |
+|----------|-------------|-------------------|
+| Background mein run karta hai | Yes | Yes |
+| Terminal free rehta hai | Yes | Yes |
+| `SIGHUP` ignore karta hai | Zaroori nahi | Yes |
+| Logout ke baad survive karta hai | Guarantee nahi | Aksar karta hai |
+| Output | Terminal par | `nohup.out` ya redirected file |
+| Best Use | Choti background jobs | Long-running jobs jo logout ke baad bhi chalni chahiye |
 
 ---
 
-# 20. `nohup` vs `screen`, `tmux`, and `systemd`
+# 20. `nohup`, `screen`, `tmux`, Aur `systemd`
 
 | Tool | Best Use |
 |------|----------|
-| `nohup` | Simple non-interactive command that must survive logout |
+| `nohup` | Simple non-interactive command jo logout ke baad bhi chalni chahiye |
 | `screen` | Persistent interactive terminal session |
-| `tmux` | Modern persistent terminal multiplexer |
-| `systemd` | Production service or long-running managed process |
+| `tmux` | Modern terminal multiplexer |
+| `systemd` | Production services aur long-running managed processes |
 
-For production workloads, `systemd` is usually more reliable because it provides:
+Production environment mein aam tor par **systemd** ko prefer kiya jata hai kyun ke yeh provide karta hai:
 
 - Automatic restart
 - Logging
 - Dependency management
-- Startup at boot
+- Boot ke waqt automatic startup
 - Resource controls
-- Service status
+- Service status monitoring
 
 ---
 
@@ -749,69 +791,71 @@ For production workloads, `systemd` is usually more reliable because it provides
 ```text
 Foreground Process
         │
-        ├── Ctrl + C
-        │      │
-        │      ▼
-        │    SIGINT
-        │      │
-        │      └── Usually Terminates
+        ├──── Ctrl + C
+        │         │
+        │         ▼
+        │      SIGINT
+        │         │
+        │         └──── Aksar Process Stop Ho Jata Hai
         │
-        └── Terminal Closes
-               │
-               ▼
-             SIGHUP
-               │
-               ├── Normal Process May Terminate
-               │
-               └── nohup Process Ignores SIGHUP
-                            │
-                            ▼
-                     Continues Running
+        └──── Terminal Band
+                  │
+                  ▼
+               SIGHUP
+                  │
+                  ├──── Normal Process Terminate Ho Sakta Hai
+                  │
+                  └──── nohup Process Ignore Karega
+                                │
+                                ▼
+                        Process Chalta Rahega
 ```
 
 ---
 
 # 🧪 Practice Exercises
 
-## Exercise 1 – Test `SIGINT`
+## Exercise 1 – `SIGINT` Test Karein
 
-Run:
+Run karein:
 
 ```bash
 sleep 300
 ```
 
-Press:
+Ab:
 
 ```text
 Ctrl + C
 ```
 
-Verify that the command stops.
+press karein.
+
+Confirm karein ke command terminate ho gayi hai.
 
 ---
 
-## Exercise 2 – Send `SIGINT` Manually
+## Exercise 2 – `SIGINT` Manually Send Karein
 
-Start:
+Background process start karein:
 
 ```bash
 sleep 500 &
 ```
 
-Get the PID:
+PID hasil karein:
 
 ```bash
 jobs -l
 ```
 
-Send:
+Signal bhejein:
 
 ```bash
 kill -SIGINT PID
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p PID
@@ -819,27 +863,27 @@ ps -p PID
 
 ---
 
-## Exercise 3 – Test `SIGHUP`
+## Exercise 3 – `SIGHUP` Test Karein
 
-Start:
+Start karein:
 
 ```bash
 sleep 600 &
 ```
 
-Get the PID:
+PID dekhein:
 
 ```bash
 jobs -l
 ```
 
-Send:
+Signal bhejein:
 
 ```bash
 kill -SIGHUP PID
 ```
 
-Verify:
+Verify karein:
 
 ```bash
 ps -p PID
@@ -847,31 +891,34 @@ ps -p PID
 
 ---
 
-## Exercise 4 – View the Process Tree
+## Exercise 4 – Process Tree Dekhein
 
-Start:
+Background process start karein:
 
 ```bash
 sleep 700 &
 ```
 
-Run:
+Run karein:
 
 ```bash
 pstree -p $$
 ```
 
-Identify the shell and the `sleep` process.
+Identify karein:
+
+- Bash Shell
+- `sleep` Process
 
 ---
 
-## Exercise 5 – Start a `nohup` Process
+## Exercise 5 – `nohup` Process Start Karein
 
 ```bash
 nohup sleep 1000 > /tmp/sleep.log 2>&1 &
 ```
 
-Display the PID:
+PID dekhein:
 
 ```bash
 echo $!
@@ -879,13 +926,15 @@ echo $!
 
 ---
 
-## Exercise 6 – Start a Persistent Logging Loop
+## Exercise 6 – Persistent Logging Loop
+
+Run karein:
 
 ```bash
 nohup bash -c 'while true; do echo "Still running: $(date)"; sleep 5; done' > /tmp/persistent.log 2>&1 &
 ```
 
-Monitor:
+Output monitor karein:
 
 ```bash
 tail -f /tmp/persistent.log
@@ -893,15 +942,15 @@ tail -f /tmp/persistent.log
 
 ---
 
-## Exercise 7 – Terminate the Persistent Process
+## Exercise 7 – Persistent Process Ko Stop Karein
 
-Find it:
+Process dhoondein:
 
 ```bash
 pgrep -af 'Still running'
 ```
 
-Then terminate it:
+Terminate karein:
 
 ```bash
 kill -TERM PID
@@ -911,17 +960,17 @@ kill -TERM PID
 
 # 🔧 Troubleshooting Scenarios
 
-### Scenario 1 – `Ctrl + C` Does Not Stop the Process
+## Scenario 1 – `Ctrl + C` Process Ko Stop Nahi Kar Raha
 
-The application may be handling or ignoring `SIGINT`.
+Ho sakta hai application `SIGINT` ko handle ya ignore kar rahi ho.
 
-Try graceful termination:
+Pehle graceful termination try karein:
 
 ```bash
 kill -TERM PID
 ```
 
-If it remains unresponsive:
+Agar phir bhi process terminate na ho:
 
 ```bash
 kill -KILL PID
@@ -929,43 +978,45 @@ kill -KILL PID
 
 ---
 
-### Scenario 2 – Background Job Stops After SSH Disconnect
+## Scenario 2 – Background Job SSH Disconnect Ke Baad Band Ho Jati Hai
 
-Start it using:
+Is tarah start karein:
 
 ```bash
 nohup command > output.log 2>&1 &
 ```
 
-For interactive work, use:
+Interactive sessions ke liye:
 
 ```text
 screen
 ```
 
-or:
+ya
 
 ```text
 tmux
 ```
 
+use karein.
+
 ---
 
-### Scenario 3 – Cannot Find the PID
+## Scenario 3 – PID Nahi Mil Raha
 
-Use:
+Commands:
 
 ```bash
 jobs -l
 ```
 
-or:
+ya
 
 ```bash
 pgrep -af command_name
 ```
 
-or:
+ya
 
 ```bash
 ps aux | grep '[c]ommand_name'
@@ -973,17 +1024,17 @@ ps aux | grep '[c]ommand_name'
 
 ---
 
-### Scenario 4 – `nohup.out` Was Created
+## Scenario 4 – `nohup.out` File Create Ho Gayi
 
-This is normal when output was not explicitly redirected.
+Yeh bilkul normal hai.
 
-View it:
+Output dekhne ke liye:
 
 ```bash
 tail -f nohup.out
 ```
 
-To use a custom file:
+Agar custom file use karni ho:
 
 ```bash
 nohup command > custom.log 2>&1 &
@@ -991,120 +1042,121 @@ nohup command > custom.log 2>&1 &
 
 ---
 
-### Scenario 5 – Process Still Terminates After Using `nohup`
+## Scenario 5 – `nohup` Ke Bawajood Process Terminate Ho Gaya
 
-Possible reasons include:
+Possible reasons:
 
-- The process exited because of its own error.
-- The system rebooted.
-- The process received another termination signal.
-- The application depends on terminal input.
-- The OOM Killer terminated it.
-- The user or administrator stopped it.
+- Application khud error ki wajah se exit ho gayi.
+- Server reboot ho gaya.
+- Kisi ne `SIGTERM` ya `SIGKILL` bheja.
+- Application terminal input par depend karti thi.
+- OOM Killer ne process terminate kar diya.
+- Administrator ne manually stop kar diya.
 
-Check:
+Check karein:
 
 ```bash
 ps -p PID
 ```
 
-Review logs:
+Aur logs:
 
 ```bash
 journalctl
 ```
 
-and the redirected output file.
+Aur redirected log file bhi review karein.
 
 ---
 
 # ⚠️ Important Notes
 
-- `Ctrl + C` sends `SIGINT` to the foreground process group, not necessarily only one process.
-- `SIGHUP` does not always mean termination; some applications use it to reload configuration.
-- `nohup` protects against `SIGHUP`, but it does not protect against:
-  - Reboot
+- `Ctrl + C` foreground process group ko `SIGINT` bhejta hai.
+- `SIGHUP` hamesha termination nahi hota; bohot si services is signal ko configuration reload ke liye use karti hain.
+- `nohup` sirf `SIGHUP` se protect karta hai.
+- `nohup` protect **nahi** karta:
+  - Server Reboot
   - `SIGTERM`
   - `SIGKILL`
-  - Application crashes
-  - Resource exhaustion
-- A command that requires keyboard input may not work properly under `nohup`.
-- Use `systemd` for production services.
+  - Application Crash
+  - Resource Exhaustion
+- Agar command keyboard input expect karti hai to woh `nohup` ke sath properly kaam nahi karegi.
+- Production services ke liye `systemd` best choice hai.
 
 ---
 
 # 📌 Quick Revision
 
-| Signal or Command | Number | Purpose |
-|-------------------|-------:|---------|
-| `SIGINT` | `2` | Interrupt a process |
-| `Ctrl + C` | — | Send `SIGINT` to foreground process group |
-| `SIGHUP` | `1` | Notify process of terminal hangup |
-| `kill -INT PID` | `2` | Send `SIGINT` manually |
-| `kill -HUP PID` | `1` | Send `SIGHUP` manually |
-| `nohup command &` | — | Run command while ignoring `SIGHUP` |
-| `pstree -p $$` | — | Show current shell and child processes |
-| `echo $!` | — | Show PID of latest background process |
+| Signal / Command | Number | Purpose |
+|------------------|--------|---------|
+| `SIGINT` | `2` | Process ko interrupt karna |
+| `Ctrl + C` | — | Foreground process ko `SIGINT` bhejna |
+| `SIGHUP` | `1` | Terminal hangup notify karna |
+| `kill -INT PID` | `2` | Manually `SIGINT` bhejna |
+| `kill -HUP PID` | `1` | Manually `SIGHUP` bhejna |
+| `nohup command &` | — | Process ko `SIGHUP` ignore karwana |
+| `pstree -p $$` | — | Shell aur child processes dekhna |
+| `echo $!` | — | Latest background process ka PID dikhana |
 
 ---
 
 # Common Commands
 
 | Command | Purpose |
-|---------|---------|
-| `kill -l` | List signals |
-| `kill -SIGINT PID` | Interrupt a process |
-| `kill -2 PID` | Same as `SIGINT` |
-| `kill -SIGHUP PID` | Send a hangup signal |
-| `kill -1 PID` | Same as `SIGHUP` |
-| `nohup command &` | Start a command protected from `SIGHUP` |
-| `nohup command > file 2>&1 &` | Redirect output and survive terminal closure |
-| `jobs -l` | Display shell jobs and PIDs |
-| `pstree -p $$` | Display the shell process tree |
-| `pgrep -af name` | Find a process by name |
+|----------|---------|
+| `kill -l` | Saare signals list kare |
+| `kill -SIGINT PID` | Process interrupt kare |
+| `kill -2 PID` | `SIGINT` bheje |
+| `kill -SIGHUP PID` | Hangup signal bheje |
+| `kill -1 PID` | `SIGHUP` bheje |
+| `nohup command &` | Process ko logout ke baad bhi chalaye |
+| `nohup command > file 2>&1 &` | Output redirect kare aur process ko persistent banaye |
+| `jobs -l` | Jobs aur PIDs dikhaye |
+| `pstree -p $$` | Current shell ka process tree dikhaye |
+| `pgrep -af name` | Process ko naam se search kare |
 
 ---
 
 # 📖 Key Takeaways
 
-- `SIGINT` commonly interrupts a foreground process.
-- `Ctrl + C` normally sends `SIGINT`.
-- `SIGHUP` is commonly associated with terminal closure or session disconnection.
-- Normal background jobs may terminate when the shell exits.
-- `nohup` makes a process ignore `SIGHUP`.
-- Redirect `nohup` output to a log file for easier monitoring.
-- `pstree` helps display Parent and Child process relationships.
-- `SIGHUP` may reload configuration for some applications.
-- `nohup` is suitable for simple persistent jobs, while production services should normally use `systemd`.
+- `SIGINT` foreground process ko interrupt karta hai.
+- `Ctrl + C` normally `SIGINT` bhejta hai.
+- `SIGHUP` terminal band hone ya session disconnect hone se related hai.
+- Normal background jobs logout ke baad terminate ho sakti hain.
+- `nohup` process ko `SIGHUP` ignore karne deta hai.
+- Output ko log file mein redirect karna best practice hai.
+- `pstree` parent aur child process relationship dikhata hai.
+- Kuch applications `SIGHUP` receive karke configuration reload karti hain.
+- Simple persistent jobs ke liye `nohup` theek hai, jab ke production services ke liye `systemd` use karna chahiye.
 
 ---
 
-# 💡 Remember
+# 💡 Yaad Rakhein
 
-> **Think of Linux signals as messages sent to a worker.**
+> **Linux Signals ko worker ke liye bheje gaye messages ki tarah samjhein.**
 >
-> - `SIGINT` means: **“Stop what you are doing.”**
-> - `SIGHUP` means: **“Your terminal connection has closed.”**
-> - `nohup` means: **“Continue working even if the terminal closes.”**
+> - **SIGINT:** "Apna current kaam band karo."
+> - **SIGHUP:** "Tumhara terminal disconnect ho gaya hai."
+> - **nohup:** "Terminal band hone ke baad bhi apna kaam jari rakho."
 >
-> **Golden Flow:**
+> **Golden Flow**
 >
 > ```text
 > Ctrl + C
->     │
->     ▼
-> SIGINT
->     │
->     └── Process Usually Stops
+>      │
+>      ▼
+>   SIGINT
+>      │
+>      └──── Process Aksar Stop Ho Jata Hai
 >
-> Terminal Closes
->     │
->     ▼
-> SIGHUP
->     │
->     ├── Normal Job May Stop
->     │
->     └── nohup Job Continues
+> Terminal Band
+>      │
+>      ▼
+>   SIGHUP
+>      │
+>      ├──── Normal Job Stop Ho Sakti Hai
+>      │
+>      └──── nohup Job Continue Karti Hai
 > ```
 >
-> **Use `nohup`, `screen`, `tmux`, or `systemd` whenever a long-running task must continue after you disconnect.**
+> **Jab bhi koi long-running command logout ke baad bhi chalni ho, to `nohup`, `screen`, `tmux`, ya `systemd` ka istemal karein.**
