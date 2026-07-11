@@ -1,0 +1,1406 @@
+# MODULE 08 – OpenSSH
+> **Remote Linux Communication Ko Configure Aur Secure Karna (Roman Urdu)**
+
+---
+
+# 🎯 Learning Objectives
+
+Is module mein aap seekhenge:
+
+- OpenSSH kya hai.
+- OpenSSH aur SSH Protocol ke darmiyan farq.
+- SSH, Telnet aur FTP se zyada secure kyun hai.
+- SSH ka default port number.
+- Ek Linux server se doosre Linux server par connect karna.
+- Same username use karke connect karna.
+- Different username use karke connect karna.
+- SSH Host-Key Verification kis tarah kaam karti hai.
+- Logged-in users ko kaise check karna hai.
+- Current system aur working directory ko kaise identify karna hai.
+- Remote SSH session se exit kaise karna hai.
+
+---
+
+# 📖 Introduction
+
+Aise environment mein jahan multiple Linux servers aur bohot se users hon, systems aksar ek doosre ke saath communicate karte hain.
+
+Examples:
+
+- Administrators remote servers ko manage karte hain.
+- Users remote Linux systems ko access karte hain.
+- Scripts servers ke darmiyan files transfer karti hain.
+- Applications network ke zariye communicate karti hain.
+- Support engineers remote machines troubleshoot karte hain.
+
+Ye communication secure honi chahiye.
+
+Linux encrypted remote access provide karne ke liye aam tor par **OpenSSH** aur **SSH Protocol** use karta hai.
+
+---
+
+# 1. OpenSSH Kya Hai?
+
+OpenSSH hai:
+
+> **Free aur Open-Source programs ka ek collection jo computer network par secure aur encrypted communication provide karta hai.**
+
+OpenSSH is protocol ko use karta hai:
+
+```text
+SSH Protocol
+```
+
+SSH ka matlab hai:
+
+> **Secure Shell**
+
+OpenSSH ye tools provide karta hai:
+
+- Remote Login
+- Remote Command Execution
+- Secure File Transfer
+- Key-Based Authentication
+- Secure Tunneling
+- Port Forwarding
+
+---
+
+# 2. OpenSSH Aur SSH Mein Farq
+
+OpenSSH aur SSH ek doosre se related hain, lekin dono same cheez nahi hain.
+
+| Item | Matlab |
+|------|--------|
+| SSH | Ek secure network protocol |
+| OpenSSH | Programs ka collection jo SSH protocol implement karta hai |
+
+Is liye:
+
+> **SSH protocol hai, jab ke OpenSSH us protocol ko implement karne wala software hai.**
+
+---
+
+# 3. Default SSH Port
+
+SSH ka default port hai:
+
+```text
+22
+```
+
+> **Important Correction:** SSH port `32` use nahi karta. Is ka standard default port `22` hai.
+
+SSH service ka port verify karne ke liye:
+
+```bash
+ss -tulpn | grep :22
+```
+
+Ya:
+
+```bash
+grep -i '^Port' /etc/ssh/sshd_config
+```
+
+Agar koi custom port configure nahi kiya gaya to SSH normally port `22` par listen karta hai.
+
+---
+
+# 4. OpenSSH Packages
+
+Bohot si Linux server installations mein OpenSSH packages default tor par installed hoti hain.
+
+Main packages aam tor par ye hoti hain:
+
+```text
+openssh
+openssh-clients
+openssh-server
+```
+
+Installed packages check karein:
+
+```bash
+rpm -qa | grep openssh
+```
+
+Example Output:
+
+```text
+openssh-8.x
+openssh-clients-8.x
+openssh-server-8.x
+```
+
+---
+
+# Agar Zaroorat Ho To OpenSSH Install Karein
+
+Rocky Linux, Red Hat Enterprise Linux ya AlmaLinux par:
+
+```bash
+sudo dnf install -y openssh openssh-clients openssh-server
+```
+
+---
+
+# 5. Main OpenSSH Components
+
+| Component | Kaam |
+|-----------|------|
+| `ssh` | Remote SSH server se connect kare |
+| `sshd` | SSH server daemon |
+| `scp` | Files securely copy kare |
+| `sftp` | Secure file transfer |
+| `ssh-keygen` | SSH key pair create kare |
+| `ssh-copy-id` | Public key remote server par copy kare |
+| `ssh-agent` | Private-key credentials temporarily store kare |
+| `ssh-add` | SSH agent mein keys add kare |
+
+---
+
+# 6. SSH Secure Kyun Hai?
+
+SSH network communication ko encryption ke zariye protect karta hai.
+
+Ye protect karta hai:
+
+- Usernames
+- Passwords
+- Commands
+- Session Data
+- File Transfers
+- Authentication Information
+
+Encryption ke baghair attacker transmitted information read kar sakta hai.
+
+---
+
+# 7. SSH Aur Telnet Mein Farq
+
+Telnet insecure samjha jata hai kyun ke woh information aam tor par plain text mein bhejta hai.
+
+| Feature | SSH | Telnet |
+|---------|-----|--------|
+| Encrypted communication | Haan | Nahi |
+| Secure authentication | Haan | Nahi |
+| Default port | `22` | `23` |
+| Remote administration ke liye recommended | Haan | Nahi |
+| Password protection | Encrypted | Plain text |
+
+Remote server access ke liye Telnet ke bajaye SSH use karna chahiye.
+
+---
+
+# 8. SSH Aur FTP Mein Farq
+
+Traditional FTP bhi default tor par encrypted nahi hota.
+
+| Feature | SSH/SFTP/SCP | Traditional FTP |
+|---------|--------------|-----------------|
+| Credentials encrypted | Haan | Nahi |
+| File data encrypted | Haan | Nahi |
+| Secure remote shell | Haan | Nahi |
+| Untrusted networks par recommended | Haan | Nahi |
+
+Secure file transfer ke liye use karein:
+
+```text
+scp
+```
+
+Ya:
+
+```text
+sftp
+```
+
+---
+
+# 9. SSH Security Aur Man-in-the-Middle Protection
+
+SSH remote servers ko identify karne ke liye **Host Keys** use karta hai.
+
+Jab aap pehli dafa kisi server se connect karte hain to SSH ye message dikha sakta hai:
+
+```text
+The authenticity of host 'server2' cannot be established.
+```
+
+Is ke saath server ka Host-Key Fingerprint bhi display hota hai.
+
+Example:
+
+```text
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxx
+```
+
+SSH poochta hai:
+
+```text
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+`yes` type karne se pehle server fingerprint ko kisi trusted source se verify karna chahiye.
+
+---
+
+# Host Key Accept Karne Ke Baad Kya Hota Hai?
+
+Jab aap type karte hain:
+
+```text
+yes
+```
+
+to Host Key is file mein save ho jati hai:
+
+```text
+~/.ssh/known_hosts
+```
+
+Future connections mein server ki presented key ko saved key ke saath compare kiya jata hai.
+
+Agar key unexpectedly change ho jaye to SSH ye warning deta hai:
+
+```text
+WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+```
+
+Is ka matlab ho sakta hai:
+
+- Server reinstall hua hai.
+- SSH Host Keys regenerate hui hain.
+- IP address ab kisi aur server ko mil gaya hai.
+- Man-in-the-Middle attack ho sakta hai.
+
+Reason verify kiye baghair is warning ko ignore nahi karna chahiye.
+
+---
+
+# 10. Practice Lab Environment
+
+Is lab mein suppose karein ke do Linux servers hain:
+
+| Server | Example Hostname | Example IP |
+|--------|------------------|------------|
+| Server 1 | `server1` | `192.168.1.66` |
+| Server 2 | `server2` | `192.168.1.67` |
+
+Dono servers par do users create kiye jayenge:
+
+```text
+myuser1
+myuser2
+```
+
+> Example IP addresses ko apne actual lab IP addresses se replace karein.
+
+---
+
+# 11. Server Hostname Check Karein
+
+Server 1 par:
+
+```bash
+hostname
+```
+
+Example Output:
+
+```text
+server1
+```
+
+Server 2 par:
+
+```bash
+hostname
+```
+
+Example Output:
+
+```text
+server2
+```
+
+Detailed information ke liye:
+
+```bash
+hostnamectl
+```
+
+---
+
+# 12. Server IP Address Check Karein
+
+Use karein:
+
+```bash
+ip address
+```
+
+Short command:
+
+```bash
+ip a
+```
+
+Sirf IPv4 addresses ke liye:
+
+```bash
+ip -4 addr
+```
+
+Aap ye bhi use kar sakte hain:
+
+```bash
+hostname -I
+```
+
+Example Output:
+
+```text
+192.168.1.67
+```
+
+> Purani `ifconfig` command default tor par installed na ho. Modern command `ip` hai.
+
+---
+
+# 13. Server 1 Par Users Create Karein
+
+`root` se login karein ya `sudo` use karein.
+
+Users create karein:
+
+```bash
+sudo useradd myuser1
+sudo useradd myuser2
+```
+
+Passwords set karein:
+
+```bash
+sudo passwd myuser1
+sudo passwd myuser2
+```
+
+Verify karein:
+
+```bash
+id myuser1
+id myuser2
+```
+
+---
+
+# 14. Server 2 Par Bhi Same Users Create Karein
+
+Server 2 par:
+
+```bash
+sudo useradd myuser1
+sudo useradd myuser2
+```
+
+Passwords set karein:
+
+```bash
+sudo passwd myuser1
+sudo passwd myuser2
+```
+
+Verify karein:
+
+```bash
+id myuser1
+id myuser2
+```
+
+---
+
+# User Accounts Ke Bare Mein Important Note
+
+Same username ka matlab ye nahi ke dono server accounts automatically identical hain.
+
+Har server ka apna hota hai:
+
+- User Database
+- Password
+- UID
+- Group Memberships
+- Home Directory
+- SSH Keys
+
+Normal user login ke liye destination server par user ka exist karna zaroori hai.
+
+---
+
+# 15. SSH Server Service Check Karein
+
+Server 2 par SSH daemon check karein:
+
+```bash
+systemctl status sshd
+```
+
+Agar running nahi hai:
+
+```bash
+sudo systemctl enable --now sshd
+```
+
+Verify karein:
+
+```bash
+systemctl is-active sshd
+```
+
+Expected Output:
+
+```text
+active
+```
+
+---
+
+# 16. Firewall Check Karein
+
+Server 2 par SSH firewall rule verify karein:
+
+```bash
+sudo firewall-cmd --list-services
+```
+
+Output mein ye hona chahiye:
+
+```text
+ssh
+```
+
+Agar SSH allowed nahi hai:
+
+```bash
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+```
+
+Verify karein:
+
+```bash
+sudo firewall-cmd --list-services
+```
+
+---
+
+# 17. Network Connectivity Test Karein
+
+Server 1 se Server 2 ko test karein:
+
+```bash
+ping -c 4 192.168.1.67
+```
+
+SSH port test karein:
+
+```bash
+nc -zv 192.168.1.67 22
+```
+
+Agar `nc` available nahi hai:
+
+```bash
+timeout 3 bash -c '</dev/tcp/192.168.1.67/22' && echo "SSH port is open"
+```
+
+---
+
+# 18. Server 1 Par `myuser1` Mein Switch Karein
+
+Run karein:
+
+```bash
+su - myuser1
+```
+
+Hyphen (`-`) login shell start karta hai aur user ka complete environment load karta hai.
+
+Verify karein:
+
+```bash
+whoami
+```
+
+Expected Output:
+
+```text
+myuser1
+```
+
+Current directory check karein:
+
+```bash
+pwd
+```
+
+Expected Output:
+
+```text
+/home/myuser1
+```
+
+---
+
+# 19. Same Username Ke Saath SSH Login
+
+Server 1 par `myuser1` se logged in hote hue run karein:
+
+```bash
+ssh 192.168.1.67
+```
+
+Kyun ke username specify nahi kiya gaya, SSH current local username use karega:
+
+```text
+myuser1
+```
+
+Ye command is ke equivalent hai:
+
+```bash
+ssh myuser1@192.168.1.67
+```
+
+---
+
+# First Connection Prompt
+
+Aap ko ye message mil sakta hai:
+
+```text
+The authenticity of host '192.168.1.67' cannot be established.
+ED25519 key fingerprint is SHA256:xxxxxxxxxxxxxxxx.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+Fingerprint verify karne ke baad type karein:
+
+```text
+yes
+```
+
+Phir Server 2 par `myuser1` ka password enter karein.
+
+---
+
+# 20. Remote Login Verify Karein
+
+Connect hone ke baad run karein:
+
+```bash
+whoami
+```
+
+Expected Output:
+
+```text
+myuser1
+```
+
+Hostname check karein:
+
+```bash
+hostname
+```
+
+Expected Output:
+
+```text
+server2
+```
+
+Current directory check karein:
+
+```bash
+pwd
+```
+
+Expected Output:
+
+```text
+/home/myuser1
+```
+
+Ye confirm karta hai ke:
+
+- Aap Server 2 par hain.
+- Aap `myuser1` ke taur par logged in hain.
+- Aap remote user ki Home Directory mein hain.
+
+---
+
+# 21. `w` Se Logged-In Users Check Karein
+
+Run karein:
+
+```bash
+w
+```
+
+Example Output:
+
+```text
+USER      TTY      FROM             LOGIN@   IDLE   JCPU   PCPU  WHAT
+root      tty1     -                09:10    1:20   0.04s  0.04s -bash
+myuser1   pts/0    192.168.1.66     09:30    0.00s  0.03s  0.01s w
+```
+
+---
+
+# `w` Output Ko Samjhein
+
+| Column | Matlab |
+|--------|--------|
+| `USER` | Logged-in username |
+| `TTY` | Session ke saath associated terminal |
+| `FROM` | Remote source address ya hostname |
+| `LOGIN@` | Login time |
+| `IDLE` | Inactive time |
+| `JCPU` | Session-related processes ka CPU time |
+| `PCPU` | Current process ka CPU time |
+| `WHAT` | Current command |
+
+---
+
+# 22. Physical Aur Pseudo Terminals
+
+Linux mukhtalif terminal types use karta hai.
+
+| Terminal | Description |
+|----------|-------------|
+| `tty1`, `tty2` | Local text console |
+| `pts/0`, `pts/1` | SSH, PuTTY ya terminal emulator ka pseudo terminal |
+
+SSH session aam tor par is tarah nazar aati hai:
+
+```text
+pts/0
+```
+
+Direct console login is tarah nazar aa sakta hai:
+
+```text
+tty1
+```
+
+---
+
+# 23. Remote SSH Session Se Exit Karein
+
+Server 2 se bahar nikal kar Server 1 par wapas aane ke liye:
+
+```bash
+exit
+```
+
+Ya press karein:
+
+```text
+Ctrl + D
+```
+
+Verify karein ke aap Server 1 par wapas aa gaye:
+
+```bash
+hostname
+```
+
+Expected Output:
+
+```text
+server1
+```
+
+---
+
+# 24. Different Username Ke Saath SSH Login
+
+Suppose aap Server 1 par logged in hain:
+
+```text
+myuser1
+```
+
+Lekin Server 2 par connect karna chahte hain:
+
+```text
+myuser2
+```
+
+Use karein:
+
+```bash
+ssh myuser2@192.168.1.67
+```
+
+Server 2 par `myuser2` ka password enter karein.
+
+---
+
+# Remote Identity Verify Karein
+
+Run karein:
+
+```bash
+whoami
+```
+
+Expected Output:
+
+```text
+myuser2
+```
+
+Run karein:
+
+```bash
+pwd
+```
+
+Expected Output:
+
+```text
+/home/myuser2
+```
+
+Run karein:
+
+```bash
+hostname
+```
+
+Expected Output:
+
+```text
+server2
+```
+
+---
+
+# 25. SSH Username Rules
+
+## Jab Username Specify Na Kiya Jaye
+
+Command:
+
+```bash
+ssh 192.168.1.67
+```
+
+SSH current local username use karne ki koshish karta hai.
+
+Example:
+
+```text
+Local user: myuser1
+Remote login attempt: myuser1
+```
+
+---
+
+## Jab Username Specify Kiya Jaye
+
+Command:
+
+```bash
+ssh myuser2@192.168.1.67
+```
+
+SSH remote server par is user ko use karega:
+
+```text
+myuser2
+```
+
+---
+
+# SSH Login Syntax
+
+```bash
+ssh username@server
+```
+
+Examples:
+
+```bash
+ssh myuser1@192.168.1.67
+```
+
+```bash
+ssh myuser2@server2
+```
+
+---
+
+# 26. Hostname Use Karke Connect Karein
+
+Agar DNS ya `/etc/hosts` name resolution configured hai to:
+
+```bash
+ssh myuser1@server2
+```
+
+Name resolution test karein:
+
+```bash
+getent hosts server2
+```
+
+Example Output:
+
+```text
+192.168.1.67 server2
+```
+
+---
+
+# Lab Ke Liye `/etc/hosts` Configure Karein
+
+Server 1 par:
+
+```bash
+sudo vim /etc/hosts
+```
+
+Add karein:
+
+```text
+192.168.1.66 server1
+192.168.1.67 server2
+```
+
+Ab test karein:
+
+```bash
+ping -c 2 server2
+```
+
+Connect karein:
+
+```bash
+ssh myuser1@server2
+```
+
+---
+
+# 27. Custom SSH Port Use Karein
+
+Agar SSH server non-default port use karta hai to lowercase `-p` use karein.
+
+Example:
+
+```bash
+ssh -p 2222 myuser1@192.168.1.67
+```
+
+> `ssh` command mein port option ke liye lowercase `-p` use hota hai.
+
+---
+
+# 28. Full Session Open Kiye Baghair Remote Command Run Karein
+
+Remote command execute kar sakte hain:
+
+```bash
+ssh myuser1@192.168.1.67 hostname
+```
+
+Example Output:
+
+```text
+server2
+```
+
+Ek aur example:
+
+```bash
+ssh myuser1@192.168.1.67 'whoami && pwd'
+```
+
+Ye connect karega, commands execute karega, output display karega aur phir disconnect ho jayega.
+
+---
+
+# 29. Common Verification Commands
+
+| Command | Kaam |
+|---------|------|
+| `whoami` | Current username dikhaye |
+| `hostname` | Current server name dikhaye |
+| `pwd` | Current directory dikhaye |
+| `w` | Logged-in users aur activity dikhaye |
+| `who` | Logged-in users dikhaye |
+| `id` | User aur group information dikhaye |
+| `ip a` | IP addresses dikhaye |
+| `exit` | SSH session close kare |
+
+---
+
+# 30. OpenSSH Client Aur Server Configuration Files
+
+| File | Kaam |
+|------|------|
+| `/etc/ssh/sshd_config` | SSH server configuration |
+| `/etc/ssh/ssh_config` | System-wide SSH client configuration |
+| `~/.ssh/config` | Per-user SSH client configuration |
+| `~/.ssh/known_hosts` | Trusted remote Host Keys |
+| `~/.ssh/authorized_keys` | Login ke liye allowed Public Keys |
+| `/etc/ssh/ssh_host_*` | Server Host Keys |
+
+---
+
+# 31. Important SSH Server Commands
+
+Service check karein:
+
+```bash
+systemctl status sshd
+```
+
+Service start karein:
+
+```bash
+sudo systemctl start sshd
+```
+
+Boot par enable karein:
+
+```bash
+sudo systemctl enable sshd
+```
+
+Enable aur foran start karein:
+
+```bash
+sudo systemctl enable --now sshd
+```
+
+Configuration change ke baad restart karein:
+
+```bash
+sudo systemctl restart sshd
+```
+
+Restart se pehle configuration syntax check karein:
+
+```bash
+sudo sshd -t
+```
+
+Agar koi output nahi aata to syntax aam tor par valid hai.
+
+---
+
+# 32. Important Security Recommendations
+
+SSH security improve karne ke liye:
+
+- Passwords ke bajaye SSH Keys use karein.
+- Jab practical ho direct root login disable karein.
+- Sirf required users ko allow karein.
+- OpenSSH updated rakhein.
+- Firewall se access restrict karein.
+- Host-Key fingerprints verify karein.
+- Authentication logs review karein.
+- Weak passwords se bachein.
+- SSH ko zarurat ke baghair public internet par expose na karein.
+- Zarurat par rate limiting ya Fail2ban use karein.
+
+---
+
+# 33. SSH Authentication Logs Check Karein
+
+Rocky Linux ya RHEL par:
+
+```bash
+sudo tail -f /var/log/secure
+```
+
+System Journal ke zariye:
+
+```bash
+sudo journalctl -u sshd
+```
+
+Real-time logs follow karein:
+
+```bash
+sudo journalctl -u sshd -f
+```
+
+Logs mein ye information mil sakti hai:
+
+- Successful logins
+- Failed passwords
+- Invalid users
+- Disconnections
+- Public-key authentication
+- SSH service errors
+
+---
+
+# 34. Basic SSH Connection Flow
+
+```text
+User SSH Command Chalata Hai
+        │
+        ▼
+Client Port 22 Par Server Se Contact Karta Hai
+        │
+        ▼
+Server Host Key Present Karta Hai
+        │
+        ▼
+Client Server Ki Identity Verify Karta Hai
+        │
+        ▼
+User Authentication
+        │
+        ├── Password
+        │
+        └── SSH Key
+        │
+        ▼
+Encrypted Session Establish Hoti Hai
+        │
+        ▼
+User Remote Shell Access Karta Hai
+```
+
+---
+
+# 🧪 Practice Exercises
+
+## Exercise 1 – OpenSSH Packages Check Karein
+
+```bash
+rpm -qa | grep openssh
+```
+
+---
+
+## Exercise 2 – SSH Service Check Karein
+
+```bash
+systemctl status sshd
+```
+
+---
+
+## Exercise 3 – Do Users Create Karein
+
+```bash
+sudo useradd myuser1
+sudo useradd myuser2
+sudo passwd myuser1
+sudo passwd myuser2
+```
+
+Ye dono servers par karein.
+
+---
+
+## Exercise 4 – Server IP Addresses Check Karein
+
+```bash
+ip -4 addr
+```
+
+---
+
+## Exercise 5 – Same Username Se Connect Karein
+
+Server 1 se:
+
+```bash
+su - myuser1
+ssh 192.168.1.67
+```
+
+---
+
+## Exercise 6 – Remote System Verify Karein
+
+```bash
+whoami
+hostname
+pwd
+w
+```
+
+---
+
+## Exercise 7 – Remote Session Se Exit Karein
+
+```bash
+exit
+```
+
+---
+
+## Exercise 8 – Different User Ke Taur Par Connect Karein
+
+```bash
+ssh myuser2@192.168.1.67
+```
+
+---
+
+## Exercise 9 – Remote Command Run Karein
+
+```bash
+ssh myuser1@192.168.1.67 'hostname && whoami && pwd'
+```
+
+---
+
+## Exercise 10 – SSH Logs Review Karein
+
+Server 2 par:
+
+```bash
+sudo journalctl -u sshd -f
+```
+
+Phir Server 1 se ek aur SSH login attempt karein aur logs observe karein.
+
+---
+
+# 🔧 Troubleshooting Scenarios
+
+### Scenario 1 – Connection Refused
+
+Error:
+
+```text
+ssh: connect to host 192.168.1.67 port 22: Connection refused
+```
+
+Server 2 par check karein:
+
+```bash
+systemctl status sshd
+```
+
+Service start karein:
+
+```bash
+sudo systemctl enable --now sshd
+```
+
+---
+
+### Scenario 2 – Connection Timed Out
+
+Possible reasons:
+
+- Wrong IP address
+- Firewall port 22 block kar raha hai
+- Network routing problem
+- Server powered off hai
+- SSH doosre port par listen kar raha hai
+
+Check karein:
+
+```bash
+ping -c 4 192.168.1.67
+```
+
+```bash
+nc -zv 192.168.1.67 22
+```
+
+---
+
+### Scenario 3 – Permission Denied
+
+Error:
+
+```text
+Permission denied, please try again.
+```
+
+Possible causes:
+
+- Wrong username
+- Wrong password
+- User remote server par exist nahi karta
+- Password authentication disabled hai
+- Account locked hai
+- SSH configuration user ko deny kar rahi hai
+
+Check karein:
+
+```bash
+id myuser1
+```
+
+```bash
+sudo passwd -S myuser1
+```
+
+```bash
+sudo journalctl -u sshd -n 50
+```
+
+---
+
+### Scenario 4 – Hostname Resolve Nahi Ho Raha
+
+Error:
+
+```text
+ssh: Could not resolve hostname server2
+```
+
+IP address use karein:
+
+```bash
+ssh myuser1@192.168.1.67
+```
+
+Ya DNS ya `/etc/hosts` fix karein.
+
+---
+
+### Scenario 5 – Host Key Change Ho Gayi
+
+Error:
+
+```text
+WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+```
+
+Saved key ko foran remove na karein.
+
+Pehle verify karein ke Host Key kyun change hui.
+
+Change legitimate confirm hone ke baad:
+
+```bash
+ssh-keygen -R 192.168.1.67
+```
+
+Phir reconnect karein aur new fingerprint verify karein.
+
+---
+
+### Scenario 6 – Firewall SSH Block Kar Raha Hai
+
+Check karein:
+
+```bash
+sudo firewall-cmd --list-services
+```
+
+SSH allow karein:
+
+```bash
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+```
+
+---
+
+### Scenario 7 – SSH Different Port Use Kar Raha Hai
+
+Connect karein:
+
+```bash
+ssh -p PORT username@server
+```
+
+Example:
+
+```bash
+ssh -p 2222 myuser1@192.168.1.67
+```
+
+---
+
+# 📌 Quick Revision
+
+| Item | Matlab |
+|------|--------|
+| OpenSSH | Secure networking tools ka Open-Source collection |
+| SSH | Secure Shell Protocol |
+| Default port | `22` |
+| `ssh server` | Current local username se connect kare |
+| `ssh user@server` | Specific remote username se connect kare |
+| `sshd` | OpenSSH server daemon |
+| `known_hosts` | Trusted server Host Keys store karta hai |
+| `w` | Logged-in users dikhata hai |
+| `pwd` | Current directory dikhata hai |
+| `whoami` | Current user dikhata hai |
+| `exit` | Remote session close karta hai |
+
+---
+
+# Common Commands
+
+| Command | Kaam |
+|---------|------|
+| `ssh IP` | Current username se connect kare |
+| `ssh user@IP` | Specific user se connect kare |
+| `ssh -p PORT user@IP` | Custom SSH port par connect kare |
+| `systemctl status sshd` | SSH server status check kare |
+| `sshd -t` | SSH server configuration validate kare |
+| `ip a` | IP addresses display kare |
+| `hostname` | Server hostname display kare |
+| `w` | Logged-in users display kare |
+| `pwd` | Current directory display kare |
+| `exit` | Remote SSH session se bahar nikle |
+| `journalctl -u sshd` | SSH service logs dekhe |
+
+---
+
+# 📖 Key Takeaways
+
+- OpenSSH ek software collection hai jo SSH Protocol implement karta hai.
+- SSH secure aur encrypted remote communication provide karta hai.
+- SSH ka default port `22` hai.
+- SSH, Telnet aur traditional FTP se zyada secure hai.
+- Agar username specify na kiya jaye to SSH current local username use karta hai.
+- Different user se connect karne ke liye `ssh user@server` use karein.
+- SSH Host Keys unexpected server identity changes detect karne mein madad karti hain.
+- `w`, `whoami`, `hostname` aur `pwd` remote session verify karne mein useful hain.
+- SSH server service ka naam `sshd` hai.
+- Host-Key warning ko correct reason verify kiye baghair ignore na karein.
+
+---
+
+# 💡 Yaad Rakhein
+
+> **SSH Ko Do Linux Systems Ke Darmiyan Ek Secure Encrypted Tunnel Ki Tarah Samjhein.**
+>
+> - **OpenSSH** tools provide karta hai.
+> - **SSH** secure protocol provide karta hai.
+> - **Port 22** default entry point hai.
+> - **Host Keys** server ki identity confirm karti hain.
+> - **User Authentication** user ki identity confirm karti hai.
+>
+> **Golden Connection Format:**
+>
+> ```text
+> ssh username@remote_server
+> ```
+>
+> Example:
+>
+> ```bash
+> ssh myuser1@192.168.1.67
+> ```
+>
+> **Remote Linux administration ke liye Telnet jaisi insecure protocols ke bajaye hamesha SSH use karein.**
