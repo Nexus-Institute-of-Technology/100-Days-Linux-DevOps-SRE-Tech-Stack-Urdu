@@ -1,0 +1,773 @@
+# SonarQube Community Build Installation on Rocky Linux 9
+
+## Class Project Guide
+
+This guide explains how to install the open-source **SonarQube Community Build** on a Rocky Linux 9 virtual machine using Docker Compose and PostgreSQL.
+
+---
+
+## 1. Project Architecture
+
+The installation will use:
+
+- Rocky Linux 9
+- Docker Engine
+- Docker Compose
+- SonarQube Community Build
+- PostgreSQL
+- TCP port `9000`
+
+### Architecture Flow
+
+```text
+Student Browser
+      |
+      | HTTP port 9000
+      v
+SonarQube Container
+      |
+      | PostgreSQL port 5432
+      v
+PostgreSQL Container
+```
+
+---
+
+## 2. Recommended VM Resources
+
+A VM with `1 vCPU`, `4 GB RAM`, and `15 GB disk` is too small for a reliable SonarQube installation.
+
+Use the following resources:
+
+| Resource | Minimum | Recommended |
+|---|---:|---:|
+| vCPU | 2 | 2–4 |
+| RAM | 4 GB | 8 GB |
+| Disk | 30 GB | 40–50 GB |
+| Operating System | Rocky Linux 9 | Rocky Linux 9 |
+
+SonarQube uses Elasticsearch internally, so sufficient memory and disk space are important.
+
+### Verify the VM Resources
+
+```bash
+lscpu | grep '^CPU(s)'
+free -h
+lsblk
+df -h /
+```
+
+> Increasing the virtual disk in Xen Orchestra does not automatically expand the Linux partition, logical volume, or filesystem.
+
+---
+
+## 3. Update Rocky Linux
+
+Run the following commands as `root`:
+
+```bash
+dnf update -y
+dnf install -y dnf-plugins-core curl openssl firewalld
+```
+
+Set the hostname:
+
+```bash
+hostnamectl set-hostname sonarqube
+```
+
+Enable and start the firewall:
+
+```bash
+systemctl enable --now firewalld
+```
+
+Verify:
+
+```bash
+hostnamectl
+systemctl status firewalld --no-pager
+```
+
+---
+
+## 4. Install Docker Engine
+
+Add the Docker repository:
+
+```bash
+dnf config-manager --add-repo \
+https://download.docker.com/linux/rhel/docker-ce.repo
+```
+
+Install Docker Engine and Docker Compose:
+
+```bash
+dnf install -y \
+docker-ce \
+docker-ce-cli \
+containerd.io \
+docker-buildx-plugin \
+docker-compose-plugin
+```
+
+Enable and start Docker:
+
+```bash
+systemctl enable --now docker
+```
+
+Verify the installation:
+
+```bash
+docker --version
+docker compose version
+systemctl status docker --no-pager
+```
+
+Test Docker:
+
+```bash
+docker run --rm hello-world
+```
+
+---
+
+## 5. Configure Linux Kernel Requirements
+
+SonarQube uses Elasticsearch and requires higher Linux kernel limits.
+
+Create the configuration file:
+
+```bash
+cat > /etc/sysctl.d/99-sonarqube.conf <<'EOF'
+vm.max_map_count=524288
+fs.file-max=131072
+EOF
+```
+
+Apply the settings:
+
+```bash
+sysctl --system
+```
+
+Verify:
+
+```bash
+sysctl vm.max_map_count
+sysctl fs.file-max
+```
+
+Expected values:
+
+```text
+vm.max_map_count = 524288
+fs.file-max = 131072
+```
+
+Check whether seccomp support is enabled:
+
+```bash
+grep SECCOMP /boot/config-$(uname -r)
+```
+
+Expected output should include values similar to:
+
+```text
+CONFIG_HAVE_ARCH_SECCOMP_FILTER=y
+CONFIG_SECCOMP_FILTER=y
+CONFIG_SECCOMP=y
+```
+
+---
+
+## 6. Create the SonarQube Project Directory
+
+```bash
+mkdir -p /opt/sonarqube
+cd /opt/sonarqube
+```
+
+Generate a strong PostgreSQL password:
+
+```bash
+DB_PASSWORD=$(openssl rand -hex 24)
+```
+
+Create the environment file:
+
+```bash
+cat > .env <<EOF
+POSTGRES_DB=sonarqube
+POSTGRES_USER=sonarqube
+POSTGRES_PASSWORD=${DB_PASSWORD}
+EOF
+```
+
+Protect the file:
+
+```bash
+chmod 600 .env
+```
+
+Display and securely record the database password:
+
+```bash
+cat .env
+```
+
+> Do not upload the `.env` file to a public GitHub repository because it contains the database password.
+
+---
+
+## 7. Create the Docker Compose File
+
+Create the Compose file:
+
+```bash
+vi /opt/sonarqube/compose.yml
+```
+
+Add the following configuration:
+
+```yaml
+services:
+  db:
+    image: postgres:17
+    container_name: sonarqube-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+    networks:
+      - sonarqube-network
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    restart: unless-stopped
+    stop_grace_period: 1h
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SONAR_JDBC_USERNAME: ${POSTGRES_USER}
+      SONAR_JDBC_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "9000:9000"
+
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+    ulimits:
+      nofile:
+        soft: 131072
+        hard: 131072
+      nproc: 8192
+
+    networks:
+      - sonarqube-network
+
+networks:
+  sonarqube-network:
+    name: sonarqube-network
+
+volumes:
+  postgresql_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+```
+
+### Explanation of the Persistent Volumes
+
+| Volume | Purpose |
+|---|---|
+| `postgresql_data` | Stores the PostgreSQL database |
+| `sonarqube_data` | Stores SonarQube indexes and data |
+| `sonarqube_extensions` | Stores plugins and extensions |
+| `sonarqube_logs` | Stores SonarQube log files |
+
+---
+
+## 8. Validate the Docker Compose File
+
+Move to the project directory:
+
+```bash
+cd /opt/sonarqube
+```
+
+Validate the configuration:
+
+```bash
+docker compose config
+```
+
+The command should display the completed configuration without errors.
+
+Pull the container images:
+
+```bash
+docker compose pull
+```
+
+---
+
+## 9. Start SonarQube
+
+Start the containers:
+
+```bash
+docker compose up -d
+```
+
+Check their status:
+
+```bash
+docker compose ps
+```
+
+You should eventually see both containers running:
+
+```text
+sonarqube
+sonarqube-db
+```
+
+Monitor SonarQube startup:
+
+```bash
+docker compose logs -f sonarqube
+```
+
+Press `Ctrl+C` to stop viewing the logs. This does not stop the container.
+
+Monitor PostgreSQL logs when needed:
+
+```bash
+docker compose logs -f db
+```
+
+---
+
+## 10. Configure the Firewall
+
+Open SonarQube TCP port `9000`:
+
+```bash
+firewall-cmd --permanent --add-port=9000/tcp
+firewall-cmd --reload
+```
+
+Verify:
+
+```bash
+firewall-cmd --list-ports
+ss -lntp | grep 9000
+```
+
+Expected firewall output should include:
+
+```text
+9000/tcp
+```
+
+---
+
+## 11. Find the SonarQube Server IP Address
+
+```bash
+hostname -I
+```
+
+Example:
+
+```text
+192.168.1.220
+```
+
+Open the following address from a browser:
+
+```text
+http://192.168.1.220:9000
+```
+
+Replace `192.168.1.220` with the actual IP address of your SonarQube VM.
+
+---
+
+## 12. First Login
+
+Use the default credentials:
+
+```text
+Username: admin
+Password: admin
+```
+
+SonarQube will require you to change the password after the first successful login.
+
+Use a strong password and do not continue using `admin` as the password.
+
+---
+
+## 13. Verify SonarQube from the Command Line
+
+Run:
+
+```bash
+curl -s http://127.0.0.1:9000/api/system/status
+```
+
+A healthy installation should return a response containing:
+
+```json
+{"status":"UP"}
+```
+
+Check container resource usage:
+
+```bash
+docker stats --no-stream
+```
+
+Check disk usage:
+
+```bash
+df -h
+docker system df
+```
+
+---
+
+## 14. Useful Management Commands
+
+### Start SonarQube
+
+```bash
+cd /opt/sonarqube
+docker compose start
+```
+
+### Stop SonarQube
+
+```bash
+cd /opt/sonarqube
+docker compose stop
+```
+
+### Restart SonarQube
+
+```bash
+cd /opt/sonarqube
+docker compose restart
+```
+
+### View All Logs
+
+```bash
+cd /opt/sonarqube
+docker compose logs -f
+```
+
+### View SonarQube Logs
+
+```bash
+docker compose logs -f sonarqube
+```
+
+### View PostgreSQL Logs
+
+```bash
+docker compose logs -f db
+```
+
+### Stop and Remove the Containers
+
+```bash
+docker compose down
+```
+
+This command removes the containers and network but keeps the persistent volumes.
+
+### Dangerous Command
+
+```bash
+docker compose down -v
+```
+
+> Warning: The `-v` option deletes the PostgreSQL database and SonarQube persistent data volumes.
+
+---
+
+## 15. Back Up the PostgreSQL Database
+
+Create a backup directory:
+
+```bash
+mkdir -p /opt/sonarqube/backups
+```
+
+Create a compressed database backup:
+
+```bash
+cd /opt/sonarqube
+
+docker compose exec -T db \
+pg_dump -U sonarqube sonarqube |
+gzip > backups/sonarqube-db-$(date +%F-%H%M).sql.gz
+```
+
+Verify the backup:
+
+```bash
+ls -lh /opt/sonarqube/backups/
+```
+
+---
+
+## 16. Common Problems and Troubleshooting
+
+### Problem 1: SonarQube Keeps Restarting
+
+Check the container status:
+
+```bash
+docker compose ps
+```
+
+Check the logs:
+
+```bash
+docker compose logs --tail=200 sonarqube
+```
+
+Verify the kernel settings:
+
+```bash
+sysctl vm.max_map_count
+sysctl fs.file-max
+```
+
+Required values:
+
+```text
+vm.max_map_count = 524288
+fs.file-max = 131072
+```
+
+---
+
+### Problem 2: Container Is Killed Because of Low Memory
+
+Check memory:
+
+```bash
+free -h
+docker stats --no-stream
+```
+
+Check for Out-of-Memory events:
+
+```bash
+dmesg -T | grep -iE 'out of memory|oom|killed process'
+```
+
+Increase the VM to at least `8 GB RAM` if SonarQube and PostgreSQL are running on the same VM.
+
+---
+
+### Problem 3: PostgreSQL Connection Failure
+
+Check PostgreSQL logs:
+
+```bash
+docker compose logs --tail=200 db
+```
+
+Test PostgreSQL readiness:
+
+```bash
+docker compose exec db \
+pg_isready -U sonarqube -d sonarqube
+```
+
+Verify the values in the `.env` file:
+
+```bash
+cat /opt/sonarqube/.env
+```
+
+---
+
+### Problem 4: SonarQube Web Page Does Not Open
+
+Test SonarQube locally:
+
+```bash
+curl -I http://127.0.0.1:9000
+```
+
+Check whether port `9000` is listening:
+
+```bash
+ss -lntp | grep 9000
+```
+
+Check the firewall:
+
+```bash
+firewall-cmd --list-ports
+```
+
+Check the containers:
+
+```bash
+docker compose ps
+```
+
+---
+
+### Problem 5: Disk Space Is Full
+
+Check disk usage:
+
+```bash
+df -h
+docker system df
+```
+
+Check Docker storage usage:
+
+```bash
+du -sh /var/lib/docker/*
+```
+
+Do not use the following command without understanding what it may delete:
+
+```bash
+docker volume prune
+```
+
+It could remove volumes that contain required application data.
+
+---
+
+## 17. Optional: Give SonarQube a Static IP Address
+
+Example NetworkManager configuration:
+
+```bash
+nmcli connection show
+```
+
+Replace `enX0` with the actual connection name:
+
+```bash
+nmcli connection modify enX0 \
+  ipv4.method manual \
+  ipv4.addresses 192.168.1.220/24 \
+  ipv4.gateway 192.168.1.1 \
+  ipv4.dns "192.168.1.1 8.8.8.8"
+```
+
+Apply the configuration:
+
+```bash
+nmcli connection down enX0
+nmcli connection up enX0
+```
+
+Verify:
+
+```bash
+ip -4 address show enX0
+ip route
+```
+
+> An SSH session may disconnect when the network connection is restarted.
+
+---
+
+## 18. Project Validation Checklist
+
+Use the following checklist before declaring the project complete:
+
+- [ ] Rocky Linux 9 VM has at least 2 vCPU
+- [ ] VM has preferably 8 GB RAM
+- [ ] VM has at least 30 GB disk
+- [ ] Docker Engine is installed
+- [ ] Docker Compose is installed
+- [ ] `vm.max_map_count` is set to `524288`
+- [ ] `fs.file-max` is set to `131072`
+- [ ] PostgreSQL container is healthy
+- [ ] SonarQube container is running
+- [ ] TCP port `9000` is open
+- [ ] SonarQube opens in the browser
+- [ ] Default administrator password has been changed
+- [ ] Database backup has been tested
+- [ ] `.env` is protected and not committed to Git
+
+---
+
+## 19. Project Learning Outcomes
+
+After completing this project, students should be able to:
+
+1. Install Docker Engine on Rocky Linux.
+2. Deploy a multi-container application with Docker Compose.
+3. Configure SonarQube with PostgreSQL.
+4. Configure Linux kernel settings for Elasticsearch-based applications.
+5. Open and verify firewall ports.
+6. Use Docker logs to troubleshoot container startup problems.
+7. Verify application health with `curl`.
+8. Back up a PostgreSQL database running in a container.
+9. Manage persistent Docker volumes.
+10. Explain the basic purpose of static code analysis.
+
+---
+
+## 20. Final Result
+
+After completing the installation, SonarQube should be available at:
+
+```text
+http://SONARQUBE_SERVER_IP:9000
+```
+
+Example:
+
+```text
+http://192.168.1.220:9000
+```
+
+The initial login is:
+
+```text
+Username: admin
+Password: admin
+```
+
+Change the default password immediately after the first login.

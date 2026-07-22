@@ -1,0 +1,2109 @@
+# Computer Networking Notes
+
+**Purpose:** A structured overview and learning roadmap for computer networking  
+**Source date provided:** 19 June 2026  
+**Recommended audience:** Beginners progressing toward system administration, cloud, DevOps, cybersecurity, and network engineering
+
+---
+
+## 1. Overview of Computer Networks
+
+A **computer network** is a system of interconnected devices—such as computers, servers, smartphones, switches, routers, printers, and storage systems—that communicate and exchange data.
+
+Devices may be connected through:
+
+- **Wired technologies:** Ethernet, fiber-optic cable, coaxial cable, and serial links.
+- **Wireless technologies:** Wi-Fi, Bluetooth, Zigbee, cellular networks, and satellite links.
+- **Logical or virtual technologies:** VLANs, VPNs, overlay networks, cloud virtual networks, and software-defined networking.
+
+Computer networks range from a small home network to enterprise data centers, cloud environments, and the global Internet.
+
+### Main Benefits
+
+| Benefit | Explanation |
+|---|---|
+| Resource Sharing | Allows users to share printers, scanners, applications, storage, and Internet access, reducing cost. |
+| Data Sharing | Enables files, applications, databases, and information to be exchanged efficiently. |
+| Communication | Supports email, instant messaging, voice calls, video conferencing, and web access. |
+| Data Management | Centralizes data storage, backup, access control, auditing, and recovery. |
+| Remote Access | Allows authorized users to reach systems, applications, and cloud services from remote locations. |
+| Better Collaboration | Improves teamwork by allowing users to communicate and work on shared information. |
+| Scalability | Makes it possible to add more users, devices, applications, and locations. |
+| Availability | Redundant links, devices, and services can reduce downtime. |
+| Security | Central controls can protect users, devices, applications, and data. |
+
+---
+
+## 2. Networking Learning Path
+
+![Computer Networking Learning Path](Networking_Learning_Path.png)
+
+### Mermaid Roadmap
+
+```mermaid
+flowchart TD
+    A[Computer Network Fundamentals] --> B[Network Devices and Network Types]
+    B --> C[OSI and TCP/IP Models]
+    C --> D[Physical Layer]
+    D --> E[Data Link Layer]
+    E --> F[Network Layer and IP Addressing]
+    F --> G[Subnetting and VLSM]
+    G --> H[Routing and Network Layer Protocols]
+    H --> I[Transport Layer: TCP and UDP]
+    I --> J[Session, Presentation and Application Layers]
+    J --> K[Application Protocols]
+    K --> L[Performance and Quality of Service]
+    L --> M[Network Security]
+    M --> N[Wireless and Special Networks]
+    N --> O[Cloud, SDN, NFV, IoT and 5G]
+    O --> P[Hands-on Labs and Troubleshooting]
+```
+
+### Recommended Study Method
+
+For each topic:
+
+1. Learn the purpose and terminology.
+2. Draw the communication flow.
+3. Configure a small lab.
+4. Capture traffic with Wireshark or `tcpdump`.
+5. Test with commands such as `ping`, `traceroute`, `ip`, `ss`, `dig`, and `curl`.
+6. Troubleshoot a deliberately introduced fault.
+7. Document the result.
+
+---
+
+# Part I — Fundamentals of Computer Networks
+
+## 3. Basics of Computer Networks
+
+Study:
+
+- Definition of a computer network
+- Nodes, hosts, clients, servers, and endpoints
+- Links and communication channels
+- Packets, frames, segments, and data
+- Bandwidth, throughput, latency, jitter, and packet loss
+- Network reliability, availability, scalability, and security
+- Centralized and distributed networks
+- Peer-to-peer and client-server communication
+
+### Key Terms
+
+| Term | Meaning |
+|---|---|
+| Host | A device assigned an address and capable of communicating on a network. |
+| Node | Any device participating in a network. |
+| Link | A wired, wireless, physical, or logical connection between devices. |
+| Protocol | A set of rules that devices use to communicate. |
+| Packet | A unit of data commonly associated with the Network Layer. |
+| Frame | A Data Link Layer unit containing MAC addressing and payload data. |
+| Segment | A TCP Transport Layer unit. |
+| Datagram | A connectionless packet, commonly associated with UDP. |
+| Port | A logical number identifying an application or service on a host. |
+
+---
+
+## 4. Network Devices
+
+### End Devices
+
+- Desktop computers
+- Laptops
+- Servers
+- Smartphones
+- Tablets
+- Printers
+- IP phones
+- Cameras
+- IoT sensors
+- Storage devices
+
+### Intermediary Devices
+
+| Device | Main Function |
+|---|---|
+| Repeater | Regenerates a weakened signal. |
+| Hub | Sends incoming traffic to all connected ports. |
+| Bridge | Connects network segments and filters traffic using MAC addresses. |
+| Switch | Forwards Ethernet frames based on a MAC address table. |
+| Router | Routes IP packets between different networks. |
+| Wireless Access Point | Connects wireless clients to a wired network. |
+| Modem | Converts signals for communication with an Internet service provider. |
+| Firewall | Permits or denies traffic according to security rules. |
+| IDS | Detects suspicious or malicious activity. |
+| IPS | Detects and actively blocks suspicious activity. |
+| Load Balancer | Distributes client requests across multiple servers. |
+| Proxy Server | Acts as an intermediary between clients and external services. |
+| Gateway | Connects networks or systems that may use different protocols. |
+
+---
+
+## 5. Types of Computer Networks
+
+| Type | Typical Scope |
+|---|---|
+| PAN | Personal devices within a few meters. |
+| LAN | A room, home, office, laboratory, or building. |
+| WLAN | A LAN using wireless communication. |
+| CAN | A campus or group of nearby buildings. |
+| MAN | A city or metropolitan area. |
+| WAN | Large geographic areas, countries, or continents. |
+| SAN | Dedicated network for block-level storage traffic. |
+| VPN | Encrypted logical network built over another network. |
+| Intranet | Private network used inside an organization. |
+| Extranet | Controlled extension of an intranet for partners or customers. |
+| Internet | The global system of interconnected networks. |
+
+---
+
+# Part II — Network Models
+
+## 6. OSI Model
+
+The **Open Systems Interconnection model** divides network communication into seven layers.
+
+| Layer | Name | Main Responsibility | Examples |
+|---:|---|---|---|
+| 7 | Application | User-facing network services | HTTP, DNS, SMTP, FTP |
+| 6 | Presentation | Data translation, compression, and encryption | TLS/SSL, MIME, encoding |
+| 5 | Session | Establishes and manages communication sessions | RPC, NetBIOS concepts |
+| 4 | Transport | End-to-end delivery, ports, reliability | TCP, UDP, SCTP |
+| 3 | Network | Logical addressing and routing | IPv4, IPv6, ICMP, routing |
+| 2 | Data Link | Framing, MAC addressing, switching | Ethernet, VLANs, PPP |
+| 1 | Physical | Signals, cabling, connectors, radio frequencies | Copper, fiber, Wi-Fi radio |
+
+### Encapsulation
+
+```text
+Application Data
+      ↓
+Transport Segment or Datagram
+      ↓
+Network Packet
+      ↓
+Data Link Frame
+      ↓
+Bits and Signals
+```
+
+At the destination, the process is reversed and is called **de-encapsulation**.
+
+---
+
+## 7. TCP/IP Model
+
+| TCP/IP Layer | Related OSI Layers | Examples |
+|---|---|---|
+| Application | OSI Layers 5–7 | HTTP, DNS, DHCP, SMTP, SSH |
+| Transport | OSI Layer 4 | TCP, UDP, SCTP |
+| Internet | OSI Layer 3 | IPv4, IPv6, ICMP, IPsec |
+| Network Access | OSI Layers 1–2 | Ethernet, Wi-Fi, ARP, physical media |
+
+### OSI vs. TCP/IP
+
+- The OSI model is commonly used for learning, design, and troubleshooting.
+- TCP/IP reflects the protocol suite used by the Internet.
+- Both models help engineers identify where a communication problem is occurring.
+
+---
+
+# Part III — Physical Layer
+
+## 8. Physical Layer
+
+The Physical Layer transfers raw bits across a physical or wireless medium.
+
+Study:
+
+- Electrical and optical signals
+- Radio transmission
+- Connectors and pinouts
+- Signal attenuation and interference
+- Bit rate and symbol rate
+- Duplex modes
+- Network interface hardware
+- Cable distance limitations
+
+---
+
+## 9. Types of Network Topology
+
+| Topology | Description | Main Consideration |
+|---|---|---|
+| Bus | Devices share a common backbone. | Simple but a backbone failure affects the network. |
+| Star | Devices connect to a central switch or hub. | Easy to manage; central device is important. |
+| Ring | Devices form a circular path. | Failure handling depends on ring design. |
+| Mesh | Devices have multiple interconnections. | Highly redundant but more expensive. |
+| Tree | Multiple star networks form a hierarchy. | Scalable and common in enterprise networks. |
+| Hybrid | Combination of two or more topologies. | Flexible but may be complex. |
+| Point-to-Point | Direct connection between two devices. | Simple and common on WAN links. |
+
+---
+
+## 10. Modes of Transmission
+
+### Direction
+
+- **Simplex:** Communication occurs in one direction only.
+- **Half-duplex:** Both devices can transmit, but not at the same time.
+- **Full-duplex:** Both devices can transmit simultaneously.
+
+### Delivery Pattern
+
+- **Unicast:** One sender to one receiver.
+- **Broadcast:** One sender to all devices in a broadcast domain.
+- **Multicast:** One sender to a subscribed group.
+- **Anycast:** Traffic is delivered to the nearest or best destination among several identical destinations.
+
+---
+
+## 11. Transmission Media
+
+### Guided Media
+
+- Twisted-pair copper cable
+- Coaxial cable
+- Single-mode fiber
+- Multimode fiber
+
+### Unguided Media
+
+- Wi-Fi radio
+- Bluetooth
+- Microwave
+- Cellular radio
+- Infrared
+- Satellite
+
+### Common Cabling Considerations
+
+- Maximum supported distance
+- Bandwidth
+- Susceptibility to electromagnetic interference
+- Connector type
+- Installation cost
+- Environmental conditions
+- Redundancy requirements
+
+---
+
+# Part IV — Data Link Layer
+
+## 12. Data Link Layer
+
+The Data Link Layer transfers frames between devices on the same local network.
+
+Main responsibilities:
+
+- Framing
+- Physical addressing using MAC addresses
+- Media access control
+- Error detection
+- Error correction where supported
+- Flow control
+- Switching
+- VLAN tagging
+- Link aggregation
+
+---
+
+## 13. Switching Techniques
+
+### Circuit Switching
+
+A dedicated communication path is established for the duration of a session.
+
+### Packet Switching
+
+Data is divided into packets that may share network links with other traffic.
+
+### Message Switching
+
+Entire messages are stored and forwarded between systems. It is mainly a historical concept in modern data networking.
+
+### Ethernet Switching
+
+An Ethernet switch learns source MAC addresses and records them in a MAC address table. It forwards frames toward the port associated with the destination MAC address.
+
+---
+
+## 14. Virtual LAN
+
+A **VLAN** logically separates devices into different Layer 2 broadcast domains even when they are connected to the same physical switch.
+
+Benefits:
+
+- Segmentation
+- Security
+- Reduced broadcast traffic
+- Easier departmental separation
+- Better network organization
+
+Important concepts:
+
+- Access ports
+- Trunk ports
+- IEEE 802.1Q tagging
+- Native VLAN
+- Inter-VLAN routing
+- VLAN IDs
+- Voice VLANs
+
+---
+
+## 15. Link Aggregation
+
+Link aggregation combines multiple physical links into one logical link.
+
+Benefits:
+
+- Increased bandwidth
+- Redundancy
+- Load distribution
+- Faster recovery from a failed link
+
+Common technologies:
+
+- LACP
+- EtherChannel
+- NIC bonding
+- NIC teaming
+
+---
+
+## 16. Framing
+
+A frame typically contains:
+
+- Preamble
+- Source MAC address
+- Destination MAC address
+- Type or length information
+- Payload
+- Frame Check Sequence
+
+The exact fields depend on the Data Link protocol.
+
+---
+
+## 17. Error Control
+
+Error control detects damaged data and determines whether retransmission or correction is required.
+
+### Error Detection
+
+- Parity checks
+- Checksums
+- Cyclic Redundancy Check
+- Frame Check Sequence
+
+### Error Correction
+
+- Forward Error Correction
+- Hamming code concepts
+- Retransmission using acknowledgments
+
+---
+
+## 18. Flow Control
+
+Flow control prevents a fast sender from overwhelming a slow receiver.
+
+Study:
+
+- Buffering
+- Acknowledgments
+- Window size
+- Stop-and-Wait
+- Sliding Window
+- Receiver-advertised limits
+
+---
+
+## 19. Stop-and-Wait ARQ
+
+1. The sender transmits one frame.
+2. The sender waits for an acknowledgment.
+3. If the acknowledgment arrives, the next frame is sent.
+4. If a timeout occurs, the frame is retransmitted.
+
+It is simple but inefficient on high-latency links.
+
+---
+
+## 20. Sliding Window Protocol
+
+### Go-Back-N
+
+The sender may transmit several frames without waiting, but when an error occurs, the sender retransmits the missing frame and later frames in the window.
+
+### Selective Repeat
+
+Only missing or damaged frames are retransmitted. It uses bandwidth more efficiently but requires more processing and buffering.
+
+### Piggybacking
+
+An acknowledgment is included with data traveling in the opposite direction rather than being sent as a separate frame.
+
+---
+
+# Part V — Network Layer
+
+## 21. Network Layer
+
+The Network Layer provides logical addressing and routes packets between networks.
+
+Main responsibilities:
+
+- IP addressing
+- Route selection
+- Packet forwarding
+- Fragmentation concepts
+- Time-to-live or hop-limit handling
+- Error reporting
+- Internetwork communication
+
+---
+
+## 22. Classful Network Addressing
+
+Historical IPv4 classes:
+
+| Class | First Octet Range | Historical Purpose |
+|---|---:|---|
+| A | 1–126 | Very large networks |
+| B | 128–191 | Medium networks |
+| C | 192–223 | Small networks |
+| D | 224–239 | Multicast |
+| E | 240–255 | Experimental or reserved |
+
+Modern networking generally uses **CIDR** rather than classful addressing.
+
+---
+
+## 23. Classless Network Addressing
+
+**Classless Inter-Domain Routing** uses prefix lengths such as:
+
+```text
+192.168.10.0/24
+10.20.0.0/16
+172.16.4.0/22
+```
+
+CIDR supports:
+
+- Efficient address allocation
+- Route summarization
+- Flexible subnet sizes
+- Reduced routing table growth
+
+---
+
+## 24. IPv4 Header Format
+
+Important IPv4 header fields:
+
+- Version
+- Header length
+- Differentiated Services
+- Total length
+- Identification
+- Flags
+- Fragment offset
+- Time to Live
+- Protocol
+- Header checksum
+- Source IP address
+- Destination IP address
+- Options
+
+---
+
+## 25. IPv4 vs. IPv6
+
+| Feature | IPv4 | IPv6 |
+|---|---|---|
+| Address Size | 32 bits | 128 bits |
+| Example | 192.0.2.10 | 2001:db8::10 |
+| Address Space | Limited | Extremely large |
+| Broadcast | Supported | Replaced by multicast and anycast |
+| Header | Variable and more complex | Simplified fixed base header |
+| Configuration | Manual or DHCP | SLAAC, DHCPv6, or manual |
+| NAT | Common | Usually not required for conservation |
+| Neighbor Discovery | ARP | ICMPv6 Neighbor Discovery |
+
+---
+
+## 26. Private vs. Public IP Addresses
+
+### Private IPv4 Ranges
+
+```text
+10.0.0.0/8
+172.16.0.0/12
+192.168.0.0/16
+```
+
+Private addresses are not routed directly across the public Internet.
+
+### Public Addresses
+
+Public IP addresses are globally routable and usually assigned by an Internet service provider or cloud provider.
+
+---
+
+# Part VI — Subnetting
+
+## 27. Introduction to Subnetting
+
+Subnetting divides a larger IP network into smaller networks.
+
+Benefits:
+
+- Better address utilization
+- Reduced broadcast traffic
+- Improved security
+- Easier troubleshooting
+- Departmental separation
+- Routing efficiency
+
+---
+
+## 28. Role of the Subnet Mask
+
+The subnet mask or prefix length identifies:
+
+- The network portion
+- The host portion
+
+Example:
+
+```text
+IP address:    192.168.10.25
+Subnet mask:   255.255.255.0
+Prefix:        /24
+Network:       192.168.10.0
+Broadcast:     192.168.10.255
+Usable range:  192.168.10.1–192.168.10.254
+```
+
+---
+
+## 29. Calculate Network, Broadcast, and Host Addresses
+
+For a traditional IPv4 subnet:
+
+```text
+Total addresses = 2^(number of host bits)
+Traditional usable hosts = total addresses - 2
+```
+
+The two traditionally excluded addresses are:
+
+- Network address
+- Broadcast address
+
+Point-to-point and special-purpose networks may use different rules.
+
+---
+
+## 30. Variable Length Subnet Masking
+
+**VLSM** assigns different subnet sizes according to actual host requirements.
+
+Example plan:
+
+| Department | Required Hosts | Possible Prefix |
+|---|---:|---:|
+| Servers | 50 | /26 |
+| Students | 100 | /25 |
+| Management | 20 | /27 |
+| Point-to-Point Link | 2 | /30 or /31 where supported |
+
+Allocate the largest subnet first.
+
+---
+
+## 31. Supernetting
+
+Supernetting combines multiple contiguous networks into a larger summarized route.
+
+Example:
+
+```text
+192.168.0.0/24
+192.168.1.0/24
+192.168.2.0/24
+192.168.3.0/24
+```
+
+These can be summarized as:
+
+```text
+192.168.0.0/22
+```
+
+---
+
+# Part VII — Routing
+
+## 32. What Is Routing?
+
+Routing is the process of choosing a path and forwarding packets toward a destination network.
+
+A router consults its routing table and normally selects the most specific matching route.
+
+### Routing Table Sources
+
+- Directly connected routes
+- Static routes
+- Default routes
+- Dynamic routing protocols
+- Policy-based routes
+
+---
+
+## 33. Static vs. Dynamic Routing
+
+| Static Routing | Dynamic Routing |
+|---|---|
+| Manually configured | Learned through routing protocols |
+| Predictable | Adapts to topology changes |
+| Low protocol overhead | Uses CPU, memory, and bandwidth |
+| Suitable for small or stable networks | Suitable for larger or changing networks |
+| Requires manual updates | Can recalculate paths automatically |
+
+---
+
+## 34. Link-State Routing
+
+A link-state protocol builds a map of the network and calculates the best path.
+
+Examples:
+
+- OSPF
+- IS-IS
+
+Common algorithm:
+
+- Dijkstra shortest-path-first
+
+---
+
+## 35. Distance-Vector Routing
+
+A distance-vector protocol learns routes from neighboring routers and selects paths using a metric.
+
+Examples:
+
+- RIP
+- EIGRP uses an advanced distance-vector or hybrid approach
+
+Common concerns:
+
+- Routing loops
+- Slow convergence
+- Count-to-infinity
+- Split horizon
+- Route poisoning
+- Hold-down timers
+
+---
+
+## 36. Network Address Translation
+
+NAT translates IP addressing information as traffic crosses a router or firewall.
+
+Types:
+
+- Static NAT
+- Dynamic NAT
+- Port Address Translation
+- Source NAT
+- Destination NAT
+
+Typical use:
+
+```text
+Private host → NAT gateway → Public Internet
+```
+
+---
+
+# Part VIII — Network Layer Protocols
+
+## 37. Address Resolution Protocol
+
+ARP maps an IPv4 address to a MAC address on a local network.
+
+Typical sequence:
+
+1. A host checks its ARP cache.
+2. It broadcasts an ARP request.
+3. The owner of the IPv4 address responds.
+4. The mapping is stored temporarily.
+
+Linux examples:
+
+```bash
+ip neigh
+arping -I enX0 192.168.1.10
+```
+
+---
+
+## 38. Reverse Address Resolution Protocol
+
+RARP historically allowed a device to request an IPv4 address using its MAC address. It has largely been replaced by BOOTP and DHCP.
+
+---
+
+## 39. Dynamic Host Configuration Protocol
+
+DHCP automatically provides network configuration.
+
+Common information:
+
+- IP address
+- Subnet mask
+- Default gateway
+- DNS servers
+- Lease duration
+- Domain name
+- NTP server
+- Boot server options
+
+Basic IPv4 exchange:
+
+```text
+Discover → Offer → Request → Acknowledge
+```
+
+---
+
+## 40. Internet Control Message Protocol
+
+ICMP supports network diagnostics and error reporting.
+
+Examples:
+
+- Echo Request
+- Echo Reply
+- Destination Unreachable
+- Time Exceeded
+- Redirect messages
+
+Commands:
+
+```bash
+ping -c 4 8.8.8.8
+traceroute 8.8.8.8
+```
+
+---
+
+## 41. Internet Group Management Protocol
+
+IGMP manages IPv4 multicast group membership between hosts and local routers.
+
+---
+
+## 42. Routing Information Protocol
+
+RIP:
+
+- Uses hop count
+- Has a maximum usable hop count of 15
+- Is simple but not suitable for large modern networks
+- Uses periodic route advertisements
+
+---
+
+## 43. Open Shortest Path First
+
+OSPF:
+
+- Is a link-state interior routing protocol
+- Uses areas
+- Uses cost as its metric
+- Supports fast convergence
+- Elects designated routers on multi-access networks
+- Uses a link-state database
+
+---
+
+## 44. Intermediate System to Intermediate System
+
+IS-IS:
+
+- Is a link-state protocol
+- Is widely used by service providers
+- Supports hierarchical routing
+- Operates directly over Layer 2 rather than using IP for its control messages
+
+---
+
+## 45. Enhanced Interior Gateway Routing Protocol
+
+EIGRP:
+
+- Uses a composite metric
+- Supports rapid convergence
+- Uses the Diffusing Update Algorithm
+- Is commonly associated with Cisco environments
+
+---
+
+## 46. Border Gateway Protocol
+
+BGP exchanges routing information between autonomous systems.
+
+Important concepts:
+
+- Autonomous System Number
+- Path vector
+- AS path
+- Next hop
+- Local preference
+- Multi-Exit Discriminator
+- Route policies
+- eBGP and iBGP
+- Internet-scale routing
+
+---
+
+## 47. Multiprotocol Label Switching
+
+MPLS forwards traffic using labels.
+
+Uses:
+
+- Traffic engineering
+- Provider VPNs
+- Service provider backbones
+- Predictable forwarding paths
+- Layer 2 and Layer 3 services
+
+---
+
+## 48. Internet Protocol
+
+IP provides logical addressing and best-effort packet delivery.
+
+Key properties:
+
+- Connectionless
+- Best effort
+- Routed
+- Independent of the underlying physical medium
+
+---
+
+## 49. Generic Routing Encapsulation
+
+GRE creates a tunnel that encapsulates one protocol inside another.
+
+GRE itself does not normally provide encryption. It is often combined with IPsec when confidentiality is required.
+
+---
+
+# Part IX — Transport Layer
+
+## 50. Transport Layer
+
+The Transport Layer provides process-to-process communication.
+
+Main responsibilities:
+
+- Port numbers
+- Segmentation and reassembly
+- Reliability
+- Error recovery
+- Flow control
+- Multiplexing
+- Congestion control
+
+---
+
+## 51. TCP Protocol
+
+TCP is:
+
+- Connection-oriented
+- Reliable
+- Ordered
+- Acknowledgment-based
+- Flow-controlled
+- Congestion-aware
+
+Common TCP applications:
+
+- HTTP and HTTPS
+- SSH
+- SMTP
+- IMAP
+- FTP control
+- Database connections
+
+---
+
+## 52. TCP Three-Way Handshake
+
+```text
+Client                         Server
+  | -------- SYN ------------> |
+  | <----- SYN-ACK ------------ |
+  | -------- ACK -------------> |
+  |       Connection Ready      |
+```
+
+---
+
+## 53. Services and Segment Structure in TCP
+
+Important TCP header fields:
+
+- Source port
+- Destination port
+- Sequence number
+- Acknowledgment number
+- Header length
+- Flags
+- Window size
+- Checksum
+- Urgent pointer
+- Options
+
+Common flags:
+
+- SYN
+- ACK
+- FIN
+- RST
+- PSH
+- URG
+
+---
+
+## 54. TCP Connection Establishment
+
+Connection establishment synchronizes sequence numbers and confirms that both endpoints are prepared to communicate.
+
+---
+
+## 55. TCP Termination
+
+A normal TCP close commonly uses FIN and ACK exchanges. An immediate reset uses the RST flag.
+
+---
+
+## 56. Congestion Control in TCP
+
+Study:
+
+- Slow start
+- Congestion avoidance
+- Congestion window
+- Receiver window
+- Fast retransmit
+- Fast recovery
+- Retransmission timeout
+
+---
+
+## 57. UDP Protocol
+
+UDP is:
+
+- Connectionless
+- Low-overhead
+- Message-oriented
+- Not inherently reliable
+- Not inherently ordered
+
+Common uses:
+
+- DNS
+- DHCP
+- Streaming
+- Voice over IP
+- Online gaming
+- Monitoring
+- Time synchronization
+- QUIC transport foundations
+
+---
+
+## 58. TCP vs. UDP
+
+| TCP | UDP |
+|---|---|
+| Connection-oriented | Connectionless |
+| Reliable delivery | Best-effort delivery |
+| Ordered data | No ordering guarantee |
+| Higher overhead | Lower overhead |
+| Congestion and flow control | Application must handle these if required |
+| Suitable for accuracy-sensitive data | Suitable for delay-sensitive traffic |
+
+---
+
+## 59. SCTP
+
+Stream Control Transmission Protocol supports:
+
+- Multiple streams
+- Multi-homing
+- Reliable message delivery
+- Association-based communication
+
+---
+
+## 60. DCCP
+
+Datagram Congestion Control Protocol provides congestion-controlled, unreliable datagram delivery for applications that prefer timely delivery over retransmission.
+
+---
+
+## 61. RUDP
+
+Reliable UDP is a general term for application or protocol designs that add reliability features on top of UDP. It is not one single universally standardized protocol.
+
+---
+
+## 62. QUIC
+
+QUIC:
+
+- Runs over UDP
+- Provides secure transport
+- Integrates TLS
+- Reduces connection setup delay
+- Supports multiplexed streams
+- Is used by HTTP/3
+
+---
+
+# Part X — Session Layer
+
+## 63. Session Layer
+
+The Session Layer manages communication sessions between applications.
+
+Functions:
+
+- Session establishment
+- Session maintenance
+- Session termination
+- Dialog control
+- Synchronization checkpoints
+- Recovery of long-running communication
+
+---
+
+## 64. Functions of the Session Layer
+
+- Controls when systems transmit
+- Maintains a logical conversation
+- Supports checkpoints and restart
+- Manages authentication sessions in some conceptual models
+
+---
+
+## 65. Remote Procedure Call
+
+RPC allows a program to request a service from a program on another system as though it were a local function call.
+
+Examples include:
+
+- NFS-related services
+- Distributed applications
+- Microservice communication frameworks
+
+---
+
+## 66. Point-to-Point Tunneling Protocol
+
+PPTP is an older VPN tunneling protocol. It is generally considered unsuitable for modern secure deployments because stronger alternatives are available.
+
+---
+
+# Part XI — Presentation Layer
+
+## 67. Presentation Layer
+
+The Presentation Layer prepares data for the Application Layer.
+
+Functions:
+
+- Data translation
+- Character encoding
+- Serialization
+- Compression
+- Encryption
+- Decryption
+
+---
+
+## 68. Services Provided by the Presentation Layer
+
+Examples:
+
+- Converting character sets
+- Compressing images or files
+- Encoding structured data
+- Encrypting a communication session
+- Representing audio, video, and documents
+
+---
+
+## 69. Application Filing Protocol
+
+AFP has been used for file services in Apple networking environments.
+
+---
+
+## 70. NetWare Core Protocol
+
+NCP was used by Novell NetWare for services such as file and printer access.
+
+---
+
+## 71. Secure Sockets Layer
+
+SSL is the historical predecessor of TLS. Modern secure applications should use supported TLS versions rather than obsolete SSL versions.
+
+---
+
+## 72. MIME
+
+MIME extends email and other application formats to support:
+
+- Multiple content types
+- Attachments
+- Character encodings
+- HTML messages
+- Audio, images, and video
+
+---
+
+# Part XII — Application Layer
+
+## 73. Application Layer
+
+The Application Layer provides network services directly to software and users.
+
+Examples:
+
+- Web browsing
+- Email
+- File transfer
+- Name resolution
+- Remote login
+- Directory services
+- Monitoring
+- Time synchronization
+
+---
+
+## 74. Client-Server Model
+
+In a client-server model:
+
+- The **client** sends a request.
+- The **server** listens for requests and provides a service.
+- The server normally uses a known port.
+- Multiple clients may access the same server.
+
+Example:
+
+```text
+Browser → HTTPS request → Web server → Application → Database
+```
+
+---
+
+## 75. World Wide Web
+
+The web uses technologies such as:
+
+- HTTP and HTTPS
+- URLs
+- HTML
+- CSS
+- JavaScript
+- Web servers
+- Browsers
+- Proxies
+- CDNs
+- APIs
+
+---
+
+## 76. Email
+
+Email systems use:
+
+- SMTP for sending and relaying
+- IMAP for synchronized mailbox access
+- POP3 for downloading messages
+- DNS MX records for mail routing
+- MIME for attachments and rich content
+- TLS for transport encryption
+
+---
+
+## 77. Content Distribution Network
+
+A CDN distributes cached content across geographically separated edge servers.
+
+Benefits:
+
+- Lower latency
+- Reduced origin-server load
+- Faster downloads
+- Improved availability
+- Protection against some traffic spikes and attacks
+
+---
+
+# Part XIII — Application Layer Protocols
+
+## 78. Domain Name System
+
+DNS maps names to information such as IP addresses.
+
+Common records:
+
+| Record | Purpose |
+|---|---|
+| A | Maps a name to an IPv4 address. |
+| AAAA | Maps a name to an IPv6 address. |
+| CNAME | Creates an alias. |
+| MX | Identifies mail servers. |
+| NS | Identifies authoritative name servers. |
+| TXT | Stores text-based verification or policy data. |
+| PTR | Supports reverse DNS lookup. |
+| SRV | Identifies service locations. |
+| SOA | Describes the authoritative DNS zone. |
+
+Commands:
+
+```bash
+dig example.com
+dig MX example.com
+host example.com
+nslookup example.com
+```
+
+---
+
+## 79. File Transfer Protocol
+
+FTP transfers files but does not protect credentials or data by default.
+
+Related secure alternatives:
+
+- SFTP over SSH
+- SCP
+- FTPS
+
+---
+
+## 80. Simple Mail Transfer Protocol
+
+SMTP is used to submit and relay email.
+
+Common concepts:
+
+- Mail user agent
+- Mail transfer agent
+- Mail delivery agent
+- Relay
+- Authentication
+- STARTTLS
+- MX lookup
+
+---
+
+## 81. Simple Network Management Protocol
+
+SNMP monitors and manages network devices.
+
+Important concepts:
+
+- Manager
+- Agent
+- Object identifier
+- Management Information Base
+- Polling
+- Traps
+- Informs
+- SNMPv1, SNMPv2c, and SNMPv3
+
+SNMPv3 provides stronger authentication and privacy capabilities.
+
+---
+
+## 82. HTTP
+
+HTTP is a request-response application protocol.
+
+Common methods:
+
+- GET
+- POST
+- PUT
+- PATCH
+- DELETE
+- HEAD
+- OPTIONS
+
+Common status classes:
+
+- 1xx informational
+- 2xx success
+- 3xx redirection
+- 4xx client error
+- 5xx server error
+
+---
+
+## 83. HTTPS
+
+HTTPS is HTTP protected by TLS.
+
+It provides:
+
+- Encryption
+- Integrity
+- Server authentication
+- Optional client authentication
+
+---
+
+## 84. POP3
+
+POP3 commonly downloads email from a server to a client. It provides fewer synchronization features than IMAP.
+
+---
+
+## 85. IMAP
+
+IMAP keeps mail synchronized between the client and the server.
+
+Features:
+
+- Server-side folders
+- Message flags
+- Multi-device access
+- Partial message retrieval
+- Search support
+
+---
+
+## 86. LDAP
+
+LDAP provides access to directory information.
+
+Uses:
+
+- User and group lookup
+- Central authentication
+- Organizational directories
+- Application authorization data
+
+---
+
+## 87. NTP
+
+NTP synchronizes system clocks.
+
+Accurate time is important for:
+
+- Log correlation
+- Authentication
+- Certificates
+- Distributed applications
+- Monitoring
+- Incident investigation
+
+Linux examples:
+
+```bash
+timedatectl
+chronyc sources -v
+chronyc tracking
+```
+
+---
+
+## 88. TFTP
+
+TFTP is a simple UDP-based file transfer protocol.
+
+Common uses:
+
+- Network booting
+- Device configuration transfer
+- Firmware deployment
+
+It does not provide strong security by itself.
+
+---
+
+## 89. NNTP
+
+NNTP is used to distribute and retrieve Usenet news articles.
+
+---
+
+## 90. MQTT
+
+MQTT is a lightweight publish-subscribe protocol.
+
+Common concepts:
+
+- Broker
+- Publisher
+- Subscriber
+- Topic
+- Quality of Service levels
+- Retained message
+- Last Will and Testament
+
+It is widely used in IoT systems.
+
+---
+
+## 91. SIP
+
+SIP establishes, modifies, and terminates multimedia sessions.
+
+Common uses:
+
+- Voice over IP
+- Video calls
+- Presence
+- Unified communications
+
+Media commonly travels separately using RTP.
+
+---
+
+## 92. SMB
+
+SMB provides shared access to:
+
+- Files
+- Printers
+- Named pipes
+- Other network resources
+
+It is widely used in Windows environments and is also supported by Samba on Linux.
+
+---
+
+# Part XIV — Network Performance and Quality
+
+## 93. Congestion Control
+
+Congestion occurs when traffic demand exceeds available network capacity.
+
+Possible symptoms:
+
+- High latency
+- Packet loss
+- Retransmissions
+- Reduced throughput
+- Queue buildup
+- Application timeouts
+
+Control methods:
+
+- Queue management
+- Rate limiting
+- Traffic shaping
+- Admission control
+- Congestion-aware transport protocols
+- Capacity planning
+
+---
+
+## 94. Quality of Service and Multimedia
+
+QoS prioritizes important traffic and manages network resources.
+
+Important for:
+
+- Voice
+- Video conferencing
+- Streaming
+- Industrial control
+- Business-critical applications
+
+QoS measurements:
+
+- Bandwidth
+- Delay
+- Jitter
+- Packet loss
+- Availability
+
+---
+
+## 95. Techniques for Achieving QoS
+
+- Classification
+- Marking
+- Queuing
+- Scheduling
+- Policing
+- Shaping
+- Congestion avoidance
+- Admission control
+- Differentiated Services
+- Resource reservation concepts
+
+---
+
+## 96. Token Bucket
+
+A token bucket controls traffic by requiring a token before data may be transmitted.
+
+It allows bursts when sufficient tokens have accumulated while controlling the average rate.
+
+---
+
+## 97. Leaky Bucket
+
+A leaky bucket releases traffic at a controlled rate.
+
+It smooths bursts but may delay or discard traffic when the queue exceeds capacity.
+
+---
+
+# Part XV — Network Security
+
+## 98. Authentication
+
+Authentication verifies identity.
+
+Examples:
+
+- Passwords
+- Public-key authentication
+- Certificates
+- Tokens
+- One-time passwords
+- Multi-factor authentication
+- Kerberos
+- RADIUS
+- TACACS+
+
+---
+
+## 99. Encryption
+
+Encryption protects confidentiality.
+
+Categories:
+
+- Symmetric encryption
+- Asymmetric encryption
+- Hashing
+- Digital signatures
+- Key exchange
+- Certificates and public-key infrastructure
+
+Applications:
+
+- TLS
+- SSH
+- IPsec
+- VPNs
+- Encrypted storage
+- Secure email
+
+---
+
+## 100. Firewalls
+
+A firewall filters network traffic according to security rules.
+
+Types:
+
+- Packet-filtering firewall
+- Stateful firewall
+- Application proxy
+- Next-generation firewall
+- Host firewall
+- Network firewall
+- Cloud security group
+
+Rule considerations:
+
+- Source
+- Destination
+- Protocol
+- Port
+- Connection state
+- Interface
+- Direction
+- Action
+- Logging
+
+---
+
+## 101. MAC Address Filtering
+
+MAC filtering allows or denies devices according to their MAC addresses.
+
+Limitations:
+
+- MAC addresses can be spoofed.
+- It should not be treated as strong authentication.
+- It may be useful as one small part of a larger control strategy.
+
+---
+
+## 102. Intrusion Detection System
+
+An IDS monitors activity and generates alerts when suspicious behavior is detected.
+
+Types:
+
+- Network-based IDS
+- Host-based IDS
+- Signature-based detection
+- Anomaly-based detection
+
+---
+
+## 103. Intrusion Prevention System
+
+An IPS monitors and actively blocks suspicious traffic.
+
+Possible actions:
+
+- Drop packets
+- Reset connections
+- Block addresses
+- Quarantine hosts
+- Trigger automated responses
+
+---
+
+## 104. VPN
+
+A VPN creates a protected logical connection over an untrusted network.
+
+Types:
+
+- Remote-access VPN
+- Site-to-site VPN
+- Layer 2 VPN
+- Layer 3 VPN
+- SSL/TLS VPN
+- IPsec VPN
+
+Common technologies:
+
+- IPsec
+- OpenVPN
+- WireGuard
+- IKEv2
+- TLS-based gateways
+
+---
+
+# Part XVI — Wireless and Special Networks
+
+## 105. Wi-Fi Standards
+
+Wi-Fi is based on IEEE 802.11 standards.
+
+Study:
+
+- Frequency bands
+- Channels
+- Channel width
+- Modulation
+- MIMO
+- Access points
+- SSIDs
+- Roaming
+- Interference
+- WPA2 and WPA3
+- Enterprise authentication
+
+---
+
+## 106. Wireless LAN
+
+A WLAN connects clients by radio.
+
+Important components:
+
+- Wireless client
+- Access point
+- Wireless controller
+- Authentication server
+- Distribution system
+- Guest network
+- Captive portal
+
+---
+
+## 107. Bluetooth
+
+Bluetooth supports short-range wireless communication.
+
+Common uses:
+
+- Headsets
+- Keyboards
+- Mice
+- Wearables
+- File exchange
+- IoT peripherals
+
+---
+
+## 108. Zigbee
+
+Zigbee is designed for low-power, low-data-rate mesh networks.
+
+Common uses:
+
+- Home automation
+- Sensors
+- Smart lighting
+- Industrial monitoring
+
+---
+
+## 109. Mobile Networks
+
+Study:
+
+- Cellular generations
+- Base stations
+- Subscriber identity
+- Radio access network
+- Core network
+- Handovers
+- Mobile data
+- Voice over LTE
+- 5G architecture
+
+---
+
+# Part XVII — Modern Networking Concepts
+
+## 110. Software-Defined Networking
+
+SDN separates network control decisions from packet forwarding.
+
+Key concepts:
+
+- Control plane
+- Data plane
+- Centralized controller
+- Programmable policies
+- Network automation
+- APIs
+- Intent-based management
+
+---
+
+## 111. Network Function Virtualization
+
+NFV runs network functions as software rather than requiring dedicated appliances.
+
+Examples:
+
+- Virtual firewall
+- Virtual router
+- Virtual load balancer
+- Virtual WAN optimizer
+- Virtual intrusion detection system
+
+---
+
+## 112. Types of Cloud Services
+
+### Service Models
+
+| Model | Customer Manages | Provider Manages |
+|---|---|---|
+| IaaS | OS, applications, data, and many network controls | Physical infrastructure and virtualization |
+| PaaS | Application and data | Runtime, OS, and infrastructure |
+| SaaS | User configuration and data usage | Application and underlying platform |
+| FaaS | Function code and triggers | Runtime and infrastructure |
+
+### Cloud Networking Components
+
+- Virtual private cloud or virtual network
+- Subnets
+- Route tables
+- Internet gateways
+- NAT gateways
+- Security groups
+- Network ACLs
+- Load balancers
+- Private endpoints
+- VPN and dedicated connections
+- DNS and traffic management
+
+---
+
+## 113. IoT Networking
+
+IoT networking connects sensors, controllers, gateways, and cloud platforms.
+
+Important considerations:
+
+- Low power
+- Limited bandwidth
+- Device identity
+- Secure onboarding
+- Firmware updates
+- Message brokers
+- Edge computing
+- Data privacy
+- Network segmentation
+
+---
+
+## 114. Network Slicing in 5G
+
+Network slicing creates multiple logical networks over shared physical infrastructure.
+
+Different slices may be optimized for:
+
+- High bandwidth
+- Very low latency
+- Massive IoT device counts
+- Emergency services
+- Industrial automation
+- Private enterprise networks
+
+---
+
+# Part XVIII — Hands-on Learning Labs
+
+## 115. Beginner Labs
+
+1. Identify your IP address, subnet mask, gateway, and DNS servers.
+2. Connect two virtual machines to the same network.
+3. Test communication with `ping`.
+4. View the ARP or neighbor table.
+5. Display listening TCP and UDP ports.
+6. Perform DNS queries.
+7. Capture ICMP, DNS, TCP, and HTTP traffic.
+8. Configure a static IPv4 address.
+9. Test DHCP address assignment.
+10. Create a simple client-server connection with `nc`.
+
+### Linux Commands
+
+```bash
+ip address
+ip route
+ip neigh
+ss -tulpen
+ping -c 4 8.8.8.8
+traceroute 8.8.8.8
+dig example.com
+curl -I https://example.com
+tcpdump -ni any
+nmcli connection show
+```
+
+---
+
+## 116. Intermediate Labs
+
+1. Create two VLANs.
+2. Configure an access port and trunk port.
+3. Configure inter-VLAN routing.
+4. Divide a `/24` network into multiple subnets.
+5. Build a VLSM addressing plan.
+6. Configure a static route.
+7. Configure a default route.
+8. Configure source NAT.
+9. Build a DNS caching server.
+10. Configure DHCP scopes.
+11. Test TCP and UDP applications.
+12. Analyze a TCP handshake with Wireshark.
+
+---
+
+## 117. Advanced Labs
+
+1. Configure OSPF in a multi-router topology.
+2. Configure BGP between autonomous systems.
+3. Build an IPsec or WireGuard site-to-site VPN.
+4. Configure redundant gateways.
+5. Implement QoS for voice traffic.
+6. Deploy a firewall with least-privilege rules.
+7. Configure IDS or IPS monitoring.
+8. Build an SDN lab.
+9. Design a cloud network with public and private subnets.
+10. Create centralized logging and network dashboards.
+11. Simulate packet loss, latency, and link failure.
+12. Document a complete enterprise network design.
+
+---
+
+# Part XIX — Troubleshooting Methodology
+
+## 118. Layer-by-Layer Troubleshooting
+
+### Layer 1
+
+- Is the cable connected?
+- Is the interface up?
+- Is there a signal?
+- Is the correct speed and duplex negotiated?
+
+### Layer 2
+
+- Is the correct VLAN assigned?
+- Is the switch learning the MAC address?
+- Is the trunk allowing the VLAN?
+- Is spanning tree blocking the link?
+
+### Layer 3
+
+- Is the IP address correct?
+- Is the subnet mask correct?
+- Is the default gateway reachable?
+- Does the routing table contain a route?
+- Is NAT configured correctly?
+
+### Layer 4
+
+- Is the service listening on the expected port?
+- Is TCP completing the handshake?
+- Is UDP traffic reaching the application?
+- Is a firewall blocking the port?
+
+### Layers 5–7
+
+- Is DNS resolving?
+- Is TLS valid?
+- Is authentication succeeding?
+- Is the application returning an error?
+- Is the protocol configured correctly?
+
+---
+
+## 119. Troubleshooting Workflow
+
+```text
+Define the problem
+      ↓
+Identify the affected scope
+      ↓
+Gather addressing, routing, port, and log information
+      ↓
+Test from lower layers upward
+      ↓
+Capture packets
+      ↓
+Form and test a hypothesis
+      ↓
+Apply the smallest safe fix
+      ↓
+Verify service restoration
+      ↓
+Document the root cause and prevention
+```
+
+---
+
+# Part XX — Suggested Learning Sequence
+
+| Stage | Topics | Practical Outcome |
+|---:|---|---|
+| 1 | Fundamentals and devices | Explain how devices communicate. |
+| 2 | OSI and TCP/IP | Identify data units and protocol layers. |
+| 3 | Physical and Data Link | Build Ethernet networks and understand switching. |
+| 4 | IPv4 and IPv6 | Assign and validate logical addresses. |
+| 5 | Subnetting and VLSM | Design address plans. |
+| 6 | Routing and NAT | Connect separate networks. |
+| 7 | TCP, UDP, and ports | Troubleshoot end-to-end communication. |
+| 8 | Application protocols | Operate DNS, DHCP, web, mail, and file services. |
+| 9 | Performance and QoS | Measure and improve network quality. |
+| 10 | Security and VPN | Protect network access and traffic. |
+| 11 | Wireless and cloud | Design modern hybrid environments. |
+| 12 | SDN, NFV, IoT, and 5G | Understand emerging network architectures. |
+| 13 | Troubleshooting projects | Diagnose complete network failures. |
+
+---
+
+# Part XXI — Final Learning Objective
+
+After completing these notes and associated labs, a learner should be able to:
+
+- Explain how data moves through the OSI and TCP/IP models.
+- Identify the purpose of major network devices.
+- Understand Ethernet, switching, VLANs, and link aggregation.
+- Configure and troubleshoot IPv4 and IPv6 addressing.
+- Calculate subnets, host ranges, broadcasts, and VLSM allocations.
+- Explain static and dynamic routing.
+- Understand ARP, DHCP, ICMP, OSPF, BGP, and other network protocols.
+- Compare TCP and UDP and analyze a TCP session.
+- Explain major application protocols and their ports.
+- Evaluate latency, throughput, jitter, packet loss, and QoS.
+- Apply authentication, encryption, firewall, IDS/IPS, and VPN concepts.
+- Understand wireless, cloud, SDN, NFV, IoT, and 5G networking.
+- Use Linux and packet-capture tools to troubleshoot communication.
+- Design and document a small enterprise network.
+
+---
+
+## Quick Reference: Common Ports
+
+| Protocol | Default Port | Transport |
+|---|---:|---|
+| FTP Data | 20 | TCP |
+| FTP Control | 21 | TCP |
+| SSH / SFTP / SCP | 22 | TCP |
+| Telnet | 23 | TCP |
+| SMTP | 25 | TCP |
+| DNS | 53 | UDP/TCP |
+| DHCP Server | 67 | UDP |
+| DHCP Client | 68 | UDP |
+| TFTP | 69 | UDP |
+| HTTP | 80 | TCP |
+| POP3 | 110 | TCP |
+| NTP | 123 | UDP |
+| IMAP | 143 | TCP |
+| SNMP | 161 | UDP |
+| SNMP Trap | 162 | UDP |
+| LDAP | 389 | TCP/UDP |
+| HTTPS | 443 | TCP; HTTP/3 uses QUIC over UDP |
+| SMB | 445 | TCP |
+| Syslog | 514 | UDP/TCP |
+| SMTPS | 465 | TCP |
+| Submission | 587 | TCP |
+| LDAPS | 636 | TCP |
+| IMAPS | 993 | TCP |
+| POP3S | 995 | TCP |
+| OpenVPN | 1194 | UDP/TCP |
+| RDP | 3389 | TCP/UDP |
+| SIP | 5060 | UDP/TCP |
+| SIP over TLS | 5061 | TCP |
+| BGP | 179 | TCP |
+
+> Port numbers are defaults. Applications can be configured to use different ports.
+
+---
+
+## End of Notes
+
+**Recommended final project:** Design a network for a small organization with users, servers, Wi-Fi, VLANs, private and public addressing, DHCP, DNS, routing, NAT, firewall rules, VPN access, centralized logging, monitoring, redundancy, and a documented troubleshooting plan.

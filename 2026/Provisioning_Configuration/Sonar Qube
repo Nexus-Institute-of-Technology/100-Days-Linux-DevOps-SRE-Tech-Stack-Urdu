@@ -1,0 +1,1058 @@
+# Quality Module (SRE)
+
+## How SonarQube Measures Software Quality
+
+> **Module purpose:** Understand how SonarQube inspects source code, reports quality problems, calculates software-quality metrics, and determines whether code passes or fails a Quality Gate.
+
+---
+
+## Learning Outcomes
+
+By the end of this module, students should be able to:
+
+1. Explain the purpose of SonarQube.
+2. Describe the basic SonarQube analysis workflow.
+3. Differentiate reliability, security, and maintainability.
+4. Explain the difference between a Quality Profile and a Quality Gate.
+5. Interpret issues, severity levels, test coverage, duplication, complexity, and technical debt.
+6. Explain Security Hotspots.
+7. Differentiate overall code from new code.
+8. Explain how SonarQube fits into a DevOps or SRE delivery pipeline.
+9. State what a successful SonarQube Quality Gate does and does not guarantee.
+
+---
+
+# 1. Introduction
+
+SonarQube works like an automated code-quality inspector. It examines source code without normally running the application, identifies potential problems, calculates quality measurements, and decides whether the code satisfies an organization’s defined standards.
+
+The SonarScanner performs the analysis and sends the results to the SonarQube server, which calculates the metrics and Quality Gate result.
+
+---
+
+## The Basic Quality Workflow
+
+```text
+Developer writes code
+        |
+        v
+Code is pushed to Git
+        |
+        v
+CI/CD pipeline runs SonarScanner
+        |
+        v
+SonarScanner checks the code against rules
+        |
+        v
+SonarQube records issues and calculates metrics
+        |
+        v
+Quality Gate = PASSED or FAILED
+        |
+        +---- PASSED → Build or deployment continues
+        |
+        +---- FAILED → Developer fixes the code
+```
+
+SonarQube can return the Quality Gate result to a CI/CD pipeline. The pipeline can continue when the gate passes or stop when the gate fails.
+
+---
+
+# 2. The Three Principal Areas of Quality
+
+SonarQube evaluates code primarily through three software-quality areas:
+
+| Quality area | Main question | Typical problems |
+|---|---|---|
+| **Reliability** | Will the application behave correctly? | Potential bugs, incorrect conditions, null-pointer problems, resource leaks |
+| **Security** | Could the code be exploited? | Injection risks, unsafe inputs, exposed credentials, weak cryptography |
+| **Maintainability** | Can developers understand and safely modify the code? | Complex functions, duplicated code, confusing logic, dead code |
+
+SonarQube rules can affect security, reliability, maintainability, or more than one of these qualities, depending on the configured analysis mode.
+
+---
+
+## 2.1 Reliability
+
+Reliability problems are code patterns that might cause incorrect results or failures.
+
+Examples include:
+
+- Dividing by zero
+- Using a variable before initialization
+- Dereferencing a null object
+- Failing to close a file or database connection
+- Writing a condition that can never be true
+
+The objective is to answer:
+
+> **Is this code likely to work correctly when executed?**
+
+---
+
+## 2.2 Security
+
+Security analysis looks for code that might expose the application or its data.
+
+Examples include:
+
+- Hard-coded passwords
+- SQL injection risks
+- Unsafe command execution
+- Weak cryptographic algorithms
+- Improper input validation
+- Exposed sensitive information
+
+The objective is to answer:
+
+> **Could an attacker misuse this code?**
+
+---
+
+## 2.3 Maintainability
+
+Maintainability concerns how easy the code will be to understand, test, repair, and improve.
+
+Examples include:
+
+- Very large functions
+- Excessively nested conditions
+- Repeated code
+- Unused variables
+- Confusing variable names
+- Overly complicated logic
+
+The objective is to answer:
+
+> **Can another developer safely understand and change this code?**
+
+---
+
+# 3. Quality Profiles: The Rulebook
+
+A **Quality Profile** is the set of coding rules SonarQube uses when analyzing a particular programming language.
+
+Think of it as the examiner’s marking scheme.
+
+```text
+Java Quality Profile
+├── Avoid null-pointer risks
+├── Close database connections
+├── Avoid duplicated conditions
+├── Do not hard-code credentials
+└── Limit function complexity
+```
+
+Different languages have different Quality Profiles because Java, Python, JavaScript, C#, and other languages have different coding structures and risks.
+
+During analysis, the scanner evaluates files according to the Quality Profile assigned to their language.
+
+SonarQube includes a default profile known as **Sonar way**, which provides a recommended starting set of rules for supported languages.
+
+---
+
+## Important Distinction
+
+```text
+Quality Profile = Which rules should be checked?
+
+Quality Gate = What results are acceptable?
+```
+
+For example:
+
+### Quality Profile Rule
+
+> A function should not be excessively complex.
+
+### Quality Gate Condition
+
+> No new quality issues are permitted.
+
+---
+
+# 4. Issues
+
+When code violates an active rule, SonarQube creates an **issue**.
+
+An issue normally provides:
+
+- The affected file
+- The affected line
+- The rule that was violated
+- Why the code is problematic
+- The quality area affected
+- The estimated effort required to fix it
+- Guidance or an example correction
+
+SonarQube also tracks whether an issue is new, previously detected, or fixed during a later analysis.
+
+---
+
+## Simplified Issue Example
+
+```text
+File: UserService.java
+Line: 42
+
+Issue:
+Remove this hard-coded password.
+
+Quality impact:
+Security
+
+Suggested action:
+Load the password from a protected secret or environment variable.
+```
+
+---
+
+# 5. Severity and Prioritization
+
+Not every issue has the same importance.
+
+A minor naming problem is not treated the same way as a vulnerability that may expose customer data. SonarQube therefore assigns importance or severity according to the potential impact on the relevant software quality.
+
+A useful classroom interpretation is:
+
+| Severity level | Meaning |
+|---|---|
+| **Blocker** | Extremely serious; the application or system may fail badly |
+| **High/Critical** | Serious risk requiring urgent correction |
+| **Medium/Major** | Significant problem that should be corrected |
+| **Low/Minor** | Lower risk but still affects code quality |
+| **Info** | Improvement or informational recommendation |
+
+The precise labels displayed depend on whether the SonarQube instance uses the Standard Experience or Multi-Quality Rule mode.
+
+---
+
+# 6. Test Coverage
+
+Test coverage measures how much executable code was exercised by automated tests.
+
+For example:
+
+```text
+Executable lines:         100
+Lines executed by tests:   85
+Approximate coverage:      85%
+```
+
+High coverage suggests that more of the code has been exercised during testing.
+
+However, it does not automatically mean that:
+
+- The tests are well designed.
+- All possible scenarios have been tested.
+- The application is defect-free.
+
+SonarQube does not normally generate the test coverage report itself. A testing or coverage tool, such as JaCoCo, LCOV, Coverage.py, or another compatible tool, creates the report.
+
+SonarQube imports and displays the results.
+
+Examples include:
+
+| Language | Common coverage report |
+|---|---|
+| Java | JaCoCo XML |
+| JavaScript/TypeScript | LCOV |
+| Python | Cobertura XML |
+| PHP | Clover XML |
+| .NET | Visual Studio Coverage, OpenCover, or dotCover |
+
+---
+
+# 7. Code Duplication
+
+SonarQube looks for duplicated lines or blocks of code.
+
+For example:
+
+```python
+def calculate_employee_tax():
+    # 30 lines of tax calculation code
+
+def calculate_contractor_tax():
+    # The same 30 lines copied here
+```
+
+Duplicated code creates maintenance risk. When the tax logic changes, developers may update one copy but forget the other.
+
+A better design might place the shared logic in one function:
+
+```python
+def calculate_tax():
+    # Shared tax calculation code
+```
+
+SonarQube calculates duplication statistics for both:
+
+- Overall code
+- Newly added or modified code
+
+---
+
+# 8. Code Complexity
+
+SonarQube can measure:
+
+- Cyclomatic complexity
+- Cognitive complexity
+- Deeply nested conditions
+- Complicated decision paths
+- Functions that are difficult to understand
+
+Consider:
+
+```python
+if user_exists:
+    if user_active:
+        if account_valid:
+            if payment_received:
+                if permission_granted:
+                    process_request()
+```
+
+The code may work, but it is difficult to read, test, and maintain.
+
+SonarQube may recommend:
+
+- Simplifying the function
+- Reducing nested conditions
+- Splitting the function into smaller functions
+- Removing unnecessary decision paths
+
+Complexity metrics can also be used as Quality Gate conditions.
+
+---
+
+# 9. Technical Debt
+
+SonarQube estimates the effort needed to correct maintainability issues. This is known as **technical debt**.
+
+For example:
+
+| Issue | Estimated fix |
+|---|---:|
+| Rename confusing variables | 10 minutes |
+| Remove duplicated logic | 45 minutes |
+| Simplify a complex function | 1 hour |
+| Refactor several large classes | 1 day |
+
+SonarQube calculates technical debt by adding the estimated remediation effort of maintainability issues.
+
+Technical debt does not mean money owed.
+
+It means future development may become slower or riskier because of poor design decisions or unresolved quality problems.
+
+---
+
+# 10. Security Hotspots
+
+A **Security Hotspot** is not automatically a confirmed vulnerability.
+
+It identifies security-sensitive code that requires human review.
+
+Examples might include:
+
+- Creating a cryptographic key
+- Disabling certificate validation
+- Setting a permissive CORS policy
+- Executing an operating-system command
+- Creating a regular expression for user input
+
+A developer or security reviewer must examine the context and classify the hotspot appropriately:
+
+- **To review**
+- **Acknowledged**
+- **Fixed**
+- **Safe**
+
+SonarQube prioritizes hotspots for review, but a person must decide whether the code is genuinely dangerous or protected by other controls.
+
+---
+
+# 11. Overall Code Versus New Code
+
+SonarQube separates:
+
+```text
+Overall code = All code in the project
+
+New code = Code recently added or modified
+```
+
+This is important for old applications that may already contain thousands of issues.
+
+Instead of requiring developers to repair the entire application immediately, SonarQube encourages them to prevent new problems from being added.
+
+```text
+Old code may still contain problems.
+
+But every new change must meet the current quality standard.
+```
+
+This approach gradually improves the application over time.
+
+SonarQube highlights new-code results separately, and the built-in Sonar way Quality Gate focuses on new code.
+
+---
+
+# 12. Quality Gates: The Final Decision
+
+A **Quality Gate** is the final pass-or-fail decision.
+
+Think of it as an examination result:
+
+```text
+Quality Profile = The examination questions
+
+Metrics = The student’s marks
+
+Quality Gate = Pass or fail
+```
+
+The built-in Sonar way Quality Gate currently applies four conditions to new code:
+
+1. No new issues are introduced.
+2. All new Security Hotspots are reviewed.
+3. Test coverage on new code is at least 80%.
+4. Duplication on new code is no more than 3%.
+
+---
+
+## Example: Passed Quality Gate
+
+```text
+New issues:                    0
+Security Hotspots reviewed: 100%
+New-code coverage:           86%
+New-code duplication:       1.5%
+
+Quality Gate: PASSED
+```
+
+---
+
+## Example: Failed Quality Gate
+
+```text
+New issues:                    2
+Security Hotspots reviewed: 100%
+New-code coverage:           72%
+New-code duplication:       4.5%
+
+Quality Gate: FAILED
+```
+
+Even though some measurements are acceptable, the gate fails because one or more required conditions were not met.
+
+For very small changes, SonarQube’s default “fudge factor” ignores coverage and duplication conditions until there are at least 20 relevant new lines, preventing tiny changes from producing misleading percentages.
+
+---
+
+# 13. How SonarQube Fits into DevOps
+
+A typical DevOps implementation looks like this:
+
+1. Developer writes code.
+2. Developer pushes code to GitHub or GitLab.
+3. Jenkins, GitHub Actions, GitLab CI, or Azure DevOps starts.
+4. The project is built.
+5. Automated tests run.
+6. A coverage report is created.
+7. SonarScanner analyzes the source code.
+8. Results are uploaded to SonarQube.
+9. SonarQube calculates the Quality Gate.
+10. The pipeline passes or fails.
+
+SonarScanner integrations are available for build environments including Maven, Gradle, .NET, NPM, and Python, while other projects can use SonarScanner CLI.
+
+---
+
+## DevOps and SRE Flow
+
+```text
+Code Commit
+     |
+     v
+Build
+     |
+     v
+Automated Tests
+     |
+     v
+Coverage Report
+     |
+     v
+SonarScanner
+     |
+     v
+SonarQube Server
+     |
+     v
+Quality Gate
+     |
+     +------ PASS ------> Continue toward deployment
+     |
+     +------ FAIL ------> Stop and return to developer
+```
+
+---
+
+# 14. What SonarQube Does Not Guarantee
+
+A green Quality Gate does not prove that:
+
+- The application has no defects.
+- Every business requirement is correct.
+- The application performs well under heavy traffic.
+- The user interface is easy to use.
+- The application is completely secure.
+- The deployment architecture is correct.
+
+SonarQube primarily performs automated static code analysis.
+
+The following remain separate quality activities:
+
+- Automated functional testing
+- Peer code review
+- Penetration testing
+- Performance testing
+- Load and stress testing
+- Requirements validation
+- User acceptance testing
+- Infrastructure validation
+- Production monitoring
+
+Test and coverage reports must also be produced by external testing tools and imported into SonarQube.
+
+---
+
+# 15. SRE Interpretation of Software Quality
+
+For an SRE, code quality is important because poor-quality code can eventually become an operational problem.
+
+| Code-quality problem | Possible production impact |
+|---|---|
+| Resource leak | Memory or file-descriptor exhaustion |
+| Unhandled exception | Application crash |
+| Weak input validation | Security incident |
+| Complex code | Slow incident diagnosis |
+| Duplicated code | Inconsistent fixes |
+| Poor test coverage | Regression after deployment |
+| Hard-coded credentials | Credential exposure |
+| Dead or unused code | Confusion during troubleshooting |
+| Excessive technical debt | Slow recovery and risky changes |
+
+SonarQube helps identify risks before deployment, while observability tools identify how the application behaves after deployment.
+
+```text
+SonarQube = Pre-production code-quality visibility
+
+Monitoring, logging and tracing = Production behavior visibility
+```
+
+Both contribute to service reliability.
+
+---
+
+# 16. Optional Classroom Linux Demonstrations
+
+> These exercises demonstrate quality concepts using simple Linux tools. They do not replace a complete SonarQube analysis.
+
+---
+
+## Lab 1: Check Whether SonarQube Is Running
+
+Move to the SonarQube Compose directory:
+
+```bash
+cd /opt/sonarqube
+```
+
+Display the containers:
+
+```bash
+docker compose ps
+```
+
+Display current resource usage:
+
+```bash
+docker stats --no-stream
+```
+
+View the last 50 SonarQube log lines:
+
+```bash
+docker compose logs --tail=50 sonarqube
+```
+
+Check the local web service:
+
+```bash
+curl -I http://127.0.0.1:9000
+```
+
+Check the SonarQube system status:
+
+```bash
+curl -s http://127.0.0.1:9000/api/system/status
+echo
+```
+
+### Teaching Point
+
+An SRE verifies both:
+
+1. The container or process is running.
+2. The application itself is responding.
+
+A running container does not always mean the application is healthy.
+
+---
+
+## Lab 2: Create a Poor-Quality Shell Script
+
+Create a classroom directory:
+
+```bash
+mkdir -p ~/quality-lab
+cd ~/quality-lab
+```
+
+Create a deliberately unsafe script:
+
+```bash
+cat > poor_quality.sh <<'EOF'
+#!/bin/bash
+
+PASSWORD="admin123"
+TARGET=$1
+
+if [ $TARGET = "delete" ]; then
+    rm -rf $TARGET
+fi
+
+for FILE in $(ls /tmp); do
+    echo $FILE
+done
+EOF
+```
+
+Make it executable:
+
+```bash
+chmod +x poor_quality.sh
+```
+
+Display it with line numbers:
+
+```bash
+nl -ba poor_quality.sh
+```
+
+### Problems Students Should Identify
+
+- A hard-coded password
+- Unquoted variables
+- A potentially dangerous `rm -rf`
+- Parsing the output of `ls`
+- Weak input validation
+- Confusing variable usage
+
+---
+
+## Lab 3: Use ShellCheck as a Simple Static Analyzer
+
+ShellCheck is a separate static-analysis tool for shell scripts. It provides a simple classroom comparison with the rule-based analysis performed by SonarQube.
+
+On Rocky Linux 9:
+
+```bash
+dnf install -y epel-release
+dnf install -y ShellCheck
+```
+
+Depending on repository naming, the package may also be available as:
+
+```bash
+dnf install -y shellcheck
+```
+
+Analyze the script:
+
+```bash
+shellcheck ~/quality-lab/poor_quality.sh
+```
+
+### Teaching Point
+
+The output normally identifies:
+
+- The line containing the issue
+- The rule identifier
+- An explanation
+- Suggested corrective guidance
+
+This is similar to how SonarQube presents an issue against a source file.
+
+---
+
+## Lab 4: Search for Hard-Coded Secrets
+
+Search one file:
+
+```bash
+grep -nEi 'password|passwd|secret|token|api[_-]?key' \
+~/quality-lab/poor_quality.sh
+```
+
+Search recursively through a project:
+
+```bash
+grep -RniE \
+'password|passwd|secret|token|api[_-]?key' \
+/path/to/project
+```
+
+### Teaching Point
+
+This command is a basic demonstration only. It can produce false positives and miss cleverly hidden secrets.
+
+SonarQube, secret-scanning tools, and security review provide more complete controls.
+
+---
+
+## Lab 5: Search for Unfinished Work
+
+Search for common developer markers:
+
+```bash
+grep -RniE 'TODO|FIXME|HACK|XXX' /path/to/project
+```
+
+Count the findings:
+
+```bash
+grep -RniE 'TODO|FIXME|HACK|XXX' /path/to/project | wc -l
+```
+
+### Teaching Point
+
+Unresolved comments may represent:
+
+- Technical debt
+- Incomplete functionality
+- Temporary workarounds
+- Known defects
+- Future maintenance work
+
+---
+
+## Lab 6: Basic Python Syntax Validation
+
+Create a small Python file with a syntax problem:
+
+```bash
+cat > ~/quality-lab/broken.py <<'EOF'
+def calculate_total(price, quantity)
+    return price * quantity
+
+print(calculate_total(10, 4))
+EOF
+```
+
+Check the syntax:
+
+```bash
+python3 -m py_compile ~/quality-lab/broken.py
+```
+
+Correct the function definition:
+
+```bash
+sed -i \
+'s/def calculate_total(price, quantity)/def calculate_total(price, quantity):/' \
+~/quality-lab/broken.py
+```
+
+Run the validation again:
+
+```bash
+python3 -m py_compile ~/quality-lab/broken.py
+```
+
+Run the program:
+
+```bash
+python3 ~/quality-lab/broken.py
+```
+
+Expected output:
+
+```text
+40
+```
+
+### Teaching Point
+
+Syntax validation catches invalid code, but it does not measure all aspects of reliability, security, or maintainability.
+
+---
+
+## Lab 7: Demonstrate Duplication
+
+Create a file containing repeated logic:
+
+```bash
+cat > ~/quality-lab/duplication.py <<'EOF'
+def employee_total(price, quantity):
+    subtotal = price * quantity
+    tax = subtotal * 0.08
+    total = subtotal + tax
+    return total
+
+def contractor_total(price, quantity):
+    subtotal = price * quantity
+    tax = subtotal * 0.08
+    total = subtotal + tax
+    return total
+EOF
+```
+
+Display it:
+
+```bash
+nl -ba ~/quality-lab/duplication.py
+```
+
+A simple command for viewing repeated non-empty lines is:
+
+```bash
+grep -v '^[[:space:]]*$' ~/quality-lab/duplication.py |
+sed 's/^[[:space:]]*//' |
+sort |
+uniq -cd
+```
+
+### Teaching Point
+
+The command only finds identical lines. SonarQube can identify larger duplicated code blocks and calculate duplication metrics.
+
+---
+
+## Lab 8: Demonstrate Excessive Nesting
+
+Create an example:
+
+```bash
+cat > ~/quality-lab/complexity.py <<'EOF'
+def process_request(user_exists, user_active, account_valid,
+                    payment_received, permission_granted):
+    if user_exists:
+        if user_active:
+            if account_valid:
+                if payment_received:
+                    if permission_granted:
+                        return "Request processed"
+    return "Request denied"
+EOF
+```
+
+Display the file:
+
+```bash
+nl -ba ~/quality-lab/complexity.py
+```
+
+Count lines containing `if`:
+
+```bash
+grep -nE '^[[:space:]]*if ' ~/quality-lab/complexity.py
+```
+
+Count the number of decision statements:
+
+```bash
+grep -cE '^[[:space:]]*if ' ~/quality-lab/complexity.py
+```
+
+### Teaching Point
+
+Counting `if` statements is not a complete complexity calculation. It simply helps students see that more decision paths make code harder to understand and test.
+
+---
+
+## Lab 9: Build a Very Simple Quality Gate
+
+Create a basic classroom check:
+
+```bash
+cat > ~/quality-lab/simple-quality-gate.sh <<'EOF'
+#!/bin/bash
+
+PROJECT_DIR="${1:-.}"
+FAILED=0
+
+echo "Checking project: $PROJECT_DIR"
+echo
+
+if grep -RniE \
+'password[[:space:]]*=|secret[[:space:]]*=|api[_-]?key[[:space:]]*=' \
+"$PROJECT_DIR"; then
+    echo
+    echo "FAILED: Possible hard-coded secret found."
+    FAILED=1
+else
+    echo "PASSED: No obvious hard-coded secret found."
+fi
+
+if grep -RniE 'TODO|FIXME|HACK' "$PROJECT_DIR"; then
+    echo
+    echo "WARNING: Unfinished-work markers found."
+fi
+
+echo
+
+if [ "$FAILED" -eq 0 ]; then
+    echo "QUALITY GATE: PASSED"
+    exit 0
+else
+    echo "QUALITY GATE: FAILED"
+    exit 1
+fi
+EOF
+```
+
+Make it executable:
+
+```bash
+chmod +x ~/quality-lab/simple-quality-gate.sh
+```
+
+Run it:
+
+```bash
+~/quality-lab/simple-quality-gate.sh ~/quality-lab
+```
+
+Display the exit status:
+
+```bash
+echo $?
+```
+
+The conventional result is:
+
+```text
+0 = Successful or passed
+Non-zero = Failed
+```
+
+### Teaching Point
+
+A CI/CD pipeline can use an exit status to decide whether to continue or stop.
+
+This classroom script is extremely simple, but it demonstrates the same decision pattern:
+
+```text
+Checks run
+    |
+    v
+Conditions evaluated
+    |
+    v
+PASS or FAIL
+    |
+    +---- Exit 0     → Continue
+    |
+    +---- Exit 1     → Stop
+```
+
+---
+
+## Lab 10: Observe the Quality Lab Files
+
+List all created files:
+
+```bash
+find ~/quality-lab -maxdepth 1 -type f -printf '%f\n'
+```
+
+Count lines in each file:
+
+```bash
+wc -l ~/quality-lab/*
+```
+
+Display file types:
+
+```bash
+file ~/quality-lab/*
+```
+
+Search the entire lab for possible quality concerns:
+
+```bash
+grep -RniE \
+'PASSWORD|TODO|FIXME|HACK|rm -rf|^[[:space:]]*if ' \
+~/quality-lab
+```
+
+---
+
+# 17. Suggested Classroom Discussion Questions
+
+1. What is the difference between reliability and availability?
+2. Can code pass a Quality Gate and still fail in production?
+3. Why is 100% test coverage not proof of perfect code?
+4. Why is duplicated code a reliability risk?
+5. What is the difference between a vulnerability and a Security Hotspot?
+6. Why should Quality Gates focus on new code?
+7. How can poor maintainability increase Mean Time to Restore?
+8. Where should SonarQube analysis run in a CI/CD pipeline?
+9. What should happen when a Quality Gate fails?
+10. Which quality conditions should be mandatory before production deployment?
+
+---
+
+# 18. SRE Summary
+
+SonarQube measures source-code quality before deployment by checking code against configured rules and calculating quality metrics.
+
+Its principal quality areas are:
+
+- Reliability
+- Security
+- Maintainability
+
+Its principal control mechanisms are:
+
+```text
+Quality Profile = Rules to apply
+
+Issues = Problems found
+
+Metrics = Measurements calculated
+
+Quality Gate = Pass-or-fail decision
+```
+
+For SRE teams, SonarQube is one part of a wider quality and reliability system.
+
+```text
+Before deployment:
+Static analysis, tests, security review and Quality Gates
+
+During deployment:
+Release controls, health checks and rollback readiness
+
+After deployment:
+Metrics, logs, traces, alerts and incident response
+```
+
+A green Quality Gate improves confidence, but it does not replace testing, observability, security engineering, or sound operational practices.

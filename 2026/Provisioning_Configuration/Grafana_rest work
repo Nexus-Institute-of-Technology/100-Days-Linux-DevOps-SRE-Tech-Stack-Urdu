@@ -1,0 +1,625 @@
+# Implement the Full Syslog-NG Logging and Monitoring Topology
+
+## Objective
+
+This guide changes the current environment so that logs are:
+
+1. Received by **Syslog-NG** on `192.168.1.176`.
+2. Stored on local disk by port, source IP, and date.
+3. Forwarded to **Grafana Alloy**.
+4. Stored in **Loki**.
+5. Viewed in **Grafana**.
+6. Compressed and deleted according to retention.
+
+```text
+VM2 rsyslog
+   │ TCP 1514
+   ▼
+Syslog-NG on 192.168.1.176
+   ├──► /var/log/remote/port-1514/<source-IP>/<year>/<month>/<day>/messages.log
+   └──► Alloy on 127.0.0.1:2514
+            ▼
+           Loki
+            ▼
+          Grafana
+```
+
+VM2 continues sending to:
+
+```text
+192.168.1.176:1514
+```
+
+All remaining changes are made on the monitoring server unless stated otherwise.
+
+---
+
+# Phase 1: Check Disk Space
+
+```bash
+df -h /
+docker system df
+```
+
+Because logs will exist both as local files and in Loki, use a short lab retention period such as seven days.
+
+---
+
+# Phase 2: Move Alloy to an Internal Port
+
+## Back up the configuration
+
+```bash
+cd /opt/observability
+
+cp -a docker-compose.yml docker-compose.yml.backup.$(date +%F-%H%M)
+
+cp -a alloy/config.alloy alloy/config.alloy.backup.$(date +%F-%H%M)
+```
+
+## Edit Docker Compose
+
+```bash
+vi /opt/observability/docker-compose.yml
+```
+
+Replace:
+
+```yaml
+ports:
+  - "${MONITOR_IP}:12345:12345"
+  - "${MONITOR_IP}:1514:1514/tcp"
+  - "${MONITOR_IP}:1514:1514/udp"
+```
+
+with:
+
+```yaml
+ports:
+  - "${MONITOR_IP}:12345:12345"
+  - "127.0.0.1:2514:1514/tcp"
+```
+
+Meaning:
+
+```text
+Host 127.0.0.1:2514 → Alloy container port 1514
+```
+
+VM2 will now connect to Syslog-NG on port 1514, and Syslog-NG will relay to Alloy through localhost port 2514.
+
+---
+
+# Phase 3: Preserve the Original Source IP in Grafana
+
+## Edit Alloy
+
+```bash
+vi /opt/observability/alloy/config.alloy
+```
+
+In the TCP listener, add:
+
+```alloy
+label_structured_data = true
+```
+
+The listener should resemble:
+
+```alloy
+listener {
+  address               = "0.0.0.0:1514"
+  protocol              = "tcp"
+  syslog_format         = "rfc5424"
+  label_structured_data = true
+
+  labels = {
+    job       = "syslog",
+    transport = "tcp",
+    receiver  = "syslog-ng",
+  }
+}
+```
+
+Change this rule:
+
+```alloy
+rule {
+  source_labels = ["__syslog_connection_ip_address"]
+  target_label  = "source_ip"
+}
+```
+
+to:
+
+```alloy
+rule {
+  source_labels = ["__syslog_connection_ip_address"]
+  target_label  = "relay_ip"
+}
+```
+
+Add:
+
+```alloy
+rule {
+  source_labels = ["__syslog_message_sd_custom_32473_sourceip"]
+  target_label  = "source_ip"
+}
+
+rule {
+  source_labels = ["__syslog_message_sd_custom_32473_listener_port"]
+  target_label  = "listener_port"
+}
+```
+
+The complete relabel section should resemble:
+
+```alloy
+loki.relabel "syslog_labels" {
+  rule {
+    source_labels = ["__syslog_message_hostname"]
+    target_label  = "host"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_app_name"]
+    target_label  = "app"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_severity"]
+    target_label  = "severity"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_facility"]
+    target_label  = "facility"
+  }
+
+  rule {
+    source_labels = ["__syslog_connection_ip_address"]
+    target_label  = "relay_ip"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_sd_custom_32473_sourceip"]
+    target_label  = "source_ip"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_sd_custom_32473_listener_port"]
+    target_label  = "listener_port"
+  }
+}
+```
+
+## Validate and recreate Alloy
+
+```bash
+cd /opt/observability
+
+docker compose config
+
+docker compose run --rm --no-deps alloy validate /etc/alloy/config.alloy
+```
+
+If validation succeeds:
+
+```bash
+docker compose up -d --force-recreate alloy
+```
+
+Confirm:
+
+```bash
+ss -lntp | grep 2514
+nc -vz 127.0.0.1 2514
+```
+
+Expected:
+
+```text
+Ncat: Connected to 127.0.0.1:2514.
+```
+
+---
+
+# Phase 4: Install Syslog-NG
+
+```bash
+dnf install -y epel-release
+
+dnf install -y syslog-ng policycoreutils-python-utils
+```
+
+Check:
+
+```bash
+syslog-ng -V
+```
+
+Do not start Syslog-NG yet.
+
+---
+
+# Phase 5: Prepare Local Disk Storage
+
+## Create the directory
+
+```bash
+mkdir -p /var/log/remote
+chown root:root /var/log/remote
+chmod 0750 /var/log/remote
+```
+
+## Configure SELinux file context
+
+```bash
+semanage fcontext -a -t var_log_t "/var/log/remote(/.*)?" 2>/dev/null || semanage fcontext -m -t var_log_t "/var/log/remote(/.*)?"
+
+restorecon -Rv /var/log/remote
+
+ls -ldZ /var/log/remote
+```
+
+## Label TCP ports 1514 and 2514
+
+```bash
+semanage port -a -t syslogd_port_t -p tcp 1514 2>/dev/null || semanage port -m -t syslogd_port_t -p tcp 1514
+```
+
+```bash
+semanage port -a -t syslogd_port_t -p tcp 2514 2>/dev/null || semanage port -m -t syslogd_port_t -p tcp 2514
+```
+
+Confirm:
+
+```bash
+semanage port -l | grep syslogd_port_t
+```
+
+---
+
+# Phase 6: Create the Syslog-NG Configuration
+
+## Back up the original
+
+```bash
+cp -a /etc/syslog-ng/syslog-ng.conf /etc/syslog-ng/syslog-ng.conf.backup.$(date +%F-%H%M)
+```
+
+## Preserve the installed version line
+
+```bash
+VERSION_LINE=$(grep -m1 '^@version:' /etc/syslog-ng/syslog-ng.conf)
+
+[ -n "$VERSION_LINE" ] || VERSION_LINE='@version: 3.35'
+
+printf '%s
+' "$VERSION_LINE" > /etc/syslog-ng/syslog-ng.conf
+```
+
+## Add the configuration
+
+```bash
+cat >> /etc/syslog-ng/syslog-ng.conf <<'EOF'
+@include "scl.conf"
+
+options {
+    chain-hostnames(no);
+    flush-lines(1);
+    use-dns(no);
+    use-fqdn(no);
+    keep-hostname(yes);
+};
+
+source s_remote_1514 {
+    syslog(
+        ip("0.0.0.0")
+        transport("tcp")
+        port(1514)
+    );
+};
+
+rewrite r_add_origin_1514 {
+    set(
+        "${SOURCEIP}"
+        value(".SDATA.custom@32473.sourceip")
+    );
+
+    set(
+        "1514"
+        value(".SDATA.custom@32473.listener_port")
+    );
+};
+
+destination d_local_1514 {
+    file(
+        "/var/log/remote/port-1514/${SOURCEIP}/${YEAR}/${MONTH}/${DAY}/messages.log"
+
+        create-dirs(yes)
+
+        owner("root")
+        group("root")
+        perm(0640)
+        dir-perm(0750)
+
+        template(
+            "${ISODATE} listener_port=1514 source_ip=${SOURCEIP} host=${HOST} app=${PROGRAM} pid=${PID} facility=${FACILITY} severity=${LEVEL} message=${MSG}
+"
+        )
+    );
+};
+
+destination d_alloy {
+    syslog(
+        "127.0.0.1"
+        transport("tcp")
+        port(2514)
+    );
+};
+
+log {
+    source(s_remote_1514);
+    rewrite(r_add_origin_1514);
+
+    destination(d_local_1514);
+    destination(d_alloy);
+
+    flags(flow-control);
+};
+EOF
+```
+
+---
+
+# Phase 7: Validate and Start Syslog-NG
+
+Validate:
+
+```bash
+syslog-ng -s
+```
+
+or:
+
+```bash
+syslog-ng --syntax-only
+```
+
+No output normally means the syntax is valid.
+
+Start and enable:
+
+```bash
+systemctl enable --now syslog-ng
+```
+
+Check:
+
+```bash
+systemctl status syslog-ng --no-pager -l
+```
+
+Confirm both ports:
+
+```bash
+ss -lntp | grep -E ':1514|:2514'
+```
+
+Expected:
+
+```text
+0.0.0.0:1514       Syslog-NG
+127.0.0.1:2514     Docker/Alloy
+```
+
+Check errors:
+
+```bash
+journalctl -u syslog-ng --since "5 minutes ago" --no-pager
+```
+
+---
+
+# Phase 8: Confirm Firewall
+
+```bash
+firewall-cmd --permanent --add-port=1514/tcp
+firewall-cmd --reload
+firewall-cmd --list-ports
+```
+
+Port 2514 stays internal and does not need to be opened externally.
+
+---
+
+# Phase 9: Test From VM2
+
+On VM2:
+
+```bash
+systemctl restart rsyslog
+```
+
+Check:
+
+```bash
+journalctl -u rsyslog --since "2 minutes ago" --no-pager
+```
+
+Send:
+
+```bash
+logger -p user.notice -t local-disk-test "NIT LOCAL DISK STORAGE TEST from $(hostname) at $(date)"
+```
+
+---
+
+# Phase 10: Verify Local Disk Storage
+
+On `192.168.1.176`:
+
+```bash
+find /var/log/remote -type f -print
+```
+
+Expected pattern:
+
+```text
+/var/log/remote/port-1514/<source-IP>/<year>/<month>/<day>/messages.log
+```
+
+Search:
+
+```bash
+grep -R "NIT LOCAL DISK STORAGE TEST" /var/log/remote
+```
+
+Display recent entries:
+
+```bash
+find /var/log/remote -type f -name messages.log -exec tail -n 5 {} \;
+```
+
+Check usage:
+
+```bash
+du -sh /var/log/remote
+```
+
+---
+
+# Phase 11: Verify Grafana
+
+Open:
+
+```text
+http://192.168.1.176:3000
+```
+
+Go to:
+
+```text
+Explore → Loki
+```
+
+Search:
+
+```logql
+{job="syslog"} |= "NIT LOCAL DISK STORAGE TEST"
+```
+
+Filter by source IP:
+
+```logql
+{job="syslog", source_ip="192.168.1.184"}
+```
+
+Filter by port:
+
+```logql
+{job="syslog", listener_port="1514"}
+```
+
+Labels should resemble:
+
+```text
+source_ip="192.168.1.184"
+relay_ip="127.0.0.1"
+listener_port="1514"
+```
+
+---
+
+# Phase 12: Compression and Retention
+
+## Create the maintenance script
+
+```bash
+cat > /usr/local/sbin/remote-log-maintenance.sh <<'EOF'
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+LOG_ROOT="/var/log/remote"
+RETENTION_DAYS=7
+
+find "$LOG_ROOT"     -type f     -name "*.log"     ! -newermt "today"     -exec gzip -f {} +
+
+find "$LOG_ROOT"     -type f     -name "*.gz"     -mtime +"$RETENTION_DAYS"     -delete
+
+find "$LOG_ROOT"     -mindepth 1     -type d     -empty     -delete
+EOF
+```
+
+```bash
+chmod 0750 /usr/local/sbin/remote-log-maintenance.sh
+```
+
+## Create the systemd service
+
+```bash
+cat > /etc/systemd/system/remote-log-maintenance.service <<'EOF'
+[Unit]
+Description=Compress and remove expired remote syslog files
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/remote-log-maintenance.sh
+EOF
+```
+
+## Create the timer
+
+```bash
+cat > /etc/systemd/system/remote-log-maintenance.timer <<'EOF'
+[Unit]
+Description=Run remote-log maintenance daily
+
+[Timer]
+OnCalendar=*-*-* 00:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+```
+
+Enable:
+
+```bash
+systemctl daemon-reload
+systemctl enable --now remote-log-maintenance.timer
+```
+
+Confirm:
+
+```bash
+systemctl list-timers remote-log-maintenance.timer
+```
+
+Test manually:
+
+```bash
+systemctl start remote-log-maintenance.service
+
+systemctl status remote-log-maintenance.service --no-pager
+```
+
+---
+
+# Phase 13: Troubleshooting
+
+## Syslog-NG cannot bind to 1514
+
+```bash
+ss -lntp | grep 1514
+```
+
+Verify Docker Compose contains:
+
+```yaml
+- "127.0.0.1:2514:1514/tcp"
+```

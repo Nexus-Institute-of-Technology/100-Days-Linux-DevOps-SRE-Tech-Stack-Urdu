@@ -1,0 +1,68 @@
+# Proposal Content — Syslog-NG on Red Hat Server
+
+## 1. Cover Letter
+
+Hello,
+
+I am interested in supporting your **Syslog-NG installation and configuration project on Red Hat Linux**.
+
+I recently completed a closely related centralized logging and monitoring implementation on Rocky Linux 9, which is compatible with the Red Hat Enterprise Linux ecosystem. The solution included remote log forwarding from Linux clients, TCP-based syslog transport, Grafana Alloy as the receiver, Loki for centralized log storage, and Grafana for log visualization and analysis.
+
+During the implementation, I configured and tested:
+
+- Remote Linux log forwarding over TCP
+- Non-standard syslog ports
+- SELinux port labeling and troubleshooting
+- Firewalld rules and network connectivity testing
+- Source hostname, application, severity, facility, and source-IP labels
+- Grafana and Loki log searches and graphical log counts
+- Reliable forwarding queues and retry behavior
+- End-to-end validation using `logger`, `nc`, `tcpdump`, `journalctl`, and rsyslog validation tools
+
+For your project, I can install and configure Syslog-NG on Red Hat, listen on the required ports, separate logs by source and port, rotate and compress archived data, enforce time-based deletion, and build graphical monitoring for incoming log traffic.
+
+I can also implement a history view showing details such as source IP, receiving port, hostname, and the last time data was received. Depending on your preference, this can be maintained in log files, Loki, or a database-backed reporting table.
+
+My approach will be:
+
+1. Review the Red Hat version, expected log volume, source inventory, ports, retention requirements, and available storage.
+2. Prepare a documented Syslog-NG configuration and folder structure.
+3. Configure SELinux and firewalld correctly without disabling security controls.
+4. Implement rotation, compression, retention, and disk-usage safeguards.
+5. Build the monitoring and reporting view.
+6. Test each source and provide configuration files, validation evidence, and handover documentation.
+
+I am comfortable working on a long-term engagement and can begin with a short assessment of the current environment before making production changes.
+
+Thank you for considering my proposal.
+
+Best regards,  
+**Nadeem Siddiqi**
+
+---
+
+## 2. Describe Your Recent Experience With Similar Projects
+
+I recently completed a centralized logging and observability project on Rocky Linux 9, a Red Hat-compatible platform.
+
+I built a Docker-based monitoring server using Grafana, Loki, Grafana Alloy, Prometheus, and Node Exporter. A second Rocky Linux VM was configured to forward operating-system logs reliably over TCP to the monitoring server.
+
+The work included configuring remote syslog forwarding, validating RFC 5424 log formatting, opening the required firewalld ports, assigning a non-standard TCP port to the correct SELinux `syslogd_port_t` context, and troubleshooting an SELinux “Permission denied” forwarding issue.
+
+I verified the complete flow using `rsyslogd -N1`, `systemctl`, `journalctl`, `nc`, `tcpdump`, and the `logger` command. Logs were successfully received by Grafana Alloy, stored in Loki, and displayed in Grafana with labels for hostname, application, severity, facility, transport, and source IP.
+
+I also created LogQL searches and graphical counts to show incoming logs by host and over time. This project closely matches the logging, retention, source tracking, troubleshooting, and graphical monitoring requirements in your job description.
+
+---
+
+## 3. Certifications Related to This Project
+
+### Use this text if you do not currently hold a formal certification
+
+I do not currently list a formal certification specifically for Syslog-NG. However, I have practical hands-on experience administering Rocky Linux 9 and Red Hat-compatible systems, including systemd, rsyslog, SELinux, firewalld, Docker, Grafana, Loki, Prometheus, and centralized log troubleshooting.
+
+My current technical development is aligned with Red Hat system administration and RHCSA/RHCE-level skills.
+
+### Important
+
+Only list RHCSA, RHCE, Linux+, AWS, Azure, or other certifications here if you have officially earned them. Do not claim a certification that is still in progress.

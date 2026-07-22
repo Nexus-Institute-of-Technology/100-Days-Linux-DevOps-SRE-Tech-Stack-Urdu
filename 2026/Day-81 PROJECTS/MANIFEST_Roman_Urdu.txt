@@ -1,0 +1,24 @@
+NexusVentures RHCSA Mini Projects - Roman Urdu
+
+Total Markdown Projects: 20
+
+- NexusVentures_Project_01_network-foundation_Roman_Urdu.md
+- NexusVentures_Project_02_software-repositories_Roman_Urdu.md
+- NexusVentures_Project_03_web-port-82-selinux_Roman_Urdu.md
+- NexusVentures_Project_04_users-groups_Roman_Urdu.md
+- NexusVentures_Project_05_collaborative-directory_Roman_Urdu.md
+- NexusVentures_Project_06_autofs-nfs_Roman_Urdu.md
+- NexusVentures_Project_07_cron-access-control_Roman_Urdu.md
+- NexusVentures_Project_08_acl-permissions_Roman_Urdu.md
+- NexusVentures_Project_09_chrony-ntp_Roman_Urdu.md
+- NexusVentures_Project_10_large-file-discovery_Roman_Urdu.md
+- NexusVentures_Project_11_identity-archive-umask_Roman_Urdu.md
+- NexusVentures_Project_12_password-aging-sudo_Roman_Urdu.md
+- NexusVentures_Project_13_bash-file-collector_Roman_Urdu.md
+- NexusVentures_Project_14_root-password-recovery_Roman_Urdu.md
+- NexusVentures_Project_15_swap-lvm-storage_Roman_Urdu.md
+- NexusVentures_Project_16_vdo-storage_Roman_Urdu.md
+- NexusVentures_Project_17_lvm-expansion_Roman_Urdu.md
+- NexusVentures_Project_18_tuned-profile_Roman_Urdu.md
+- NexusVentures_Project_19_rootless-container-service_Roman_Urdu.md
+- NexusVentures_Project_20_container-persistent-journal_Roman_Urdu.md
